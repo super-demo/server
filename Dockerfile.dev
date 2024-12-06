@@ -1,0 +1,20 @@
+# FROM golang:1.23-alpine
+
+# WORKDIR /app-temp
+# COPY / /app-temp/
+# RUN go build -o /go/bin/goose /app-temp/cmd/databases/main.go \ 
+#     && rm -rf /app-temp \
+#     && go install github.com/cosmtrek/air@v1.27.3
+
+# ENTRYPOINT [ "air" ] 
+
+FROM golang:1.23-alpine
+
+WORKDIR /app-temp
+COPY / /app-temp/
+RUN go build -o /go/bin/goose /app-temp/cmd/databases/main.go \
+    && rm -rf /app-temp
+
+RUN go install github.com/cosmtrek/air@v1.27.3
+
+ENTRYPOINT [ "air" ] 

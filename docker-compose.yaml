@@ -1,0 +1,35 @@
+version: "3.7"
+services:
+  api:
+    container_name: server
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - 8080:8080
+    env_file: .env
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:14-alpine
+    container_name: postgres-server
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: server_db_local
+    volumes:
+      - .postgres-data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    container_name: adminer-server
+    ports:
+      - 8081:8080
+    depends_on:
+      - postgres
