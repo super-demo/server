@@ -8,9 +8,10 @@ type User struct {
 	AvatarUrl   string    `json:"avatar_url" gorm:"column:avatar_url"`
 	Name        string    `json:"name" gorm:"column:name;not null"`
 	Nickname    string    `json:"nickname" gorm:"column:nickname"`
+	Role        string    `json:"role" gorm:"column:role"`
 	Email       string    `json:"email" gorm:"column:email;uniqueIndex;not null"`
 	PhoneNumber string    `json:"phone_number" gorm:"column:phone_number"`
-	Role        string    `json:"role" gorm:"column:role"`
+	Birthday    time.Time `json:"birthday" gorm:"column:birthday"`
 	CreatedAt   time.Time `json:"created_at" gorm:"column:created_at;not null"`
 	UpdatedAt   time.Time `json:"updated_at" gorm:"column:updated_at;not null"`
 }
