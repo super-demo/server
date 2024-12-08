@@ -25,7 +25,7 @@ func init() {
 
 var (
 	flags = flag.NewFlagSet("goose", flag.ExitOnError)
-	dir   = flag.String("dir", "./migrations", "directory with migration files")
+	dir   = flag.String("dir", "./internal/adapters/databases/migrations", "directory with migration files")
 )
 
 func main() {
