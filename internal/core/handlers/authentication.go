@@ -30,6 +30,7 @@ func NewAuthenticationHandler(r *gin.Engine, authenticationUsecase usecases.Auth
 	}
 
 	v1.POST("/sign/google", googleSignInHandler...)
+	v1.POST("/token/refresh", middlewares.BearerAuth(), handler.RefreshToken)
 
 	return handler
 }
