@@ -3,7 +3,7 @@ package models
 import "github.com/golang-jwt/jwt"
 
 type GoogleSignInRequest struct {
-	AcessToken string `json:"access_token" validate:"required"`
+	AccessToken string `json:"access_token" validate:"required"`
 }
 
 type AccessTokenResponse struct {

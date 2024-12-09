@@ -20,7 +20,7 @@ type authenticationUsecase struct {
 	googleRepo repositories.AuthenticationRepository
 }
 
-func NewAuthUsecase(
+func NewAuthenticationUsecase(
 	userRepo repositories.UserRepository,
 	authenticationRepo repositories.AuthenticationRepository,
 ) AuthenticationUsecase {

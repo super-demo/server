@@ -41,7 +41,7 @@ func (h *authenticationHandler) GoogleSignIn(c *gin.Context) {
 		middlewares.ResponseError(c, err)
 		return
 	}
-	data, err := h.authenticationUsecase.GoogleSignIn(req.AcessToken)
+	data, err := h.authenticationUsecase.GoogleSignIn(req.AccessToken)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
