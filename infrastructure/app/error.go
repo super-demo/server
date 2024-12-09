@@ -38,7 +38,32 @@ var ErrNil AppError
 // HTTP-Based Application errors
 var (
 	// 400 Bad Request
-	ErrBadRequest = AppError{400, 400001, errors.New("bad request")}
+	ErrBadRequest    = AppError{400, 400001, errors.New("bad request")}
+	ErrInvalidUserId = AppError{400, 400002, errors.New("invalid user id")}
+
+	// 401 Unauthorized
+	ErrAccessTokenEmpty  = AppError{401, 401001, errors.New("access token is empty")}
+	ErrUnauthorized      = AppError{401, 401002, errors.New("unauthorized")}
+	ErrTokenExpired      = AppError{401, 401003, errors.New("token is expired")}
+	ErrRefreshTokenEmpty = AppError{401, 401001, errors.New("refresh token is empty")}
+
+	// 403 Forbidden
+	ErrInvalidToken             = AppError{403, 403001, errors.New("token is invalid")}
+	ErrInvalidAppSecret         = AppError{403, 403002, errors.New("app secret is invalid")}
+	ErrInvalidCompanyDomainName = AppError{403, 403003, errors.New("company domain name is invalid")}
+	ErrInsufficientPermissions  = AppError{403, 403004, errors.New("insufficient permissions to access this resource")}
+	ErrAccessAnotherUser        = AppError{403, 403005, errors.New("you don't have permission to access another user's data")}
+
+	// 404 Not Found
+	ErrNotFound     = AppError{404, 404001, errors.New("not found")}
+	ErrUserNotFound = AppError{404, 404002, errors.New("user not found")}
+
+	// 422 Unprocessable Entity
+	ErrUnprocessableEntity     = AppError{422, 422001, errors.New("unprocessable entity")}
+	ErrMissingRequiredFields   = AppError{422, 422002, errors.New("missing required fields")}
+	ErrExceedCharacterLimit    = AppError{422, 422003, errors.New("exceed character limit")}
+	ErrValidationFailed        = AppError{422, 422004, errors.New("validation failed")}
+	ErrExcludedUnlessCondition = AppError{422, 422005, errors.New("excluded field unless condition")}
 
 	// 500 Internal Server Error
 	ErrInternalServerError = AppError{500, 500001, errors.New("internal server error")}

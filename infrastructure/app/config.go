@@ -14,8 +14,9 @@ func InitEnvConfigs() {
 }
 
 type JwtConfigs struct {
-	JwtSecretKey   string `mapstructure:"JWT_SECRET_KEY"`
-	JwtTokenExpire int    `mapstructure:"JWT_TOKEN_EXPIRES_IN"`
+	JwtSecretKey          string `mapstructure:"JWT_SECRET_KEY"`
+	JwtTokenExpire        int    `mapstructure:"JWT_TOKEN_EXPIRES_IN"`
+	JwtRefreshTokenExpire int    `mapstructure:"JWT_REFRESH_EXPIRES_IN"`
 }
 
 type PostgresConfigs struct {

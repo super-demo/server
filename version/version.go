@@ -2,6 +2,6 @@ package version
 
 const MajorVersion = 0
 const MinorVersion = 0
-const RevisionVersion = 1
+const RevisionVersion = 2
 
-const ReferenceDate = "2024-12-08"
+const ReferenceDate = "2024-12-10"
