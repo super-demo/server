@@ -54,6 +54,10 @@ var (
 	ErrInsufficientPermissions  = AppError{403, 403004, errors.New("insufficient permissions to access this resource")}
 	ErrAccessAnotherUser        = AppError{403, 403005, errors.New("you don't have permission to access another user's data")}
 
+	// 404 Not Found
+	ErrNotFound     = AppError{404, 404001, errors.New("not found")}
+	ErrUserNotFound = AppError{404, 404002, errors.New("user not found")}
+
 	// 422 Unprocessable Entity
 	ErrUnprocessableEntity     = AppError{422, 422001, errors.New("unprocessable entity")}
 	ErrMissingRequiredFields   = AppError{422, 422002, errors.New("missing required fields")}

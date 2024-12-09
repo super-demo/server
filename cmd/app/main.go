@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"server/infrastructure/app"
 	"server/internal/core/handlers"
+	"server/internal/core/repositories"
+	"server/internal/core/usecases"
 	"server/internal/middlewares"
 
 	"github.com/gin-gonic/gin"
@@ -31,11 +33,15 @@ func main() {
 	engine.Use(middlewares.CORSMiddleware())
 
 	// Initialize repositories
+	authenticationRepository := repositories.NewAuthenticationRepository()
+	userRepository := repositories.NewUserRepository(app.PostgresClient)
 
 	// Initialize usecases
+	authUsecase := usecases.NewAuthUsecase(userRepository, authenticationRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
+	handlers.NewAuthenticationHandler(engine, authUsecase, middlewares.Jwt())
 
 	server := fmt.Sprintf("%s:%s", app.Config.Host, app.Config.Port)
 	app.SLog.Info("Running golang server")

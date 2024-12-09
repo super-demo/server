@@ -16,7 +16,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func JWT() gin.HandlerFunc {
+func Jwt() gin.HandlerFunc {
 	jwtKey := []byte(app.Config.Jwt.JwtSecretKey)
 
 	return func(c *gin.Context) {
