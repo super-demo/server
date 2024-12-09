@@ -38,7 +38,8 @@ var ErrNil AppError
 // HTTP-Based Application errors
 var (
 	// 400 Bad Request
-	ErrBadRequest = AppError{400, 400001, errors.New("bad request")}
+	ErrBadRequest    = AppError{400, 400001, errors.New("bad request")}
+	ErrInvalidUserId = AppError{400, 400002, errors.New("invalid user id")}
 
 	// 401 Unauthorized
 	ErrAccessTokenEmpty  = AppError{401, 401001, errors.New("access token is empty")}
@@ -51,6 +52,7 @@ var (
 	ErrInvalidAppSecret         = AppError{403, 403002, errors.New("app secret is invalid")}
 	ErrInvalidCompanyDomainName = AppError{403, 403003, errors.New("company domain name is invalid")}
 	ErrInsufficientPermissions  = AppError{403, 403004, errors.New("insufficient permissions to access this resource")}
+	ErrAccessAnotherUser        = AppError{403, 403005, errors.New("you don't have permission to access another user's data")}
 
 	// 500 Internal Server Error
 	ErrInternalServerError = AppError{500, 500001, errors.New("internal server error")}

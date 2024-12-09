@@ -27,7 +27,7 @@ func JWT() gin.HandlerFunc {
 			return
 		}
 
-		tokenString = extractTokenFromHeader(tokenString)
+		tokenString = ExtractTokenFromHeader(tokenString)
 
 		if tokenString == "" {
 			ResponseError(c, app.ErrInvalidToken)
@@ -61,7 +61,7 @@ func JWT() gin.HandlerFunc {
 }
 
 // extractTokenFromHeader extracts the JWT token from an "Authorization" header.
-func extractTokenFromHeader(headerValue string) string {
+func ExtractTokenFromHeader(headerValue string) string {
 	parts := strings.Split(headerValue, " ")
 	if len(parts) == 2 && parts[0] == "Bearer" {
 		return parts[1]
