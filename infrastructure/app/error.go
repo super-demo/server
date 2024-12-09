@@ -40,6 +40,18 @@ var (
 	// 400 Bad Request
 	ErrBadRequest = AppError{400, 400001, errors.New("bad request")}
 
+	// 401 Unauthorized
+	ErrAccessTokenEmpty  = AppError{401, 401001, errors.New("access token is empty")}
+	ErrUnauthorized      = AppError{401, 401002, errors.New("unauthorized")}
+	ErrTokenExpired      = AppError{401, 401003, errors.New("token is expired")}
+	ErrRefreshTokenEmpty = AppError{401, 401001, errors.New("refresh token is empty")}
+
+	// 403
+	ErrInvalidToken             = AppError{403, 403001, errors.New("token is invalid")}
+	ErrInvalidAppSecret         = AppError{403, 403002, errors.New("app secret is invalid")}
+	ErrInvalidCompanyDomainName = AppError{403, 403003, errors.New("company domain name is invalid")}
+	ErrInsufficientPermissions  = AppError{403, 403004, errors.New("insufficient permissions to access this resource")}
+
 	// 500 Internal Server Error
 	ErrInternalServerError = AppError{500, 500001, errors.New("internal server error")}
 )
