@@ -22,7 +22,7 @@ type authenticationHandler struct {
 func NewAuthenticationHandler(r *gin.Engine, authenticationUsecase usecases.AuthenticationUsecase, globalMiddlewares ...gin.HandlerFunc) AuthenticationHandler {
 	handler := &authenticationHandler{authenticationUsecase}
 
-	v1 := r.Group("/v1/authentication", globalMiddlewares...)
+	v1 := r.Group("/v1/authentications", globalMiddlewares...)
 
 	cmsSignInWithGoogle := []gin.HandlerFunc{
 		middlewares.ValidateAppSecret(),
