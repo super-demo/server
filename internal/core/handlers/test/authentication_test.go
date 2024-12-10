@@ -15,8 +15,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOrganizationSignInWithGoogle(t *testing.T) {
+func TestCmsSignInWithGoogle(t *testing.T) {
+	t.Skip("skipping test")
+}
 
+func TestOrganizationSignInWithGoogle(t *testing.T) {
 	t.Run("should login google successfully", func(t *testing.T) {
 		authUsecase := mocks.NewAuthenticationUsecase(t)
 		authorizeToken := "0000"
@@ -97,4 +100,8 @@ func TestOrganizationSignInWithGoogle(t *testing.T) {
 		assert.Equal(t, status["message"], application.ErrInvalidAppSecret.Err.Error())
 
 	})
+}
+
+func TestRefreshToken(t *testing.T) {
+	t.Skip("skipping test")
 }
