@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGoogleSignIn(t *testing.T) {
+func TestOrganizationSignInWithGoogle(t *testing.T) {
 
 	t.Run("should login google successfully", func(t *testing.T) {
 		authUsecase := mocks.NewAuthenticationUsecase(t)
@@ -38,7 +38,7 @@ func TestGoogleSignIn(t *testing.T) {
 			},
 		}
 
-		authUsecase.On("GoogleSignIn", authorizeToken).Return(mockToken, nil)
+		authUsecase.On("OrganizationSignInWithGoogle", authorizeToken).Return(mockToken, nil)
 
 		gin.SetMode(gin.TestMode)
 		app := gin.New()
@@ -50,7 +50,7 @@ func TestGoogleSignIn(t *testing.T) {
 
 		body, _ := json.Marshal(mockReqBody)
 
-		req := httptest.NewRequest("POST", "/v1/authentication/sign/google", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/v1/authentication/organization/sign/google", bytes.NewReader(body))
 		req.Header.Set("App-Secret", application.Config.AppSecret)
 
 		res := httptest.NewRecorder()
@@ -83,7 +83,7 @@ func TestGoogleSignIn(t *testing.T) {
 
 		body, _ := json.Marshal(mockReqBody)
 
-		req := httptest.NewRequest("POST", "/v1/authentication/sign/google", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/v1/authentication/organization/sign/google", bytes.NewReader(body))
 		req.Header.Set("App-Secret", "invalid-app-secret")
 
 		res := httptest.NewRecorder()

@@ -43,9 +43,9 @@ func (_m *UserRepository) CreateUser(user *models.User) (*models.User, error) {
 	return r0, r1
 }
 
-// GetUserByEmail provides a mock function with given fields: email, isActive
-func (_m *UserRepository) GetUserByEmail(email string, isActive bool) (*models.User, error) {
-	ret := _m.Called(email, isActive)
+// GetUserByEmail provides a mock function with given fields: email
+func (_m *UserRepository) GetUserByEmail(email string) (*models.User, error) {
+	ret := _m.Called(email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserByEmail")
@@ -53,19 +53,19 @@ func (_m *UserRepository) GetUserByEmail(email string, isActive bool) (*models.U
 
 	var r0 *models.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, bool) (*models.User, error)); ok {
-		return rf(email, isActive)
+	if rf, ok := ret.Get(0).(func(string) (*models.User, error)); ok {
+		return rf(email)
 	}
-	if rf, ok := ret.Get(0).(func(string, bool) *models.User); ok {
-		r0 = rf(email, isActive)
+	if rf, ok := ret.Get(0).(func(string) *models.User); ok {
+		r0 = rf(email)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, bool) error); ok {
-		r1 = rf(email, isActive)
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(email)
 	} else {
 		r1 = ret.Error(1)
 	}

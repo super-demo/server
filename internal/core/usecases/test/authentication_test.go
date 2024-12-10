@@ -11,8 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestGoogleSignIn(t *testing.T) {
-
+func TestOrganizationSignInWithGoogle(t *testing.T) {
 	t.Run("should sign in with google successfully", func(t *testing.T) {
 		userRepo := mocks.NewUserRepository(t)
 		authenticationRepo := mocks.NewAuthenticationRepository(t)
@@ -39,10 +38,10 @@ func TestGoogleSignIn(t *testing.T) {
 			HD:            "example.com",
 		}, nil)
 
-		userRepo.On("GetUserByEmail", mock.Anything, true).Return(expectedUser, nil)
+		userRepo.On("GetUserByEmail", mock.Anything).Return(expectedUser, nil)
 		userRepo.On("UpdateUser", mock.Anything).Return(nil, nil)
 
-		_, err := authenticationUsecase.GoogleSignIn("googleAccessToken000")
+		_, err := authenticationUsecase.OrganizationSignInWithGoogle("googleAccessToken000")
 
 		assert.NoError(t, err)
 
@@ -65,8 +64,8 @@ func TestGoogleSignIn(t *testing.T) {
 			HD:            "example.com",
 		}, nil)
 
-		userRepo.On("GetUserByEmail", mock.Anything, true).Return(nil, app.ErrUserNotFound)
-		_, err := authenticationUsecase.GoogleSignIn("googleAccessToken000")
+		userRepo.On("GetUserByEmail", mock.Anything).Return(nil, app.ErrUserNotFound)
+		_, err := authenticationUsecase.OrganizationSignInWithGoogle("googleAccessToken000")
 
 		assert.Error(t, err)
 		assert.Equal(t, app.ErrUserNotFound, err)

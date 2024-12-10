@@ -10,7 +10,7 @@ type UserRepository interface {
 	CreateUser(user *models.User) (*models.User, error)
 	UpdateUser(user *models.User) (*models.User, error)
 	GetUserById(id int) (*models.User, error)
-	GetUserByEmail(email string, isActive bool) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
 }
 
 type userRepository struct {
@@ -47,10 +47,10 @@ func (r *userRepository) GetUserById(id int) (*models.User, error) {
 	return user, nil
 }
 
-func (r *userRepository) GetUserByEmail(email string, isActive bool) (*models.User, error) {
+func (r *userRepository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 
-	if err := r.db.Where("email = ? AND is_active = ?", email, isActive).First(&user).Error; err != nil {
+	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, err
 	}
 

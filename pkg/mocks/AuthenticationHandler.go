@@ -13,8 +13,13 @@ type AuthenticationHandler struct {
 	mock.Mock
 }
 
-// GoogleSignIn provides a mock function with given fields: c
-func (_m *AuthenticationHandler) GoogleSignIn(c *gin.Context) {
+// CmsSignInWithGoogle provides a mock function with given fields: c
+func (_m *AuthenticationHandler) CmsSignInWithGoogle(c *gin.Context) {
+	_m.Called(c)
+}
+
+// OrganizationSignInWithGoogle provides a mock function with given fields: c
+func (_m *AuthenticationHandler) OrganizationSignInWithGoogle(c *gin.Context) {
 	_m.Called(c)
 }
 

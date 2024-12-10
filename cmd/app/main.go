@@ -41,7 +41,7 @@ func main() {
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
-	handlers.NewAuthenticationHandler(engine, authUsecase, middlewares.Jwt())
+	handlers.NewAuthenticationHandler(engine, authUsecase)
 
 	server := fmt.Sprintf("%s:%s", app.Config.Host, app.Config.Port)
 	app.SLog.Info("Running golang server")
