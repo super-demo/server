@@ -8,7 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserHandler interface{}
+type UserHandler interface {
+	GetUserById(c *gin.Context)
+}
 
 type userHandler struct {
 	userUsecase usecases.UserUsecase

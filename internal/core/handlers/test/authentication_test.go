@@ -53,7 +53,7 @@ func TestOrganizationSignInWithGoogle(t *testing.T) {
 
 		body, _ := json.Marshal(mockReqBody)
 
-		req := httptest.NewRequest("POST", "/v1/authentication/organization/sign/google", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/v1/authentications/organization/sign/google", bytes.NewReader(body))
 		req.Header.Set("App-Secret", application.Config.AppSecret)
 
 		res := httptest.NewRecorder()
@@ -86,7 +86,7 @@ func TestOrganizationSignInWithGoogle(t *testing.T) {
 
 		body, _ := json.Marshal(mockReqBody)
 
-		req := httptest.NewRequest("POST", "/v1/authentication/organization/sign/google", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/v1/authentications/organization/sign/google", bytes.NewReader(body))
 		req.Header.Set("App-Secret", "invalid-app-secret")
 
 		res := httptest.NewRecorder()
