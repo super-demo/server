@@ -11,31 +11,42 @@ import (
 )
 
 type AuthenticationUsecase interface {
-	GoogleSignIn(token string) (*models.TokenResponse, error)
+	CmsSignInWithGoogle(token string) (*models.TokenResponse, error)
+	OrganizationSignInWithGoogle(token string) (*models.TokenResponse, error)
 	RefreshToken(refreshToken string) (*models.AccessTokenResponse, error)
 }
 
 type authenticationUsecase struct {
-	userRepo   repositories.UserRepository
-	googleRepo repositories.AuthenticationRepository
+	userRepo             repositories.UserRepository
+	authenticationRepo   repositories.AuthenticationRepository
+	organizationUserRepo repositories.OrganizationUserRepository
 }
 
 func NewAuthenticationUsecase(
 	userRepo repositories.UserRepository,
 	authenticationRepo repositories.AuthenticationRepository,
+	organizationUserRepo repositories.OrganizationUserRepository,
 ) AuthenticationUsecase {
-	return &authenticationUsecase{userRepo, authenticationRepo}
+	return &authenticationUsecase{userRepo, authenticationRepo, organizationUserRepo}
 }
 
-func (u *authenticationUsecase) GoogleSignIn(token string) (*models.TokenResponse, error) {
-	userInfo, err := u.googleRepo.GetUserInfoByAccessToken(token)
+func (u *authenticationUsecase) CmsSignInWithGoogle(token string) (*models.TokenResponse, error) {
+	userInfo, err := u.authenticationRepo.GetUserInfoByAccessToken(token)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := u.userRepo.GetUserByEmail(userInfo.Email, true)
+	user, err := u.userRepo.GetUserByEmail(userInfo.Email)
 	if err != nil {
-		return nil, app.ErrUserNotFound
+		user = &models.User{
+			Email:       userInfo.Email,
+			AvatarUrl:   userInfo.Picture,
+			GoogleToken: userInfo.Id,
+		}
+
+		if _, err := u.userRepo.CreateUser(user); err != nil {
+			return nil, err
+		}
 	}
 
 	if user.GoogleToken == "" {
@@ -50,9 +61,47 @@ func (u *authenticationUsecase) GoogleSignIn(token string) (*models.TokenRespons
 
 	payload := models.JwtPayload{
 		UserId: user.UserId,
-		// FYI: This is a dummy value
-		// TODO: UserLevelId should be fetched from the database organization_user table
-		UserLevelId: 1,
+		Email:  user.Email,
+		Name:   user.Name,
+	}
+
+	result, err := utils.GenerateJwtToken(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (u *authenticationUsecase) OrganizationSignInWithGoogle(token string) (*models.TokenResponse, error) {
+	userInfo, err := u.authenticationRepo.GetUserInfoByAccessToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := u.userRepo.GetUserByEmail(userInfo.Email)
+	if err != nil {
+		return nil, app.ErrUserNotFound
+	}
+
+	if user.GoogleToken == "" {
+		user.GoogleToken = userInfo.Id
+	}
+
+	user.AvatarUrl = userInfo.Picture
+
+	if _, err := u.userRepo.UpdateUser(user); err != nil {
+		return nil, err
+	}
+
+	organizationUser, err := u.organizationUserRepo.GetOrganizationUserByEmail(userInfo.Email)
+	if err != nil {
+		return nil, app.ErrUserNotFound
+	}
+
+	payload := models.JwtPayload{
+		UserId:      user.UserId,
+		UserLevelId: organizationUser.UserLevelId,
 		Email:       user.Email,
 		Name:        user.Name,
 	}

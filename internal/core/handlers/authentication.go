@@ -10,7 +10,8 @@ import (
 )
 
 type AuthenticationHandler interface {
-	GoogleSignIn(c *gin.Context)
+	CmsSignInWithGoogle(c *gin.Context)
+	OrganizationSignInWithGoogle(c *gin.Context)
 	RefreshToken(c *gin.Context)
 }
 
@@ -23,25 +24,47 @@ func NewAuthenticationHandler(r *gin.Engine, authenticationUsecase usecases.Auth
 
 	v1 := r.Group("/v1/authentication", globalMiddlewares...)
 
-	googleSignInHandler := []gin.HandlerFunc{
+	cmsSignInWithGoogle := []gin.HandlerFunc{
 		middlewares.ValidateAppSecret(),
 		middlewares.ValidateRequestBody(&models.GoogleSignInRequest{}),
-		handler.GoogleSignIn,
+		handler.CmsSignInWithGoogle,
 	}
 
-	v1.POST("/sign/google", googleSignInHandler...)
+	organizationSignInWithGoogle := []gin.HandlerFunc{
+		middlewares.ValidateAppSecret(),
+		middlewares.ValidateRequestBody(&models.GoogleSignInRequest{}),
+		handler.OrganizationSignInWithGoogle,
+	}
+
+	v1.POST("/cms/sign/google", cmsSignInWithGoogle...)
+	v1.POST("/organization/sign/google", organizationSignInWithGoogle...)
 	v1.POST("/token/refresh", middlewares.BearerAuth(), handler.RefreshToken)
 
 	return handler
 }
 
-func (h *authenticationHandler) GoogleSignIn(c *gin.Context) {
+func (h *authenticationHandler) CmsSignInWithGoogle(c *gin.Context) {
 	var req models.GoogleSignInRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
-	data, err := h.authenticationUsecase.GoogleSignIn(req.AccessToken)
+	data, err := h.authenticationUsecase.CmsSignInWithGoogle(req.AccessToken)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, data)
+}
+
+func (h *authenticationHandler) OrganizationSignInWithGoogle(c *gin.Context) {
+	var req models.GoogleSignInRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+	data, err := h.authenticationUsecase.OrganizationSignInWithGoogle(req.AccessToken)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
