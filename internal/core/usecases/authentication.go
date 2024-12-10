@@ -142,11 +142,16 @@ func (u *authenticationUsecase) RefreshToken(refreshToken string) (*models.Acces
 		return nil, err
 	}
 
+	organizationUser, err := u.organizationUserRepo.GetOrganizationUserById(claims.UserId)
+	if err != nil {
+		return nil, app.ErrUserNotFound
+	}
+
 	accessTokenExpire := utils.CalculateExpiration(app.Config.Jwt.JwtTokenExpire)
 
 	payload := models.JwtPayload{
 		UserId:      user.UserId,
-		UserLevelId: 1,
+		UserLevelId: organizationUser.UserLevelId,
 		Email:       user.Email,
 		Name:        user.Name,
 	}
