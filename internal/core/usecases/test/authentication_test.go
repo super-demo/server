@@ -15,8 +15,9 @@ func TestOrganizationSignInWithGoogle(t *testing.T) {
 	t.Run("should sign in with google successfully", func(t *testing.T) {
 		userRepo := mocks.NewUserRepository(t)
 		authenticationRepo := mocks.NewAuthenticationRepository(t)
+		organizationUserRepo := mocks.NewOrganizationUserRepository(t)
 
-		authenticationUsecase := usecases.NewAuthenticationUsecase(userRepo, authenticationRepo)
+		authenticationUsecase := usecases.NewAuthenticationUsecase(userRepo, authenticationRepo, organizationUserRepo)
 
 		app.Config = &app.EnvConfigs{
 			Environment: "production",
@@ -30,6 +31,12 @@ func TestOrganizationSignInWithGoogle(t *testing.T) {
 			Email:       "john@example.com",
 		}
 
+		expectedOrganizationUser := &models.OrganizationUser{
+			OrganizationUserId: 1,
+			UserId:             1,
+			OrganizationId:     1,
+		}
+
 		authenticationRepo.On("GetUserInfoByAccessToken", mock.Anything).Return(&models.UserInfoResponse{
 			Id:            "GoogleToken000",
 			Email:         "john@example.com",
@@ -40,17 +47,19 @@ func TestOrganizationSignInWithGoogle(t *testing.T) {
 
 		userRepo.On("GetUserByEmail", mock.Anything).Return(expectedUser, nil)
 		userRepo.On("UpdateUser", mock.Anything).Return(nil, nil)
+		organizationUserRepo.On("GetOrganizationUserByEmail", mock.Anything).Return(expectedOrganizationUser, nil)
 
 		_, err := authenticationUsecase.OrganizationSignInWithGoogle("googleAccessToken000")
 
 		assert.NoError(t, err)
-
 	})
 
 	t.Run("should fail to sign in because user not found", func(t *testing.T) {
 		userRepo := mocks.NewUserRepository(t)
 		authenticationRepo := mocks.NewAuthenticationRepository(t)
-		authenticationUsecase := usecases.NewAuthenticationUsecase(userRepo, authenticationRepo)
+		organizationUserRepo := mocks.NewOrganizationUserRepository(t)
+
+		authenticationUsecase := usecases.NewAuthenticationUsecase(userRepo, authenticationRepo, organizationUserRepo)
 
 		app.Config = &app.EnvConfigs{
 			Environment: "production",

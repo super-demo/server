@@ -35,9 +35,10 @@ func main() {
 	// Initialize repositories
 	authenticationRepository := repositories.NewAuthenticationRepository()
 	userRepository := repositories.NewUserRepository(app.PostgresClient)
+	organizationUserRepository := repositories.NewOrganizationUserRepository(app.PostgresClient)
 
 	// Initialize usecases
-	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository)
+	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository, organizationUserRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)

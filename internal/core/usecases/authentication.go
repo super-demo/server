@@ -17,19 +17,21 @@ type AuthenticationUsecase interface {
 }
 
 type authenticationUsecase struct {
-	userRepo   repositories.UserRepository
-	googleRepo repositories.AuthenticationRepository
+	userRepo             repositories.UserRepository
+	authenticationRepo   repositories.AuthenticationRepository
+	organizationUserRepo repositories.OrganizationUserRepository
 }
 
 func NewAuthenticationUsecase(
 	userRepo repositories.UserRepository,
 	authenticationRepo repositories.AuthenticationRepository,
+	organizationUserRepo repositories.OrganizationUserRepository,
 ) AuthenticationUsecase {
-	return &authenticationUsecase{userRepo, authenticationRepo}
+	return &authenticationUsecase{userRepo, authenticationRepo, organizationUserRepo}
 }
 
 func (u *authenticationUsecase) CmsSignInWithGoogle(token string) (*models.TokenResponse, error) {
-	userInfo, err := u.googleRepo.GetUserInfoByAccessToken(token)
+	userInfo, err := u.authenticationRepo.GetUserInfoByAccessToken(token)
 	if err != nil {
 		return nil, err
 	}
@@ -71,14 +73,12 @@ func (u *authenticationUsecase) CmsSignInWithGoogle(token string) (*models.Token
 	return result, nil
 }
 
-// FYI: In future, I will refactor this function to use the user level from the database
 func (u *authenticationUsecase) OrganizationSignInWithGoogle(token string) (*models.TokenResponse, error) {
-	userInfo, err := u.googleRepo.GetUserInfoByAccessToken(token)
+	userInfo, err := u.authenticationRepo.GetUserInfoByAccessToken(token)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: UserLevelId should be fetched from the database organization_user table
 	user, err := u.userRepo.GetUserByEmail(userInfo.Email)
 	if err != nil {
 		return nil, app.ErrUserNotFound
@@ -94,10 +94,14 @@ func (u *authenticationUsecase) OrganizationSignInWithGoogle(token string) (*mod
 		return nil, err
 	}
 
+	organizationUser, err := u.organizationUserRepo.GetOrganizationUserByEmail(userInfo.Email)
+	if err != nil {
+		return nil, app.ErrUserNotFound
+	}
+
 	payload := models.JwtPayload{
-		UserId: user.UserId,
-		// FYI: This is a dummy value
-		UserLevelId: 1,
+		UserId:      user.UserId,
+		UserLevelId: organizationUser.UserLevelId,
 		Email:       user.Email,
 		Name:        user.Name,
 	}
