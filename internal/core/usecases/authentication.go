@@ -39,9 +39,10 @@ func (u *authenticationUsecase) CmsSignInWithGoogle(token string) (*models.Token
 	user, err := u.userRepo.GetUserByEmail(userInfo.Email)
 	if err != nil {
 		user = &models.User{
-			Email:       userInfo.Email,
-			AvatarUrl:   userInfo.Picture,
 			GoogleToken: userInfo.Id,
+			AvatarUrl:   userInfo.Picture,
+			Name:        userInfo.Name,
+			Email:       userInfo.Email,
 		}
 
 		if _, err := u.userRepo.CreateUser(user); err != nil {

@@ -58,6 +58,10 @@ var (
 	ErrNotFound     = AppError{404, 404001, errors.New("not found")}
 	ErrUserNotFound = AppError{404, 404002, errors.New("user not found")}
 
+	// 409 Conflict
+	ErrConflict   = AppError{409, 409001, errors.New("conflict")}
+	ErrEmailExist = AppError{409, 409002, errors.New("email already exist")}
+
 	// 422 Unprocessable Entity
 	ErrUnprocessableEntity     = AppError{422, 422001, errors.New("unprocessable entity")}
 	ErrMissingRequiredFields   = AppError{422, 422002, errors.New("missing required fields")}
