@@ -12,11 +12,12 @@ type OrganizationUsecase interface {
 }
 
 type organizationUsecase struct {
-	organizationRepo repositories.OrganizationRepository
+	organizationRepo     repositories.OrganizationRepository
+	organizationUserRepo repositories.OrganizationUserRepository
 }
 
-func NewOrganizationUsecase(organizationRepo repositories.OrganizationRepository) OrganizationUsecase {
-	return &organizationUsecase{organizationRepo}
+func NewOrganizationUsecase(organizationRepo repositories.OrganizationRepository, organizationUserRepo repositories.OrganizationUserRepository) OrganizationUsecase {
+	return &organizationUsecase{organizationRepo, organizationUserRepo}
 }
 
 func (u *organizationUsecase) CreateOrganization(organization *models.Organization, requesterUserId int) (*models.Organization, error) {
@@ -24,6 +25,19 @@ func (u *organizationUsecase) CreateOrganization(organization *models.Organizati
 	organization.UpdatedBy = requesterUserId
 	organization, err := u.organizationRepo.CreateOrganization(organization)
 	if err != nil {
+		return nil, err
+	}
+
+	organizationUser := &models.OrganizationUser{
+		OrganizationId: organization.OrganizationId,
+		UserId:         requesterUserId,
+		UserLevelId:    1,
+		IsActive:       true,
+		CreatedBy:      requesterUserId,
+		UpdatedBy:      requesterUserId,
+	}
+
+	if _, err := u.organizationUserRepo.CreateOrganizationUser(organizationUser); err != nil {
 		return nil, err
 	}
 

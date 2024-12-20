@@ -41,7 +41,7 @@ func main() {
 	// Initialize usecases
 	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository, organizationUserRepository)
 	userUsecase := usecases.NewUserUsecase(userRepository)
-	organizationUsecase := usecases.NewOrganizationUsecase(organizationRepository)
+	organizationUsecase := usecases.NewOrganizationUsecase(organizationRepository, organizationUserRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
