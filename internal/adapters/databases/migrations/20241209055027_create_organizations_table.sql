@@ -5,6 +5,7 @@ CREATE TABLE organizations (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     url VARCHAR(255),
+    image_url text,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INTEGER NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -35,16 +35,19 @@ func main() {
 	// Initialize repositories
 	authenticationRepository := repositories.NewAuthenticationRepository()
 	userRepository := repositories.NewUserRepository(app.PostgresClient)
+	organizationRepository := repositories.NewOrganizationRepository(app.PostgresClient)
 	organizationUserRepository := repositories.NewOrganizationUserRepository(app.PostgresClient)
 
 	// Initialize usecases
 	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository, organizationUserRepository)
 	userUsecase := usecases.NewUserUsecase(userRepository)
+	organizationUsecase := usecases.NewOrganizationUsecase(organizationRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
 	handlers.NewAuthenticationHandler(engine, authUsecase)
 	handlers.NewUserHandler(engine, userUsecase, middlewares.Jwt())
+	handlers.NewOrganizationHandler(engine, organizationUsecase, middlewares.Jwt())
 
 	server := fmt.Sprintf("%s:%s", app.Config.Host, app.Config.Port)
 	app.SLog.Info("Running golang server")
