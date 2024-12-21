@@ -43,9 +43,39 @@ func (_m *OrganizationUsecase) CreateOrganization(organization *models.Organizat
 	return r0, r1
 }
 
-// GetOrganizationListByUserId provides a mock function with given fields: id, requesterUserId
-func (_m *OrganizationUsecase) GetOrganizationListByUserId(id int, requesterUserId int) (*[]models.Organization, error) {
-	ret := _m.Called(id, requesterUserId)
+// GetOrganizationById provides a mock function with given fields: organizationId, requesterUserId
+func (_m *OrganizationUsecase) GetOrganizationById(organizationId int, requesterUserId int) (*models.Organization, error) {
+	ret := _m.Called(organizationId, requesterUserId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrganizationById")
+	}
+
+	var r0 *models.Organization
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int, int) (*models.Organization, error)); ok {
+		return rf(organizationId, requesterUserId)
+	}
+	if rf, ok := ret.Get(0).(func(int, int) *models.Organization); ok {
+		r0 = rf(organizationId, requesterUserId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Organization)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(organizationId, requesterUserId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetOrganizationListByUserId provides a mock function with given fields: requesterUserId
+func (_m *OrganizationUsecase) GetOrganizationListByUserId(requesterUserId int) (*[]models.Organization, error) {
+	ret := _m.Called(requesterUserId)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOrganizationListByUserId")
@@ -53,19 +83,19 @@ func (_m *OrganizationUsecase) GetOrganizationListByUserId(id int, requesterUser
 
 	var r0 *[]models.Organization
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int, int) (*[]models.Organization, error)); ok {
-		return rf(id, requesterUserId)
+	if rf, ok := ret.Get(0).(func(int) (*[]models.Organization, error)); ok {
+		return rf(requesterUserId)
 	}
-	if rf, ok := ret.Get(0).(func(int, int) *[]models.Organization); ok {
-		r0 = rf(id, requesterUserId)
+	if rf, ok := ret.Get(0).(func(int) *[]models.Organization); ok {
+		r0 = rf(requesterUserId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*[]models.Organization)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(int, int) error); ok {
-		r1 = rf(id, requesterUserId)
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(requesterUserId)
 	} else {
 		r1 = ret.Error(1)
 	}

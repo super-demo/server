@@ -43,6 +43,36 @@ func (_m *OrganizationRepository) CreateOrganization(organization *models.Organi
 	return r0, r1
 }
 
+// GetOrganizationById provides a mock function with given fields: id
+func (_m *OrganizationRepository) GetOrganizationById(id int) (*models.Organization, error) {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrganizationById")
+	}
+
+	var r0 *models.Organization
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int) (*models.Organization, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(int) *models.Organization); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Organization)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetOrganizationListByUserId provides a mock function with given fields: id
 func (_m *OrganizationRepository) GetOrganizationListByUserId(id int) (*[]models.Organization, error) {
 	ret := _m.Called(id)
