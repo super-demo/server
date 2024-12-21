@@ -4,6 +4,7 @@ import (
 	"server/internal/core/models"
 	"server/internal/core/usecases"
 	"server/internal/middlewares"
+	"server/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,12 +25,20 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 		handler.CreateOrganization,
 	}
 
-	getOrganizationByUserId := []gin.HandlerFunc{
+	getOrganizationById := []gin.HandlerFunc{
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{1, 2},
+		}),
+		handler.GetOrganizationById,
+	}
+
+	getOrganizationListByUserId := []gin.HandlerFunc{
 		handler.GetOrganizationListByUserId,
 	}
 
 	v1.POST("/create", createOrganization...)
-	v1.GET("/list", getOrganizationByUserId...)
+	v1.GET("/:id", getOrganizationById...)
+	v1.GET("/list", getOrganizationListByUserId...)
 
 	return handler
 }
@@ -52,11 +61,22 @@ func (h *organizationHandler) CreateOrganization(c *gin.Context) {
 	middlewares.ResponseSuccess(c, organization)
 }
 
-func (h *organizationHandler) GetOrganizationListByUserId(c *gin.Context) {
-	// userId := utils.GetIdFromParams(c)
+func (h *organizationHandler) GetOrganizationById(c *gin.Context) {
+	organizationId := utils.GetIdFromParams(c)
 	requesterUserId := c.MustGet("user_id").(int)
 
-	// organization, err := h.organizationUsecase.GetOrganizationListByUserId(userId, requesterUserId)
+	organization, err := h.organizationUsecase.GetOrganizationById(organizationId, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, organization)
+}
+
+func (h *organizationHandler) GetOrganizationListByUserId(c *gin.Context) {
+	requesterUserId := c.MustGet("user_id").(int)
+
 	organization, err := h.organizationUsecase.GetOrganizationListByUserId(requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)

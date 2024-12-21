@@ -8,6 +8,7 @@ import (
 
 type OrganizationRepository interface {
 	CreateOrganization(organization *models.Organization) (*models.Organization, error)
+	GetOrganizationById(id int) (*models.Organization, error)
 	GetOrganizationListByUserId(id int) (*[]models.Organization, error)
 }
 
@@ -26,6 +27,16 @@ func (r *organizationRepository) CreateOrganization(organization *models.Organiz
 
 	return organization, nil
 
+}
+
+func (r *organizationRepository) GetOrganizationById(id int) (*models.Organization, error) {
+	organization := new(models.Organization)
+
+	if err := r.db.First(organization, id).Error; err != nil {
+		return nil, err
+	}
+
+	return organization, nil
 }
 
 func (r *organizationRepository) GetOrganizationListByUserId(id int) (*[]models.Organization, error) {

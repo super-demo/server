@@ -8,6 +8,7 @@ import (
 
 type OrganizationUsecase interface {
 	CreateOrganization(organization *models.Organization, requesterUserId int) (*models.Organization, error)
+	GetOrganizationById(organizationId, requesterUserId int) (*models.Organization, error)
 	GetOrganizationListByUserId(requesterUserId int) (*[]models.Organization, error)
 }
 
@@ -44,9 +45,7 @@ func (u *organizationUsecase) CreateOrganization(organization *models.Organizati
 	return organization, nil
 }
 
-func (u *organizationUsecase) GetOrganizationListByUserId(requesterUserId int) (*[]models.Organization, error) {
-	var organization *[]models.Organization
-
+func (u *organizationUsecase) GetOrganizationById(organizationId, requesterUserId int) (*models.Organization, error) {
 	organizationUser, err := u.organizationUserRepo.GetOrganizationUserById(requesterUserId)
 	if err != nil {
 		if organizationUser == nil {
@@ -54,7 +53,18 @@ func (u *organizationUsecase) GetOrganizationListByUserId(requesterUserId int) (
 		}
 	}
 
-	organization, err = u.organizationRepo.GetOrganizationListByUserId(requesterUserId)
+	organization, err := u.organizationRepo.GetOrganizationById(organizationId)
+	if err != nil {
+		return nil, err
+	}
+
+	return organization, nil
+}
+
+func (u *organizationUsecase) GetOrganizationListByUserId(requesterUserId int) (*[]models.Organization, error) {
+	var organization *[]models.Organization
+
+	organization, err := u.organizationRepo.GetOrganizationListByUserId(requesterUserId)
 	if err != nil {
 		if organization == nil {
 			return organization, nil
