@@ -8,7 +8,7 @@ import (
 
 type OrganizationUsecase interface {
 	CreateOrganization(organization *models.Organization, requesterUserId int) (*models.Organization, error)
-	GetOrganizationListByUserId(id, requesterUserId int) (*[]models.Organization, error)
+	GetOrganizationListByUserId(requesterUserId int) (*[]models.Organization, error)
 }
 
 type organizationUsecase struct {
@@ -44,14 +44,17 @@ func (u *organizationUsecase) CreateOrganization(organization *models.Organizati
 	return organization, nil
 }
 
-func (u *organizationUsecase) GetOrganizationListByUserId(id, requesterUserId int) (*[]models.Organization, error) {
+func (u *organizationUsecase) GetOrganizationListByUserId(requesterUserId int) (*[]models.Organization, error) {
 	var organization *[]models.Organization
 
-	if requesterUserId != id {
-		return nil, app.ErrUnauthorized
+	organizationUser, err := u.organizationUserRepo.GetOrganizationUserById(requesterUserId)
+	if err != nil {
+		if organizationUser == nil {
+			return nil, app.ErrUnauthorized
+		}
 	}
 
-	organization, err := u.organizationRepo.GetOrganizationListByUserId(id)
+	organization, err = u.organizationRepo.GetOrganizationListByUserId(requesterUserId)
 	if err != nil {
 		if organization == nil {
 			return organization, nil

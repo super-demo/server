@@ -4,7 +4,6 @@ import (
 	"server/internal/core/models"
 	"server/internal/core/usecases"
 	"server/internal/middlewares"
-	"server/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +29,7 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 	}
 
 	v1.POST("/create", createOrganization...)
-	v1.GET("/list/:id", getOrganizationByUserId...)
+	v1.GET("/list", getOrganizationByUserId...)
 
 	return handler
 }
@@ -54,10 +53,11 @@ func (h *organizationHandler) CreateOrganization(c *gin.Context) {
 }
 
 func (h *organizationHandler) GetOrganizationListByUserId(c *gin.Context) {
-	userId := utils.GetIdFromParams(c)
+	// userId := utils.GetIdFromParams(c)
 	requesterUserId := c.MustGet("user_id").(int)
 
-	organization, err := h.organizationUsecase.GetOrganizationListByUserId(userId, requesterUserId)
+	// organization, err := h.organizationUsecase.GetOrganizationListByUserId(userId, requesterUserId)
+	organization, err := h.organizationUsecase.GetOrganizationListByUserId(requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
