@@ -32,7 +32,7 @@ func (u *organizationUsecase) CreateOrganization(organization *models.Organizati
 	organizationUser := &models.OrganizationUser{
 		OrganizationId: organization.OrganizationId,
 		UserId:         requesterUserId,
-		UserLevelId:    1,
+		UserLevelId:    repositories.OwnerUserLevel.UserLevelId,
 		IsActive:       true,
 		CreatedBy:      requesterUserId,
 		UpdatedBy:      requesterUserId,
