@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"server/internal/core/models"
+	"server/internal/core/repositories"
 	"server/internal/core/usecases"
 	"server/internal/middlewares"
 	"server/pkg/utils"
@@ -27,7 +28,12 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 
 	getOrganizationById := []gin.HandlerFunc{
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{1, 2},
+			AllowedUserLevelIDs: []int{
+				repositories.OwnerUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+				repositories.MemberUserLevel.UserLevelId,
+			},
 		}),
 		handler.GetOrganizationById,
 	}
