@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-func Main() {
+func main() {
 	handlerDir := "./internal/core/handlers"
 	usecaseDir := "./internal/core/usecases"
 	repositoryDir := "./internal/core/repositories"
@@ -20,7 +20,7 @@ func Main() {
 	generateMocks := func(dir string) error {
 		fmt.Printf("Generating mocks for %s\n", dir)
 
-		cmd := exec.Command("mockery", "--all", "--dir", dir)
+		cmd := exec.Command("mockery", "--all", "--dir", dir, "--output", "./pkg/mocks")
 
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
