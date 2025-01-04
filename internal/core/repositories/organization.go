@@ -8,6 +8,7 @@ import (
 
 type OrganizationRepository interface {
 	CreateOrganization(organization *models.Organization) (*models.Organization, error)
+	DeleteOrganization(id int) error
 	GetOrganizationById(id int) (*models.Organization, error)
 	GetOrganizationListByUserId(id int) (*[]models.Organization, error)
 }
@@ -27,6 +28,13 @@ func (r *organizationRepository) CreateOrganization(organization *models.Organiz
 
 	return organization, nil
 
+}
+
+func (r *organizationRepository) DeleteOrganization(id int) error {
+	if err := r.db.Where("organization_id = ?", id).Delete(&models.Organization{}).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *organizationRepository) GetOrganizationById(id int) (*models.Organization, error) {

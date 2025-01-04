@@ -43,6 +43,42 @@ func (_m *OrganizationUserRepository) CreateOrganizationUser(organizationUser *m
 	return r0, r1
 }
 
+// DeleteOrganizationUser provides a mock function with given fields: id
+func (_m *OrganizationUserRepository) DeleteOrganizationUser(id int) error {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteOrganizationUser")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int) error); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteOrganizationUserByOrganizationId provides a mock function with given fields: organizationId
+func (_m *OrganizationUserRepository) DeleteOrganizationUserByOrganizationId(organizationId int) error {
+	ret := _m.Called(organizationId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteOrganizationUserByOrganizationId")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int) error); ok {
+		r0 = rf(organizationId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // GetOrganizationUserByEmail provides a mock function with given fields: email
 func (_m *OrganizationUserRepository) GetOrganizationUserByEmail(email string) (*models.OrganizationUser, error) {
 	ret := _m.Called(email)
@@ -96,6 +132,36 @@ func (_m *OrganizationUserRepository) GetOrganizationUserById(id int) (*models.O
 
 	if rf, ok := ret.Get(1).(func(int) error); ok {
 		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetOrganizationUserListByOrganizationId provides a mock function with given fields: organizationId
+func (_m *OrganizationUserRepository) GetOrganizationUserListByOrganizationId(organizationId int) (*[]models.OrganizationUser, error) {
+	ret := _m.Called(organizationId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrganizationUserListByOrganizationId")
+	}
+
+	var r0 *[]models.OrganizationUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int) (*[]models.OrganizationUser, error)); ok {
+		return rf(organizationId)
+	}
+	if rf, ok := ret.Get(0).(func(int) *[]models.OrganizationUser); ok {
+		r0 = rf(organizationId)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*[]models.OrganizationUser)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(organizationId)
 	} else {
 		r1 = ret.Error(1)
 	}
