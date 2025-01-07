@@ -10,6 +10,7 @@ CREATE TABLE organizations (
     created_by INTEGER NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_by INTEGER NOT NULL,
+    deleted_at TIMESTAMP,
 
     FOREIGN KEY (created_by) REFERENCES users(user_id),
     FOREIGN KEY (updated_by) REFERENCES users(user_id)

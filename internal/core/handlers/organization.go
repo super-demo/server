@@ -26,6 +26,15 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 		handler.CreateOrganization,
 	}
 
+	deleteOrganization := []gin.HandlerFunc{
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{
+				repositories.OwnerUserLevel.UserLevelId,
+			},
+		}),
+		handler.DeleteOrganization,
+	}
+
 	getOrganizationById := []gin.HandlerFunc{
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{
@@ -33,6 +42,7 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 				repositories.SuperAdminUserLevel.UserLevelId,
 				repositories.AdminUserLevel.UserLevelId,
 				repositories.MemberUserLevel.UserLevelId,
+				repositories.VisitorUserLevel.UserLevelId,
 			},
 		}),
 		handler.GetOrganizationById,
@@ -43,6 +53,7 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 	}
 
 	v1.POST("/create", createOrganization...)
+	v1.DELETE("/:id", deleteOrganization...)
 	v1.GET("/:id", getOrganizationById...)
 	v1.GET("/list", getOrganizationListByUserId...)
 
@@ -65,6 +76,19 @@ func (h *organizationHandler) CreateOrganization(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, organization)
+}
+
+func (h *organizationHandler) DeleteOrganization(c *gin.Context) {
+	organizationId := utils.GetIdFromParams(c)
+	requesterUserId := c.MustGet("user_id").(int)
+
+	err := h.organizationUsecase.DeleteOrganization(organizationId, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, nil)
 }
 
 func (h *organizationHandler) GetOrganizationById(c *gin.Context) {
