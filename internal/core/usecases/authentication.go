@@ -61,9 +61,10 @@ func (u *authenticationUsecase) CmsSignInWithGoogle(token string) (*models.Token
 	}
 
 	payload := models.JwtPayload{
-		UserId: user.UserId,
-		Email:  user.Email,
-		Name:   user.Name,
+		UserId:      user.UserId,
+		UserLevelId: repositories.VisitorUserLevel.UserLevelId,
+		Email:       user.Email,
+		Name:        user.Name,
 	}
 
 	result, err := utils.GenerateJwtToken(payload)

@@ -42,6 +42,7 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 				repositories.SuperAdminUserLevel.UserLevelId,
 				repositories.AdminUserLevel.UserLevelId,
 				repositories.MemberUserLevel.UserLevelId,
+				repositories.VisitorUserLevel.UserLevelId,
 			},
 		}),
 		handler.GetOrganizationById,

@@ -33,3 +33,11 @@ var (
 		Description: "Good for poeple who just need to view something.",
 	}
 )
+
+var (
+	VisitorUserLevel = models.UserLevel{
+		UserLevelId: 5,
+		Slug:        "Visitor",
+		Description: "Good for people who just need to view something.",
+	}
+)
