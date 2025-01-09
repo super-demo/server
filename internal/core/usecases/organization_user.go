@@ -1,12 +1,13 @@
 package usecases
 
 import (
+	"server/infrastructure/app"
 	"server/internal/core/models"
 	"server/internal/core/repositories"
 )
 
 type OrganizationUserUsecase interface {
-	CreateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error)
+	CreateOrganizationUser(organizationUser *models.OrganizationUser, requesterUserId int) (*models.OrganizationUser, error)
 }
 
 type organizationUserUsecase struct {
@@ -19,8 +20,7 @@ func NewOrganizationUserUsecase(organizationRepo repositories.OrganizationReposi
 	return &organizationUserUsecase{organizationRepo, organizationUserRepo, organizationLogRepo}
 }
 
-// TODO: Implement this
-func (u *organizationUserUsecase) CreateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error) {
+func (u *organizationUserUsecase) CreateOrganizationUser(organizationUser *models.OrganizationUser, requesterUserId int) (*models.OrganizationUser, error) {
 	txOrganizationUserRepo, err := u.organizationUserRepo.BeginLog()
 	if err != nil {
 		return nil, err
@@ -31,6 +31,19 @@ func (u *organizationUserUsecase) CreateOrganizationUser(organizationUser *model
 		}
 	}()
 
+	exists, err := txOrganizationUserRepo.CheckOrganizationUserExists(organizationUser, requesterUserId)
+	if err != nil {
+		txOrganizationUserRepo.Rollback()
+		return nil, err
+	}
+
+	if exists {
+		txOrganizationUserRepo.Rollback()
+		return nil, app.ErrorOrganizationUserExists
+	}
+
+	organizationUser.CreatedBy = requesterUserId
+	organizationUser.UpdatedBy = requesterUserId
 	newOrganizationUser, err := txOrganizationUserRepo.CreateOrganizationUser(organizationUser)
 	if err != nil {
 		txOrganizationUserRepo.Rollback()
@@ -38,6 +51,17 @@ func (u *organizationUserUsecase) CreateOrganizationUser(organizationUser *model
 	}
 
 	if err := txOrganizationUserRepo.Commit(); err != nil {
+		return nil, err
+	}
+
+	organizationLog := &models.OrganizationLog{
+		OrganizationId: newOrganizationUser.OrganizationId,
+		Action:         "Invited",
+		Description:    "User Invited to Organization",
+		CreatedBy:      requesterUserId,
+	}
+
+	if _, err := u.organizationLogRepo.CreateOrganizationLog(organizationLog); err != nil {
 		return nil, err
 	}
 

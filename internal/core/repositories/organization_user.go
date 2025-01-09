@@ -11,6 +11,7 @@ type OrganizationUserRepository interface {
 	Commit() error
 	Rollback() error
 	CreateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error)
+	CheckOrganizationUserExists(organizationUser *models.OrganizationUser, userId int) (bool, error)
 	UpdateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error)
 	GetOrganizationUserById(id int) (*models.OrganizationUser, error)
 	GetOrganizationUserByEmail(email string) (*models.OrganizationUser, error)
@@ -51,6 +52,15 @@ func (r *organizationUserRepository) CreateOrganizationUser(organizationUser *mo
 	}
 
 	return organizationUser, nil
+}
+
+func (r *organizationUserRepository) CheckOrganizationUserExists(organizationUser *models.OrganizationUser, userId int) (bool, error) {
+	err := r.db.Where("organization_id = ? AND user_id = ?", organizationUser.OrganizationId, userId).First(&organizationUser).Error
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (r *organizationUserRepository) UpdateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error) {

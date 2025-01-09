@@ -37,15 +37,16 @@ func NewOrganizationUserHandler(r *gin.Engine, organizationUserUsecase usecases.
 	return handler
 }
 
-// TODO: Implement this
 func (h *organizationUserHandler) CreateOrganizationUser(c *gin.Context) {
+	requesterUserId := c.MustGet("user_id").(int)
+
 	organizationUser := &models.OrganizationUser{}
 	if err := c.ShouldBindJSON(organizationUser); err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
 
-	organizationUser, err := h.organizationUserUsecase.CreateOrganizationUser(organizationUser)
+	organizationUser, err := h.organizationUserUsecase.CreateOrganizationUser(organizationUser, requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return

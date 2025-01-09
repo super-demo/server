@@ -13,9 +13,9 @@ type OrganizationUserUsecase struct {
 	mock.Mock
 }
 
-// CreateOrganizationUser provides a mock function with given fields: organizationUser
-func (_m *OrganizationUserUsecase) CreateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error) {
-	ret := _m.Called(organizationUser)
+// CreateOrganizationUser provides a mock function with given fields: organizationUser, requesterUserId
+func (_m *OrganizationUserUsecase) CreateOrganizationUser(organizationUser *models.OrganizationUser, requesterUserId int) (*models.OrganizationUser, error) {
+	ret := _m.Called(organizationUser, requesterUserId)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateOrganizationUser")
@@ -23,19 +23,19 @@ func (_m *OrganizationUserUsecase) CreateOrganizationUser(organizationUser *mode
 
 	var r0 *models.OrganizationUser
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*models.OrganizationUser) (*models.OrganizationUser, error)); ok {
-		return rf(organizationUser)
+	if rf, ok := ret.Get(0).(func(*models.OrganizationUser, int) (*models.OrganizationUser, error)); ok {
+		return rf(organizationUser, requesterUserId)
 	}
-	if rf, ok := ret.Get(0).(func(*models.OrganizationUser) *models.OrganizationUser); ok {
-		r0 = rf(organizationUser)
+	if rf, ok := ret.Get(0).(func(*models.OrganizationUser, int) *models.OrganizationUser); ok {
+		r0 = rf(organizationUser, requesterUserId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.OrganizationUser)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*models.OrganizationUser) error); ok {
-		r1 = rf(organizationUser)
+	if rf, ok := ret.Get(1).(func(*models.OrganizationUser, int) error); ok {
+		r1 = rf(organizationUser, requesterUserId)
 	} else {
 		r1 = ret.Error(1)
 	}

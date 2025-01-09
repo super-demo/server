@@ -45,6 +45,34 @@ func (_m *OrganizationUserRepository) BeginLog() (repositories.OrganizationUserR
 	return r0, r1
 }
 
+// CheckOrganizationUserExists provides a mock function with given fields: organizationUser, userId
+func (_m *OrganizationUserRepository) CheckOrganizationUserExists(organizationUser *models.OrganizationUser, userId int) (bool, error) {
+	ret := _m.Called(organizationUser, userId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckOrganizationUserExists")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*models.OrganizationUser, int) (bool, error)); ok {
+		return rf(organizationUser, userId)
+	}
+	if rf, ok := ret.Get(0).(func(*models.OrganizationUser, int) bool); ok {
+		r0 = rf(organizationUser, userId)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(*models.OrganizationUser, int) error); ok {
+		r1 = rf(organizationUser, userId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Commit provides a mock function with no fields
 func (_m *OrganizationUserRepository) Commit() error {
 	ret := _m.Called()
