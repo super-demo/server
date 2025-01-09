@@ -7,21 +7,43 @@ import (
 )
 
 type OrganizationUserRepository interface {
+	BeginLog() (OrganizationUserRepository, error)
+	Commit() error
+	Rollback() error
 	CreateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error)
+	CheckOrganizationUserExists(organizationUser *models.OrganizationUser, userId int) (bool, error)
 	UpdateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error)
-	DeleteOrganizationUser(id int) error
 	GetOrganizationUserById(id int) (*models.OrganizationUser, error)
 	GetOrganizationUserByEmail(email string) (*models.OrganizationUser, error)
 	GetOrganizationUserListByOrganizationId(organizationId int) (*[]models.OrganizationUser, error)
+	DeleteOrganizationUser(id int) error
 	DeleteOrganizationUserByOrganizationId(organizationId int) error
 }
 
 type organizationUserRepository struct {
 	db *gorm.DB
+	tx *gorm.DB
 }
 
 func NewOrganizationUserRepository(db *gorm.DB) OrganizationUserRepository {
-	return &organizationUserRepository{db}
+	return &organizationUserRepository{db: db}
+}
+
+func (r *organizationUserRepository) BeginLog() (OrganizationUserRepository, error) {
+	tx := r.db.Begin()
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return &organizationUserRepository{db: tx, tx: tx}, nil
+}
+
+func (r *organizationUserRepository) Commit() error {
+	return r.tx.Commit().Error
+}
+
+func (r *organizationUserRepository) Rollback() error {
+	return r.tx.Rollback().Error
 }
 
 func (r *organizationUserRepository) CreateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error) {
@@ -32,19 +54,21 @@ func (r *organizationUserRepository) CreateOrganizationUser(organizationUser *mo
 	return organizationUser, nil
 }
 
+func (r *organizationUserRepository) CheckOrganizationUserExists(organizationUser *models.OrganizationUser, userId int) (bool, error) {
+	err := r.db.Where("organization_id = ? AND user_id = ?", organizationUser.OrganizationId, userId).First(&organizationUser).Error
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 func (r *organizationUserRepository) UpdateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error) {
 	if err := r.db.Save(organizationUser).Error; err != nil {
 		return organizationUser, err
 	}
 
 	return organizationUser, nil
-}
-
-func (r *organizationUserRepository) DeleteOrganizationUser(id int) error {
-	if err := r.db.Where("organization_user_id = ?", id).Delete(&models.OrganizationUser{}).Error; err != nil {
-		return err
-	}
-	return nil
 }
 
 func (r *organizationUserRepository) GetOrganizationUserById(id int) (*models.OrganizationUser, error) {
@@ -75,6 +99,13 @@ func (r *organizationUserRepository) GetOrganizationUserListByOrganizationId(org
 	}
 
 	return organizationUsers, nil
+}
+
+func (r *organizationUserRepository) DeleteOrganizationUser(id int) error {
+	if err := r.db.Where("organization_user_id = ?", id).Delete(&models.OrganizationUser{}).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *organizationUserRepository) DeleteOrganizationUserByOrganizationId(organizationId int) error {
