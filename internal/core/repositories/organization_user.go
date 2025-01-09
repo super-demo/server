@@ -12,10 +12,10 @@ type OrganizationUserRepository interface {
 	Rollback() error
 	CreateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error)
 	UpdateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error)
-	DeleteOrganizationUser(id int) error
 	GetOrganizationUserById(id int) (*models.OrganizationUser, error)
 	GetOrganizationUserByEmail(email string) (*models.OrganizationUser, error)
 	GetOrganizationUserListByOrganizationId(organizationId int) (*[]models.OrganizationUser, error)
+	DeleteOrganizationUser(id int) error
 	DeleteOrganizationUserByOrganizationId(organizationId int) error
 }
 
@@ -61,13 +61,6 @@ func (r *organizationUserRepository) UpdateOrganizationUser(organizationUser *mo
 	return organizationUser, nil
 }
 
-func (r *organizationUserRepository) DeleteOrganizationUser(id int) error {
-	if err := r.db.Where("organization_user_id = ?", id).Delete(&models.OrganizationUser{}).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
 func (r *organizationUserRepository) GetOrganizationUserById(id int) (*models.OrganizationUser, error) {
 	organizationUser := new(models.OrganizationUser)
 
@@ -96,6 +89,13 @@ func (r *organizationUserRepository) GetOrganizationUserListByOrganizationId(org
 	}
 
 	return organizationUsers, nil
+}
+
+func (r *organizationUserRepository) DeleteOrganizationUser(id int) error {
+	if err := r.db.Where("organization_user_id = ?", id).Delete(&models.OrganizationUser{}).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *organizationUserRepository) DeleteOrganizationUserByOrganizationId(organizationId int) error {

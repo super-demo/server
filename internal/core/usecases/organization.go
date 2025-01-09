@@ -8,9 +8,9 @@ import (
 
 type OrganizationUsecase interface {
 	CreateOrganization(organization *models.Organization, requesterUserId int) (*models.Organization, error)
-	DeleteOrganization(organizationId, requesterUserId int) error
 	GetOrganizationById(organizationId, requesterUserId int) (*models.Organization, error)
 	GetOrganizationListByUserId(requesterUserId int) (*[]models.Organization, error)
+	DeleteOrganization(organizationId, requesterUserId int) error
 }
 
 type organizationUsecase struct {
@@ -84,27 +84,6 @@ func (u *organizationUsecase) CreateOrganization(organization *models.Organizati
 	return newOrganization, nil
 }
 
-func (u *organizationUsecase) DeleteOrganization(organizationId, requesterUserId int) error {
-	organization, err := u.organizationRepo.GetOrganizationById(organizationId)
-	if err != nil {
-		return err
-	}
-
-	if organization.CreatedBy != requesterUserId {
-		return app.ErrUnauthorized
-	}
-
-	if err := u.organizationUserRepo.DeleteOrganizationUserByOrganizationId(organizationId); err != nil {
-		return err
-	}
-
-	if err := u.organizationRepo.DeleteOrganization(organizationId); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (u *organizationUsecase) GetOrganizationById(organizationId, requesterUserId int) (*models.Organization, error) {
 	organizationUser, err := u.organizationUserRepo.GetOrganizationUserById(requesterUserId)
 	if err != nil {
@@ -133,4 +112,25 @@ func (u *organizationUsecase) GetOrganizationListByUserId(requesterUserId int) (
 	}
 
 	return organization, nil
+}
+
+func (u *organizationUsecase) DeleteOrganization(organizationId, requesterUserId int) error {
+	organization, err := u.organizationRepo.GetOrganizationById(organizationId)
+	if err != nil {
+		return err
+	}
+
+	if organization.CreatedBy != requesterUserId {
+		return app.ErrUnauthorized
+	}
+
+	if err := u.organizationUserRepo.DeleteOrganizationUserByOrganizationId(organizationId); err != nil {
+		return err
+	}
+
+	if err := u.organizationRepo.DeleteOrganization(organizationId); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -13,10 +13,10 @@ type OrganizationRepository interface {
 	Commit() error
 	Rollback() error
 	CreateOrganization(organization *models.Organization) (*models.Organization, error)
-	DeleteOrganization(id int) error
-	GetOrganizationById(id int) (*models.Organization, error)
 	CheckOrganizationExistsByName(name string) (bool, error)
+	GetOrganizationById(id int) (*models.Organization, error)
 	GetOrganizationListByUserId(id int) (*[]models.Organization, error)
+	DeleteOrganization(id int) error
 }
 
 type organizationRepository struct {
@@ -53,23 +53,6 @@ func (r *organizationRepository) CreateOrganization(organization *models.Organiz
 	return organization, nil
 }
 
-func (r *organizationRepository) DeleteOrganization(id int) error {
-	if err := r.db.Where("organization_id = ?", id).Delete(&models.Organization{}).Error; err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *organizationRepository) GetOrganizationById(id int) (*models.Organization, error) {
-	organization := new(models.Organization)
-
-	if err := r.db.First(organization, id).Error; err != nil {
-		return nil, err
-	}
-
-	return organization, nil
-}
-
 func (r *organizationRepository) CheckOrganizationExistsByName(name string) (bool, error) {
 	var organization models.Organization
 
@@ -84,6 +67,16 @@ func (r *organizationRepository) CheckOrganizationExistsByName(name string) (boo
 	return true, app.ErrOrganizationNameExists
 }
 
+func (r *organizationRepository) GetOrganizationById(id int) (*models.Organization, error) {
+	organization := new(models.Organization)
+
+	if err := r.db.First(organization, id).Error; err != nil {
+		return nil, err
+	}
+
+	return organization, nil
+}
+
 func (r *organizationRepository) GetOrganizationListByUserId(id int) (*[]models.Organization, error) {
 	organization := new([]models.Organization)
 
@@ -92,4 +85,11 @@ func (r *organizationRepository) GetOrganizationListByUserId(id int) (*[]models.
 	}
 
 	return organization, nil
+}
+
+func (r *organizationRepository) DeleteOrganization(id int) error {
+	if err := r.db.Where("organization_id = ?", id).Delete(&models.Organization{}).Error; err != nil {
+		return err
+	}
+	return nil
 }

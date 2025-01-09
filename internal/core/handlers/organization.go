@@ -53,9 +53,9 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 	}
 
 	v1.POST("/create", createOrganization...)
-	v1.DELETE("/:id", deleteOrganization...)
 	v1.GET("/:id", getOrganizationById...)
 	v1.GET("/list", getOrganizationListByUserId...)
+	v1.DELETE("/:id", deleteOrganization...)
 
 	return handler
 }
@@ -76,19 +76,6 @@ func (h *organizationHandler) CreateOrganization(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, organization)
-}
-
-func (h *organizationHandler) DeleteOrganization(c *gin.Context) {
-	organizationId := utils.GetIdFromParams(c)
-	requesterUserId := c.MustGet("user_id").(int)
-
-	err := h.organizationUsecase.DeleteOrganization(organizationId, requesterUserId)
-	if err != nil {
-		middlewares.ResponseError(c, err)
-		return
-	}
-
-	middlewares.ResponseSuccess(c, nil)
 }
 
 func (h *organizationHandler) GetOrganizationById(c *gin.Context) {
@@ -114,4 +101,17 @@ func (h *organizationHandler) GetOrganizationListByUserId(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, organization)
+}
+
+func (h *organizationHandler) DeleteOrganization(c *gin.Context) {
+	organizationId := utils.GetIdFromParams(c)
+	requesterUserId := c.MustGet("user_id").(int)
+
+	err := h.organizationUsecase.DeleteOrganization(organizationId, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, nil)
 }
