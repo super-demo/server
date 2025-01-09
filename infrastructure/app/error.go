@@ -59,8 +59,9 @@ var (
 	ErrUserNotFound = AppError{404, 404002, errors.New("user not found")}
 
 	// 409 Conflict
-	ErrConflict   = AppError{409, 409001, errors.New("conflict")}
-	ErrEmailExist = AppError{409, 409002, errors.New("email already exist")}
+	ErrConflict               = AppError{409, 409001, errors.New("conflict")}
+	ErrEmailExist             = AppError{409, 409002, errors.New("email already exist")}
+	ErrOrganizationNameExists = AppError{409, 409003, errors.New("organization name already exists")}
 
 	// 422 Unprocessable Entity
 	ErrUnprocessableEntity     = AppError{422, 422001, errors.New("unprocessable entity")}
