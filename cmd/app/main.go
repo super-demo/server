@@ -43,12 +43,14 @@ func main() {
 	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository, organizationUserRepository)
 	userUsecase := usecases.NewUserUsecase(userRepository)
 	organizationUsecase := usecases.NewOrganizationUsecase(organizationRepository, organizationUserRepository, organizationLogRepository)
+	organizationUserUsecase := usecases.NewOrganizationUserUsecase(organizationRepository, organizationUserRepository, organizationLogRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
 	handlers.NewAuthenticationHandler(engine, authUsecase)
 	handlers.NewUserHandler(engine, userUsecase, middlewares.Jwt())
 	handlers.NewOrganizationHandler(engine, organizationUsecase, middlewares.Jwt())
+	handlers.NewOrganizationUserHandler(engine, organizationUserUsecase, middlewares.Jwt())
 
 	server := fmt.Sprintf("%s:%s", app.Config.Host, app.Config.Port)
 	app.SLog.Info("Running golang server")

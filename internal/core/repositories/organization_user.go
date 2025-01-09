@@ -7,6 +7,9 @@ import (
 )
 
 type OrganizationUserRepository interface {
+	BeginLog() (OrganizationUserRepository, error)
+	Commit() error
+	Rollback() error
 	CreateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error)
 	UpdateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error)
 	DeleteOrganizationUser(id int) error
@@ -18,10 +21,28 @@ type OrganizationUserRepository interface {
 
 type organizationUserRepository struct {
 	db *gorm.DB
+	tx *gorm.DB
 }
 
 func NewOrganizationUserRepository(db *gorm.DB) OrganizationUserRepository {
-	return &organizationUserRepository{db}
+	return &organizationUserRepository{db: db}
+}
+
+func (r *organizationUserRepository) BeginLog() (OrganizationUserRepository, error) {
+	tx := r.db.Begin()
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	return &organizationUserRepository{db: tx, tx: tx}, nil
+}
+
+func (r *organizationUserRepository) Commit() error {
+	return r.tx.Commit().Error
+}
+
+func (r *organizationUserRepository) Rollback() error {
+	return r.tx.Rollback().Error
 }
 
 func (r *organizationUserRepository) CreateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error) {
