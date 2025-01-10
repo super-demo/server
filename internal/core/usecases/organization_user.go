@@ -39,7 +39,7 @@ func (u *organizationUserUsecase) CreateOrganizationUser(organizationUser *model
 
 	if exists {
 		txOrganizationUserRepo.Rollback()
-		return nil, app.ErrorOrganizationUserExists
+		return nil, app.ErrOrganizationUserExists
 	}
 
 	organizationUser.CreatedBy = requesterUserId

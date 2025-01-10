@@ -3,7 +3,7 @@
 CREATE TABLE organization_services (
     organization_service_id SERIAL PRIMARY KEY,
     organization_id INTEGER NOT NULL,
-    service_id INTEGER NOT NULL,
+    service_id text,
     slug VARCHAR(255) NOT NULL,
     description TEXT,
     webhook_url TEXT,

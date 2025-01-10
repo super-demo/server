@@ -9,7 +9,7 @@ import (
 type OrganizationService struct {
 	OrganizationServiceId int            `json:"organization_service_id" gorm:"primaryKey;column:organization_service_id;not null"`
 	OrganizationId        int            `json:"organization_id" gorm:"column:organization_id;not null"`
-	ServiceId             int            `json:"service_id" gorm:"column:service_id;not null"`
+	ServiceId             string         `json:"service_id" gorm:"column:service_id;not null"`
 	Slug                  string         `json:"slug" gorm:"column:slug;not null"`
 	Description           string         `json:"description" gorm:"column:description"`
 	WebHookUrl            string         `json:"web_hook_url" gorm:"column:web_hook_url"`
