@@ -32,7 +32,20 @@ func NewOrganizationCategoryHandler(r *gin.Engine, organizationCategoryUsecase u
 		handler.CreateOrganizationCategory,
 	}
 
+	updateOrganizationCategory := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.OrganizationCategory{}),
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{
+				repositories.OwnerUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+			},
+		}),
+		handler.UpdateOrganizationCategory,
+	}
+
 	v1.POST("/create", createOrganizationCategory...)
+	v1.PUT("/update", updateOrganizationCategory...)
 
 	return handler
 }
@@ -46,6 +59,23 @@ func (h *organizationCategoryHandler) CreateOrganizationCategory(c *gin.Context)
 
 	requesterUserId := c.MustGet("user_id").(int)
 	organizationCategory, err := h.organizationCategoryUsecase.CreateOrganizationCategory(organizationCategory, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, organizationCategory)
+}
+
+func (h *organizationCategoryHandler) UpdateOrganizationCategory(c *gin.Context) {
+	organizationCategory := &models.OrganizationCategory{}
+	if err := c.ShouldBindJSON(organizationCategory); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	requesterUserId := c.MustGet("user_id").(int)
+	organizationCategory, err := h.organizationCategoryUsecase.UpdateOrganizationCategory(organizationCategory, requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
