@@ -52,5 +52,5 @@ func (h *organizationUserHandler) CreateOrganizationUser(c *gin.Context) {
 		return
 	}
 
-	middlewares.ResponseSuccess(c, organizationUser)
+	middlewares.ResponseSuccess(c, organizationUser, "Organization user created successfully")
 }

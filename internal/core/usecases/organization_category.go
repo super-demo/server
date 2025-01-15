@@ -59,8 +59,8 @@ func (u *organizationCategoryUsecase) CreateOrganizationCategory(organizationCat
 
 	organizationLog := &models.OrganizationLog{
 		OrganizationId: newOrganizationCategory.OrganizationId,
-		Action:         "Created Organization Category",
-		Description:    "Category Created in Organization",
+		Action:         "Created Category",
+		Description:    "Created Category " + newOrganizationCategory.Name + " in Organization",
 		CreatedBy:      requesterUserId,
 	}
 
@@ -121,7 +121,7 @@ func (u *organizationCategoryUsecase) UpdateOrganizationCategory(organizationCat
 	organizationLog := &models.OrganizationLog{
 		OrganizationId: newOrganizationCategory.OrganizationId,
 		Action:         "Updated Category",
-		Description:    "Category" + newOrganizationCategory.Name + " Updated in Organization",
+		Description:    "Updated Category " + newOrganizationCategory.Name + " in Organization",
 		CreatedBy:      requesterUserId,
 	}
 
@@ -161,7 +161,7 @@ func (u *organizationCategoryUsecase) DeleteOrganizationCategory(organizationCat
 	organizationLog := &models.OrganizationLog{
 		OrganizationId: oldOrganizationCategory.OrganizationId,
 		Action:         "Deleted Category",
-		Description:    "Category" + oldOrganizationCategory.Name + " Deleted in Organization",
+		Description:    "Deleted Category " + oldOrganizationCategory.Name + " in Organization",
 		CreatedBy:      requesterUserId,
 	}
 

@@ -4,6 +4,7 @@ import (
 	"server/infrastructure/app"
 	"server/internal/core/models"
 	"server/internal/core/repositories"
+	"strconv"
 )
 
 type OrganizationUserUsecase interface {
@@ -57,7 +58,7 @@ func (u *organizationUserUsecase) CreateOrganizationUser(organizationUser *model
 	organizationLog := &models.OrganizationLog{
 		OrganizationId: newOrganizationUser.OrganizationId,
 		Action:         "Invited",
-		Description:    "User Invited to Organization",
+		Description:    "Invited user " + strconv.Itoa(newOrganizationUser.UserId) + " to the organization",
 		CreatedBy:      requesterUserId,
 	}
 

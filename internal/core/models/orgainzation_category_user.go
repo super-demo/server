@@ -16,5 +16,5 @@ type OrganizationCategoryUser struct {
 	CreatedBy                  int            `json:"created_by" gorm:"column:created_by;not null"`
 	UpdatedAt                  time.Time      `json:"updated_at" gorm:"column:updated_at"`
 	UpdatedBy                  int            `json:"updated_by" gorm:"column:updated_by"`
-	DeleteAt                   gorm.DeletedAt `json:"delete_at" gorm:"column:delete_at"`
+	DeletedAt                  gorm.DeletedAt `json:"deleted_at" gorm:"column:deleted_at"`
 }

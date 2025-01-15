@@ -58,8 +58,8 @@ func (u *organizationServiceUsecase) CreateOrganizationService(organizationServi
 
 	organizationLog := &models.OrganizationLog{
 		OrganizationId: newOrganizationService.OrganizationId,
-		Action:         "Add Service",
-		Description:    "Service Added to Organization",
+		Action:         "Added Service",
+		Description:    "Service Added " + newOrganizationService.Slug + " in Organization",
 		CreatedBy:      requesterUserId,
 	}
 

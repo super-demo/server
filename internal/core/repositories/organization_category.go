@@ -12,8 +12,8 @@ type OrganizationCategoryRepository interface {
 	Rollback() error
 	CreateOrganizationCategory(organizationCategory *models.OrganizationCategory) (*models.OrganizationCategory, error)
 	CheckOrganizationCategoryExistsByName(name string) (bool, error)
-	UpdateOrganizationCategory(organizationCategory *models.OrganizationCategory) (*models.OrganizationCategory, error)
 	GetOrganizationCategoryById(id int) (*models.OrganizationCategory, error)
+	UpdateOrganizationCategory(organizationCategory *models.OrganizationCategory) (*models.OrganizationCategory, error)
 	DeleteOrganizationCategory(organizationCategory *models.OrganizationCategory) error
 }
 
@@ -64,14 +64,6 @@ func (r *organizationCategoryRepository) CheckOrganizationCategoryExistsByName(n
 	return true, nil
 }
 
-func (r *organizationCategoryRepository) UpdateOrganizationCategory(organizationCategory *models.OrganizationCategory) (*models.OrganizationCategory, error) {
-	if err := r.db.Save(organizationCategory).Error; err != nil {
-		return nil, err
-	}
-
-	return organizationCategory, nil
-}
-
 func (r *organizationCategoryRepository) GetOrganizationCategoryById(id int) (*models.OrganizationCategory, error) {
 	var organizationCategory models.OrganizationCategory
 	if err := r.db.Where("organization_category_id = ?", id).First(&organizationCategory).Error; err != nil {
@@ -81,8 +73,16 @@ func (r *organizationCategoryRepository) GetOrganizationCategoryById(id int) (*m
 	return &organizationCategory, nil
 }
 
+func (r *organizationCategoryRepository) UpdateOrganizationCategory(organizationCategory *models.OrganizationCategory) (*models.OrganizationCategory, error) {
+	if err := r.db.Where("organization_category_id = ?", organizationCategory.OrganizationCategoryId).Updates(organizationCategory).Error; err != nil {
+		return nil, err
+	}
+
+	return organizationCategory, nil
+}
+
 func (r *organizationCategoryRepository) DeleteOrganizationCategory(organizationCategory *models.OrganizationCategory) error {
-	if err := r.db.Delete(organizationCategory).Error; err != nil {
+	if err := r.db.Where("organization_category_id = ?", organizationCategory.OrganizationCategoryId).Delete(organizationCategory).Error; err != nil {
 		return err
 	}
 

@@ -43,17 +43,17 @@ func (_m *OrganizationUsecase) CreateOrganization(organization *models.Organizat
 	return r0, r1
 }
 
-// DeleteOrganization provides a mock function with given fields: organizationId, requesterUserId
-func (_m *OrganizationUsecase) DeleteOrganization(organizationId int, requesterUserId int) error {
-	ret := _m.Called(organizationId, requesterUserId)
+// DeleteOrganization provides a mock function with given fields: organization, requesterUserId
+func (_m *OrganizationUsecase) DeleteOrganization(organization *models.Organization, requesterUserId int) error {
+	ret := _m.Called(organization, requesterUserId)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteOrganization")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int) error); ok {
-		r0 = rf(organizationId, requesterUserId)
+	if rf, ok := ret.Get(0).(func(*models.Organization, int) error); ok {
+		r0 = rf(organization, requesterUserId)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -40,5 +40,5 @@ func (h *userHandler) GetUserById(c *gin.Context) {
 		return
 	}
 
-	middlewares.ResponseSuccess(c, user)
+	middlewares.ResponseSuccess(c, user, "User retrieved successfully")
 }

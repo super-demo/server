@@ -52,5 +52,5 @@ func (h *organizationServiceHandler) CreateOrganizationService(c *gin.Context) {
 		return
 	}
 
-	middlewares.ResponseSuccess(c, organizationService)
+	middlewares.ResponseSuccess(c, organizationService, "Organization service created successfully")
 }

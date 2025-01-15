@@ -121,17 +121,17 @@ func (_m *OrganizationRepository) CreateOrganization(organization *models.Organi
 	return r0, r1
 }
 
-// DeleteOrganization provides a mock function with given fields: id
-func (_m *OrganizationRepository) DeleteOrganization(id int) error {
-	ret := _m.Called(id)
+// DeleteOrganization provides a mock function with given fields: organization
+func (_m *OrganizationRepository) DeleteOrganization(organization *models.Organization) error {
+	ret := _m.Called(organization)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteOrganization")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(*models.Organization) error); ok {
+		r0 = rf(organization)
 	} else {
 		r0 = ret.Error(0)
 	}

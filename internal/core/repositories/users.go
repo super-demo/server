@@ -8,9 +8,9 @@ import (
 
 type UserRepository interface {
 	CreateUser(user *models.User) (*models.User, error)
-	UpdateUser(user *models.User) (*models.User, error)
 	GetUserById(id int) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
+	UpdateUser(user *models.User) (*models.User, error)
 }
 
 type userRepository struct {
@@ -23,14 +23,6 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 
 func (r *userRepository) CreateUser(user *models.User) (*models.User, error) {
 	if err := r.db.Create(user).Error; err != nil {
-		return user, err
-	}
-
-	return user, nil
-}
-
-func (r *userRepository) UpdateUser(user *models.User) (*models.User, error) {
-	if err := r.db.Save(user).Error; err != nil {
 		return user, err
 	}
 
@@ -55,4 +47,12 @@ func (r *userRepository) GetUserByEmail(email string) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+func (r *userRepository) UpdateUser(user *models.User) (*models.User, error) {
+	if err := r.db.Where("user_id = ?", user.UserId).Updates(user).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
