@@ -14,6 +14,7 @@ type OrganizationCategoryRepository interface {
 	CheckOrganizationCategoryExistsByName(name string) (bool, error)
 	UpdateOrganizationCategory(organizationCategory *models.OrganizationCategory) (*models.OrganizationCategory, error)
 	GetOrganizationCategoryById(id int) (*models.OrganizationCategory, error)
+	DeleteOrganizationCategory(organizationCategory *models.OrganizationCategory) error
 }
 
 type organizationCategoryRepository struct {
@@ -78,4 +79,12 @@ func (r *organizationCategoryRepository) GetOrganizationCategoryById(id int) (*m
 	}
 
 	return &organizationCategory, nil
+}
+
+func (r *organizationCategoryRepository) DeleteOrganizationCategory(organizationCategory *models.OrganizationCategory) error {
+	if err := r.db.Delete(organizationCategory).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -10,6 +10,7 @@ import (
 type OrganizationCategoryUsecase interface {
 	CreateOrganizationCategory(organizationCategory *models.OrganizationCategory, requesterUserId int) (*models.OrganizationCategory, error)
 	UpdateOrganizationCategory(organizationCategory *models.OrganizationCategory, requesterUserId int) (*models.OrganizationCategory, error)
+	DeleteOrganizationCategory(organizationCategory *models.OrganizationCategory, requesterUserId int) error
 }
 
 type organizationCategoryUsecase struct {
@@ -113,6 +114,10 @@ func (u *organizationCategoryUsecase) UpdateOrganizationCategory(organizationCat
 		return nil, err
 	}
 
+	if err := txOrganizationCategoryRepo.Commit(); err != nil {
+		return nil, err
+	}
+
 	organizationLog := &models.OrganizationLog{
 		OrganizationId: newOrganizationCategory.OrganizationId,
 		Action:         "Updated Category",
@@ -125,4 +130,44 @@ func (u *organizationCategoryUsecase) UpdateOrganizationCategory(organizationCat
 	}
 
 	return newOrganizationCategory, nil
+}
+
+func (u *organizationCategoryUsecase) DeleteOrganizationCategory(organizationCategory *models.OrganizationCategory, requesterUserId int) error {
+	txOrganizationCategoryRepo, err := u.organizationCategoryRepo.BeginLog()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txOrganizationCategoryRepo.Rollback()
+		}
+	}()
+
+	oldOrganizationCategory, err := txOrganizationCategoryRepo.GetOrganizationCategoryById(organizationCategory.OrganizationCategoryId)
+	if err != nil {
+		txOrganizationCategoryRepo.Rollback()
+		return err
+	}
+
+	if err := txOrganizationCategoryRepo.DeleteOrganizationCategory(oldOrganizationCategory); err != nil {
+		txOrganizationCategoryRepo.Rollback()
+		return err
+	}
+
+	if err := txOrganizationCategoryRepo.Commit(); err != nil {
+		return err
+	}
+
+	organizationLog := &models.OrganizationLog{
+		OrganizationId: oldOrganizationCategory.OrganizationId,
+		Action:         "Deleted Category",
+		Description:    "Category" + oldOrganizationCategory.Name + " Deleted in Organization",
+		CreatedBy:      requesterUserId,
+	}
+
+	if _, err := u.organizationLogRepo.CreateOrganizationLog(organizationLog); err != nil {
+		return err
+	}
+
+	return nil
 }

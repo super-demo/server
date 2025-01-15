@@ -9,3 +9,7 @@ func TestCreateOrganizationCategory(t *testing.T) {
 func TestUpdateOrganizationCategory(t *testing.T) {
 	t.Skip("skipping test")
 }
+
+func TestDeleteOrganizationCategory(t *testing.T) {
+	t.Skip("skipping test")
+}
