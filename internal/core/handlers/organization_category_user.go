@@ -20,10 +20,17 @@ func NewOrganizationCategoryUserHandler(r *gin.Engine, organizationCategoryUserU
 	v1 := r.Group("/v1/organization-category-users", globalMiddlewares...)
 
 	createOrganizationCategoryUser := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.OrganizationCategoryUser{}),
 		handler.CreateOrganizationCategoryUser,
 	}
 
+	deleteOrganizationCategoryUser := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.OrganizationCategoryUser{}),
+		handler.DeleteOrganizationCategoryUser,
+	}
+
 	v1.POST("/create", createOrganizationCategoryUser...)
+	v1.DELETE("/delete", deleteOrganizationCategoryUser...)
 
 	return handler
 
@@ -45,4 +52,22 @@ func (h *organizationCategoryUserHandler) CreateOrganizationCategoryUser(c *gin.
 	}
 
 	middlewares.ResponseSuccess(c, organizationCategoryUser, "Organization category user created successfully")
+}
+
+func (h *organizationCategoryUserHandler) DeleteOrganizationCategoryUser(c *gin.Context) {
+	requesterUserId := c.MustGet("user_id").(int)
+
+	organizationCategoryUser := &models.OrganizationCategoryUser{}
+	if err := c.ShouldBindJSON(organizationCategoryUser); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	err := h.organizationCategoryUserUsecase.DeleteOrganizationCategoryUser(organizationCategoryUser, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, nil, "Organization category user deleted successfully")
 }

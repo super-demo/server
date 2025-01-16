@@ -12,6 +12,7 @@ type OrganizationCategoryUserRepository interface {
 	Rollback() error
 	CreateOrganizationCategoryUser(organizationCategoryUser *models.OrganizationCategoryUser) (*models.OrganizationCategoryUser, error)
 	CheckOrganizationCategoryUserExistsById(id int) (bool, error)
+	DeleteOrganizationCategoryUser(organizationCategoryUser *models.OrganizationCategoryUser) error
 }
 
 type organizationCategoryUserRepository struct {
@@ -59,4 +60,12 @@ func (r *organizationCategoryUserRepository) CheckOrganizationCategoryUserExists
 	}
 
 	return true, nil
+}
+
+func (r *organizationCategoryUserRepository) DeleteOrganizationCategoryUser(organizationCategoryUser *models.OrganizationCategoryUser) error {
+	if err := r.db.Where("user_id = ?", organizationCategoryUser.UserId).Delete(&organizationCategoryUser).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

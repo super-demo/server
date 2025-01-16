@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"server/internal/core/models"
-	"server/internal/core/repositories"
 	"server/internal/core/usecases"
 	"server/internal/middlewares"
 
@@ -22,13 +21,6 @@ func NewOrganizationServiceHandler(r *gin.Engine, organizationServiceUsecase use
 
 	createOrganizationService := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.OrganizationService{}),
-		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{
-				repositories.OwnerUserLevel.UserLevelId,
-				repositories.SuperAdminUserLevel.UserLevelId,
-				repositories.AdminUserLevel.UserLevelId,
-			},
-		}),
 		handler.CreateOrganizationService,
 	}
 

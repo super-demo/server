@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"server/internal/core/models"
-	"server/internal/core/repositories"
 	"server/internal/core/usecases"
 	"server/internal/middlewares"
 
@@ -22,37 +21,16 @@ func NewOrganizationCategoryHandler(r *gin.Engine, organizationCategoryUsecase u
 
 	createOrganizationCategory := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.OrganizationCategory{}),
-		// middlewares.Permission(middlewares.AllowedPermissionConfig{
-		// 	AllowedUserLevelIDs: []int{
-		// 		repositories.OwnerUserLevel.UserLevelId,
-		// 		repositories.SuperAdminUserLevel.UserLevelId,
-		// 		repositories.AdminUserLevel.UserLevelId,
-		// 	},
-		// }),
 		handler.CreateOrganizationCategory,
 	}
 
 	updateOrganizationCategory := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.OrganizationCategory{}),
-		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{
-				repositories.OwnerUserLevel.UserLevelId,
-				repositories.SuperAdminUserLevel.UserLevelId,
-				repositories.AdminUserLevel.UserLevelId,
-			},
-		}),
 		handler.UpdateOrganizationCategory,
 	}
 
 	deleteOrganizationCategory := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.OrganizationCategory{}),
-		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{
-				repositories.OwnerUserLevel.UserLevelId,
-				repositories.SuperAdminUserLevel.UserLevelId,
-				repositories.AdminUserLevel.UserLevelId,
-			},
-		}),
 		handler.DeleteOrganizationCategory,
 	}
 

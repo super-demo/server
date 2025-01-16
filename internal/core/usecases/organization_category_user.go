@@ -9,6 +9,7 @@ import (
 
 type OrganizationCategoryUserUsecase interface {
 	CreateOrganizationCategoryUser(organizationCategoryUser *models.OrganizationCategoryUser, requesterUserId int) (*models.OrganizationCategoryUser, error)
+	DeleteOrganizationCategoryUser(organizationCategoryUser *models.OrganizationCategoryUser, requesterUserId int) error
 }
 
 type organizationCategoryUserUsecase struct {
@@ -67,4 +68,38 @@ func (u *organizationCategoryUserUsecase) CreateOrganizationCategoryUser(organiz
 	}
 
 	return newOrganizationCategoryUser, nil
+}
+
+func (u *organizationCategoryUserUsecase) DeleteOrganizationCategoryUser(organizationCategoryUser *models.OrganizationCategoryUser, requesterUserId int) error {
+	txOrganizationCategoryUserRepo, err := u.organizationCategoryUserRepo.BeginLog()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txOrganizationCategoryUserRepo.Rollback()
+		}
+	}()
+
+	if err := txOrganizationCategoryUserRepo.DeleteOrganizationCategoryUser(organizationCategoryUser); err != nil {
+		txOrganizationCategoryUserRepo.Rollback()
+		return err
+	}
+
+	if err := txOrganizationCategoryUserRepo.Commit(); err != nil {
+		return err
+	}
+
+	organizationLog := &models.OrganizationLog{
+		OrganizationId: organizationCategoryUser.OrganizationId,
+		Action:         "Removed",
+		Description:    "Removed user " + strconv.Itoa(organizationCategoryUser.UserId) + " from organization category " + strconv.Itoa(organizationCategoryUser.UserId),
+		CreatedBy:      requesterUserId,
+	}
+
+	if _, err := u.organizationLogRepo.CreateOrganizationLog(organizationLog); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -132,6 +132,9 @@ func (u *organizationCategoryUsecase) UpdateOrganizationCategory(organizationCat
 	return newOrganizationCategory, nil
 }
 
+// TODO: Implement DeleteOrganizationCategory
+// FYI: When deleting an organization category, you should also delete all the organization category users, services associated with that category.
+// FYI: You should also log the action in the organization log.
 func (u *organizationCategoryUsecase) DeleteOrganizationCategory(organizationCategory *models.OrganizationCategory, requesterUserId int) error {
 	txOrganizationCategoryRepo, err := u.organizationCategoryRepo.BeginLog()
 	if err != nil {

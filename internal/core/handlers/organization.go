@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"server/internal/core/models"
-	"server/internal/core/repositories"
 	"server/internal/core/usecases"
 	"server/internal/middlewares"
 	"server/pkg/utils"
@@ -22,19 +21,12 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 	v1 := r.Group("/v1/organizations", globalMiddlewares...)
 
 	getOrganizationById := []gin.HandlerFunc{
-		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{
-				repositories.OwnerUserLevel.UserLevelId,
-				repositories.SuperAdminUserLevel.UserLevelId,
-				repositories.AdminUserLevel.UserLevelId,
-				repositories.MemberUserLevel.UserLevelId,
-				repositories.VisitorUserLevel.UserLevelId,
-			},
-		}),
+		middlewares.ValidateRequestBody(&models.Organization{}),
 		handler.GetOrganizationById,
 	}
 
 	getOrganizationListByUserId := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.Organization{}),
 		handler.GetOrganizationListByUserId,
 	}
 
@@ -44,11 +36,7 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 	}
 
 	deleteOrganization := []gin.HandlerFunc{
-		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{
-				repositories.OwnerUserLevel.UserLevelId,
-			},
-		}),
+		middlewares.ValidateRequestBody(&models.Organization{}),
 		handler.DeleteOrganization,
 	}
 
