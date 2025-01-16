@@ -65,6 +65,7 @@ var (
 	ErrOrganizationUserExists         = AppError{409, 409004, errors.New("user in organization already exists")}
 	ErrOrganizationServiceNameExists  = AppError{409, 409005, errors.New("organization service name already exists")}
 	ErrOrganizationCategoryNameExists = AppError{409, 409006, errors.New("organization category name already exists")}
+	ErrOrganizationCategoryUserExists = AppError{409, 409007, errors.New("organization category user already exists")}
 
 	// 422 Unprocessable Entity
 	ErrUnprocessableEntity     = AppError{422, 422001, errors.New("unprocessable entity")}

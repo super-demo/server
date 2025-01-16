@@ -9,6 +9,7 @@ import (
 type OrganizationCategoryUser struct {
 	OrganizationCategoryUserId int            `json:"organization_category_user_id" gorm:"primaryKey;column:organization_category_user_id;not null"`
 	OrganizationCategoryId     int            `json:"organization_category_id" gorm:"column:organization_category_id;not null"`
+	OrganizationId             int            `json:"organization_id" gorm:"column:organization_id;not null"`
 	UserId                     int            `json:"user_id" gorm:"column:user_id;not null"`
 	UserLevelId                int            `json:"user_level_id" gorm:"column:user_level_id;not null"`
 	IsActive                   bool           `json:"is_active" gorm:"column:is_active;not null"`

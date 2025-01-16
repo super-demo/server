@@ -22,13 +22,13 @@ func NewOrganizationCategoryHandler(r *gin.Engine, organizationCategoryUsecase u
 
 	createOrganizationCategory := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.OrganizationCategory{}),
-		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{
-				repositories.OwnerUserLevel.UserLevelId,
-				repositories.SuperAdminUserLevel.UserLevelId,
-				repositories.AdminUserLevel.UserLevelId,
-			},
-		}),
+		// middlewares.Permission(middlewares.AllowedPermissionConfig{
+		// 	AllowedUserLevelIDs: []int{
+		// 		repositories.OwnerUserLevel.UserLevelId,
+		// 		repositories.SuperAdminUserLevel.UserLevelId,
+		// 		repositories.AdminUserLevel.UserLevelId,
+		// 	},
+		// }),
 		handler.CreateOrganizationCategory,
 	}
 
