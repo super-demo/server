@@ -121,6 +121,24 @@ func (_m *OrganizationCategoryUserRepository) CreateOrganizationCategoryUser(org
 	return r0, r1
 }
 
+// DeleteOrganizationCategoryUser provides a mock function with given fields: organizationCategoryUser
+func (_m *OrganizationCategoryUserRepository) DeleteOrganizationCategoryUser(organizationCategoryUser *models.OrganizationCategoryUser) error {
+	ret := _m.Called(organizationCategoryUser)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteOrganizationCategoryUser")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.OrganizationCategoryUser) error); ok {
+		r0 = rf(organizationCategoryUser)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Rollback provides a mock function with no fields
 func (_m *OrganizationCategoryUserRepository) Rollback() error {
 	ret := _m.Called()
