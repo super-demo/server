@@ -40,6 +40,7 @@ func main() {
 	organizationServiceRepository := repositories.NewOrganizationServiceRepository(app.PostgresClient)
 	organizationCategoryRepository := repositories.NewOrganizationCategoryRepository(app.PostgresClient)
 	organizationCategoryUserRepository := repositories.NewOrganizationCategoryUserRepository(app.PostgresClient)
+	organizationCategoryServiceRepository := repositories.NewOrganizationCategoryServiceRepository(app.PostgresClient)
 	organizationLogRepository := repositories.NewOrganizationLogRepository(app.PostgresClient)
 
 	// Initialize usecases
@@ -50,6 +51,7 @@ func main() {
 	organizationServiceUsecase := usecases.NewOrganizationServiceUsecase(organizationRepository, organizationServiceRepository, organizationLogRepository)
 	organizationCategoryUsecase := usecases.NewOrganizationCategoryUsecase(organizationRepository, organizationCategoryRepository, organizationLogRepository)
 	organizationCategoryUserUsecase := usecases.NewOrganizationCategoryUserUsecase(organizationCategoryRepository, organizationCategoryUserRepository, organizationLogRepository)
+	organizationCategoryServiceUsecase := usecases.NewOrganizationCategoryServiceUsecase(organizationCategoryRepository, organizationCategoryServiceRepository, organizationLogRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
@@ -60,6 +62,7 @@ func main() {
 	handlers.NewOrganizationServiceHandler(engine, organizationServiceUsecase, middlewares.Jwt())
 	handlers.NewOrganizationCategoryHandler(engine, organizationCategoryUsecase, middlewares.Jwt())
 	handlers.NewOrganizationCategoryUserHandler(engine, organizationCategoryUserUsecase, middlewares.Jwt())
+	handlers.NewOrganizationCategoryServiceHandler(engine, organizationCategoryServiceUsecase, middlewares.Jwt())
 
 	server := fmt.Sprintf("%s:%s", app.Config.Host, app.Config.Port)
 	app.SLog.Info("Running golang server")

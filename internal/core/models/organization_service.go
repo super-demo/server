@@ -12,7 +12,7 @@ type OrganizationService struct {
 	ServiceId             string         `json:"service_id" gorm:"column:service_id;not null"`
 	Slug                  string         `json:"slug" gorm:"column:slug;not null"`
 	Description           string         `json:"description" gorm:"column:description"`
-	WebHookUrl            string         `json:"web_hook_url" gorm:"column:web_hook_url"`
+	WebHookUrl            string         `json:"webhook_url" gorm:"column:webhook_url"`
 	IsActive              bool           `json:"is_active" gorm:"column:is_active;default:true;not null"`
 	CreatedAt             time.Time      `json:"created_at" gorm:"column:created_at;not null"`
 	CreatedBy             int            `json:"created_by" gorm:"column:created_by;not null"`
