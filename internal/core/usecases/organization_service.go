@@ -71,6 +71,9 @@ func (u *organizationServiceUsecase) CreateOrganizationService(organizationServi
 	return newOrganizationService, nil
 }
 
+// TODO: Implement the DeleteOrganizationService
+// FYI: When deleting an organization service, you should also delete all the organization service users, services associated with that service.
+// FYI: You should also log the action in the organization log.
 func (u *organizationServiceUsecase) DeleteOrganizationService(organizationService *models.OrganizationService, requesterUserId int) error {
 	txOrganizationServiceRepo, err := u.organizationServiceRepo.BeginLog()
 	if err != nil {

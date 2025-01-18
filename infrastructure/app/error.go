@@ -48,11 +48,12 @@ var (
 	ErrRefreshTokenEmpty = AppError{401, 401001, errors.New("refresh token is empty")}
 
 	// 403 Forbidden
-	ErrInvalidToken             = AppError{403, 403001, errors.New("token is invalid")}
-	ErrInvalidAppSecret         = AppError{403, 403002, errors.New("app secret is invalid")}
-	ErrInvalidCompanyDomainName = AppError{403, 403003, errors.New("company domain name is invalid")}
-	ErrInsufficientPermissions  = AppError{403, 403004, errors.New("insufficient permissions to access this resource")}
-	ErrAccessAnotherUser        = AppError{403, 403005, errors.New("you don't have permission to access another user's data")}
+	ErrInvalidToken                 = AppError{403, 403001, errors.New("token is invalid")}
+	ErrInvalidAppSecret             = AppError{403, 403002, errors.New("app secret is invalid")}
+	ErrInvalidCompanyDomainName     = AppError{403, 403003, errors.New("company domain name is invalid")}
+	ErrInsufficientPermissions      = AppError{403, 403004, errors.New("insufficient permissions to access this resource")}
+	ErrAccessAnotherUser            = AppError{403, 403005, errors.New("you don't have permission to access another user's data")}
+	ErrOrganizationUserDeleteMyself = AppError{403, 403006, errors.New("you can't delete yourself from organization")}
 
 	// 404 Not Found
 	ErrNotFound     = AppError{404, 404001, errors.New("not found")}
