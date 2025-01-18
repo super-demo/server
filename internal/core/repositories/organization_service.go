@@ -12,6 +12,7 @@ type OrganizationServiceRepository interface {
 	Rollback() error
 	CreateOrganizationService(organizationService *models.OrganizationService) (*models.OrganizationService, error)
 	CheckOrganizationServiceExistsByName(name string) (bool, error)
+	DeleteOrganizationService(organizationService *models.OrganizationService) error
 }
 
 type organizationServiceRepository struct {
@@ -59,4 +60,12 @@ func (r *organizationServiceRepository) CheckOrganizationServiceExistsByName(nam
 	}
 
 	return true, nil
+}
+
+func (r *organizationServiceRepository) DeleteOrganizationService(organizationService *models.OrganizationService) error {
+	if err := r.db.Where("organization_service_id = ?", organizationService.OrganizationServiceId).Delete(organizationService).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

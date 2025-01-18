@@ -20,10 +20,12 @@ func NewOrganizationCategoryServiceHandler(r *gin.Engine, organizationCategorySe
 	v1 := r.Group("/v1/organization-category-services", globalMiddlewares...)
 
 	createOrganizationCategoryService := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.OrganizationCategoryService{}),
 		handler.CreateOrganizationCategoryService,
 	}
 
 	deleteOrganizationCategoryService := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.OrganizationCategoryService{}),
 		handler.DeleteOrganizationCategoryService,
 	}
 

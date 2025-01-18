@@ -8,6 +8,7 @@ import (
 
 type OrganizationServiceUsecase interface {
 	CreateOrganizationService(organizationService *models.OrganizationService, requesterUserId int) (*models.OrganizationService, error)
+	DeleteOrganizationService(organizationService *models.OrganizationService, requesterUserId int) error
 }
 
 type organizationServiceUsecase struct {
@@ -68,4 +69,38 @@ func (u *organizationServiceUsecase) CreateOrganizationService(organizationServi
 	}
 
 	return newOrganizationService, nil
+}
+
+func (u *organizationServiceUsecase) DeleteOrganizationService(organizationService *models.OrganizationService, requesterUserId int) error {
+	txOrganizationServiceRepo, err := u.organizationServiceRepo.BeginLog()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txOrganizationServiceRepo.Rollback()
+		}
+	}()
+
+	if err := txOrganizationServiceRepo.DeleteOrganizationService(organizationService); err != nil {
+		txOrganizationServiceRepo.Rollback()
+		return err
+	}
+
+	if err := txOrganizationServiceRepo.Commit(); err != nil {
+		return err
+	}
+
+	organizationLog := &models.OrganizationLog{
+		OrganizationId: organizationService.OrganizationId,
+		Action:         "Deleted Service",
+		Description:    "Service Deleted " + organizationService.Slug + " in Organization",
+		CreatedBy:      requesterUserId,
+	}
+
+	if _, err := u.organizationLogRepo.CreateOrganizationLog(organizationLog); err != nil {
+		return err
+	}
+
+	return nil
 }

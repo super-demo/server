@@ -24,7 +24,13 @@ func NewOrganizationServiceHandler(r *gin.Engine, organizationServiceUsecase use
 		handler.CreateOrganizationService,
 	}
 
+	deleteOrganizationService := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.OrganizationService{}),
+		handler.DeleteOrganizationService,
+	}
+
 	v1.POST("/create", createOrganizationService...)
+	v1.DELETE("/delete", deleteOrganizationService...)
 
 	return handler
 }
@@ -45,4 +51,22 @@ func (h *organizationServiceHandler) CreateOrganizationService(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, organizationService, "Organization service created successfully")
+}
+
+func (h *organizationServiceHandler) DeleteOrganizationService(c *gin.Context) {
+	requesterUserId := c.MustGet("user_id").(int)
+
+	organizationService := &models.OrganizationService{}
+	if err := c.ShouldBindJSON(organizationService); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	err := h.organizationServiceUsecase.DeleteOrganizationService(organizationService, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, nil, "Organization service deleted successfully")
 }
