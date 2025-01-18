@@ -121,6 +121,24 @@ func (_m *OrganizationCategoryServiceRepository) CreateOrganizationCategoryServi
 	return r0, r1
 }
 
+// DeleteOrganizationCategoryService provides a mock function with given fields: organizationCategoryService
+func (_m *OrganizationCategoryServiceRepository) DeleteOrganizationCategoryService(organizationCategoryService *models.OrganizationCategoryService) error {
+	ret := _m.Called(organizationCategoryService)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteOrganizationCategoryService")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.OrganizationCategoryService) error); ok {
+		r0 = rf(organizationCategoryService)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Rollback provides a mock function with no fields
 func (_m *OrganizationCategoryServiceRepository) Rollback() error {
 	ret := _m.Called()
