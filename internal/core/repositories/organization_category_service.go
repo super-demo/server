@@ -12,6 +12,7 @@ type OrganizationCategoryServiceRepository interface {
 	Rollback() error
 	CreateOrganizationCategoryService(organizationCategoryService *models.OrganizationCategoryService) (*models.OrganizationCategoryService, error)
 	CheckOrganizationCategoryServiceExistsById(id int) (bool, error)
+	DeleteOrganizationCategoryService(organizationCategoryService *models.OrganizationCategoryService) error
 }
 
 type organizationCategoryServiceRepository struct {
@@ -59,4 +60,12 @@ func (r *organizationCategoryServiceRepository) CheckOrganizationCategoryService
 	}
 
 	return true, nil
+}
+
+func (r *organizationCategoryServiceRepository) DeleteOrganizationCategoryService(organizationCategoryService *models.OrganizationCategoryService) error {
+	if err := r.db.Delete(organizationCategoryService).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

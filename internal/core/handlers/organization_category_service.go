@@ -23,7 +23,12 @@ func NewOrganizationCategoryServiceHandler(r *gin.Engine, organizationCategorySe
 		handler.CreateOrganizationCategoryService,
 	}
 
+	deleteOrganizationCategoryService := []gin.HandlerFunc{
+		handler.DeleteOrganizationCategoryService,
+	}
+
 	v1.POST("/create", createOrganizationCategoryService...)
+	v1.DELETE("/delete", deleteOrganizationCategoryService...)
 
 	return handler
 
@@ -45,4 +50,22 @@ func (h *organizationCategoryServiceHandler) CreateOrganizationCategoryService(c
 	}
 
 	middlewares.ResponseSuccess(c, organizationCategoryService, "Organization category service created successfully")
+}
+
+func (h *organizationCategoryServiceHandler) DeleteOrganizationCategoryService(c *gin.Context) {
+	requesterUserId := c.MustGet("user_id").(int)
+
+	organizationCategoryService := &models.OrganizationCategoryService{}
+	if err := c.ShouldBindJSON(organizationCategoryService); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	err := h.organizationCategoryServiceUsecase.DeleteOrganizationCategoryService(organizationCategoryService, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, nil, "Organization category service deleted successfully")
 }

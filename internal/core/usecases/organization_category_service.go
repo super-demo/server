@@ -9,6 +9,7 @@ import (
 
 type OrganizationCategoryServiceUsecase interface {
 	CreateOrganizationCategoryService(organizationCategoryService *models.OrganizationCategoryService, requesterUserId int) (*models.OrganizationCategoryService, error)
+	DeleteOrganizationCategoryService(organizationCategoryService *models.OrganizationCategoryService, requesterUserId int) error
 }
 
 type organizationCategoryServiceUsecase struct {
@@ -67,4 +68,49 @@ func (u *organizationCategoryServiceUsecase) CreateOrganizationCategoryService(o
 	}
 
 	return newOrganizationCategoryService, nil
+}
+
+func (u *organizationCategoryServiceUsecase) DeleteOrganizationCategoryService(organizationCategoryService *models.OrganizationCategoryService, requesterUserId int) error {
+	txOrganizationCategoryServiceRepo, err := u.organizationCategoryServiceRepo.BeginLog()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txOrganizationCategoryServiceRepo.Rollback()
+		}
+	}()
+
+	exists, err := txOrganizationCategoryServiceRepo.CheckOrganizationCategoryServiceExistsById(organizationCategoryService.OrganizationServiceId)
+	if err != nil {
+		txOrganizationCategoryServiceRepo.Rollback()
+		return err
+	}
+
+	if !exists {
+		txOrganizationCategoryServiceRepo.Rollback()
+		return app.ErrNotFound
+	}
+
+	if err := txOrganizationCategoryServiceRepo.DeleteOrganizationCategoryService(organizationCategoryService); err != nil {
+		txOrganizationCategoryServiceRepo.Rollback()
+		return err
+	}
+
+	if err := txOrganizationCategoryServiceRepo.Commit(); err != nil {
+		return err
+	}
+
+	organizationLog := &models.OrganizationLog{
+		OrganizationId: organizationCategoryService.OrganizationId,
+		Action:         "Deleted",
+		Description:    "Deleted service " + strconv.Itoa(organizationCategoryService.OrganizationServiceId),
+		CreatedBy:      requesterUserId,
+	}
+
+	if _, err := u.organizationLogRepo.CreateOrganizationLog(organizationLog); err != nil {
+		return err
+	}
+
+	return nil
 }
