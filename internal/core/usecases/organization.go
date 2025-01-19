@@ -10,7 +10,7 @@ type OrganizationUsecase interface {
 	CreateOrganization(organization *models.Organization, requesterUserId int) (*models.Organization, error)
 	GetOrganizationById(organizationId, requesterUserId int) (*models.Organization, error)
 	GetOrganizationListByUserId(requesterUserId int) (*[]models.Organization, error)
-	DeleteOrganization(organizationId, requesterUserId int) error
+	DeleteOrganization(organization *models.Organization, requesterUserId int) error
 }
 
 type organizationUsecase struct {
@@ -59,8 +59,8 @@ func (u *organizationUsecase) CreateOrganization(organization *models.Organizati
 
 	organizationLog := &models.OrganizationLog{
 		OrganizationId: newOrganization.OrganizationId,
-		Action:         "Create",
-		Description:    "Organization Created",
+		Action:         "Created",
+		Description:    "Created organization " + newOrganization.Name,
 		CreatedBy:      requesterUserId,
 	}
 
@@ -114,21 +114,50 @@ func (u *organizationUsecase) GetOrganizationListByUserId(requesterUserId int) (
 	return organization, nil
 }
 
-func (u *organizationUsecase) DeleteOrganization(organizationId, requesterUserId int) error {
-	organization, err := u.organizationRepo.GetOrganizationById(organizationId)
+func (u *organizationUsecase) DeleteOrganization(organization *models.Organization, requesterUserId int) error {
+	organizationUser, err := u.organizationUserRepo.GetOrganizationUserById(requesterUserId)
 	if err != nil {
 		return err
 	}
 
-	if organization.CreatedBy != requesterUserId {
+	if organizationUser.UserLevelId != repositories.OwnerUserLevel.UserLevelId {
 		return app.ErrUnauthorized
 	}
 
-	if err := u.organizationUserRepo.DeleteOrganizationUserByOrganizationId(organizationId); err != nil {
+	txOrganizationRepo, err := u.organizationRepo.BeginLog()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txOrganizationRepo.Rollback()
+		}
+	}()
+
+	err = u.organizationUserRepo.DeleteOrganizationUserByOrganizationId(organizationUser)
+	if err != nil {
+		txOrganizationRepo.Rollback()
 		return err
 	}
 
-	if err := u.organizationRepo.DeleteOrganization(organizationId); err != nil {
+	err = txOrganizationRepo.DeleteOrganization(organization)
+	if err != nil {
+		txOrganizationRepo.Rollback()
+		return err
+	}
+
+	if err := txOrganizationRepo.Commit(); err != nil {
+		return err
+	}
+
+	organizationLog := &models.OrganizationLog{
+		OrganizationId: organization.OrganizationId,
+		Action:         "Deleted",
+		Description:    "Deleted organization " + organization.Name,
+		CreatedBy:      requesterUserId,
+	}
+
+	if _, err := u.organizationLogRepo.CreateOrganizationLog(organizationLog); err != nil {
 		return err
 	}
 

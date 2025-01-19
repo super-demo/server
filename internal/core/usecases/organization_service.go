@@ -8,16 +8,18 @@ import (
 
 type OrganizationServiceUsecase interface {
 	CreateOrganizationService(organizationService *models.OrganizationService, requesterUserId int) (*models.OrganizationService, error)
+	DeleteOrganizationService(organizationService *models.OrganizationService, requesterUserId int) error
 }
 
 type organizationServiceUsecase struct {
-	organizationRepo        repositories.OrganizationRepository
-	organizationServiceRepo repositories.OrganizationServiceRepository
-	organizationLogRepo     repositories.OrganizationLogRepository
+	organizationRepo                repositories.OrganizationRepository
+	organizationServiceRepo         repositories.OrganizationServiceRepository
+	organizationCategoryServiceRepo repositories.OrganizationCategoryServiceRepository
+	organizationLogRepo             repositories.OrganizationLogRepository
 }
 
-func NewOrganizationServiceUsecase(organizationRepo repositories.OrganizationRepository, organizationServiceRepo repositories.OrganizationServiceRepository, organizationLogRepo repositories.OrganizationLogRepository) OrganizationServiceUsecase {
-	return &organizationServiceUsecase{organizationRepo, organizationServiceRepo, organizationLogRepo}
+func NewOrganizationServiceUsecase(organizationRepo repositories.OrganizationRepository, organizationServiceRepo repositories.OrganizationServiceRepository, organizationCategoryServiceRepo repositories.OrganizationCategoryServiceRepository, organizationLogRepo repositories.OrganizationLogRepository) OrganizationServiceUsecase {
+	return &organizationServiceUsecase{organizationRepo, organizationServiceRepo, organizationCategoryServiceRepo, organizationLogRepo}
 }
 
 func (u *organizationServiceUsecase) CreateOrganizationService(organizationService *models.OrganizationService, requesterUserId int) (*models.OrganizationService, error) {
@@ -58,8 +60,8 @@ func (u *organizationServiceUsecase) CreateOrganizationService(organizationServi
 
 	organizationLog := &models.OrganizationLog{
 		OrganizationId: newOrganizationService.OrganizationId,
-		Action:         "Add Service",
-		Description:    "Service Added to Organization",
+		Action:         "Added Service",
+		Description:    "Service Added " + newOrganizationService.Slug + " in Organization",
 		CreatedBy:      requesterUserId,
 	}
 
@@ -68,4 +70,62 @@ func (u *organizationServiceUsecase) CreateOrganizationService(organizationServi
 	}
 
 	return newOrganizationService, nil
+}
+
+func (u *organizationServiceUsecase) DeleteOrganizationService(organizationService *models.OrganizationService, requesterUserId int) error {
+	txOrganizationServiceRepo, err := u.organizationServiceRepo.BeginLog()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txOrganizationServiceRepo.Rollback()
+		}
+	}()
+
+	exists, err := txOrganizationServiceRepo.CheckOrganizationServiceExists(organizationService.OrganizationId, organizationService.OrganizationServiceId)
+	if err != nil {
+		txOrganizationServiceRepo.Rollback()
+		return err
+	}
+
+	if !exists {
+		txOrganizationServiceRepo.Rollback()
+		return app.ErrServiceNotFound
+	}
+
+	organizationCategoryService, err := u.organizationCategoryServiceRepo.GetOrganizationCategoryServiceByOrganizationServiceId(organizationService.OrganizationServiceId)
+	if err != nil && organizationCategoryService != nil {
+		txOrganizationServiceRepo.Rollback()
+		return err
+	}
+
+	if organizationCategoryService != nil {
+		if err := u.organizationCategoryServiceRepo.DeleteOrganizationCategoryService(organizationCategoryService); err != nil {
+			txOrganizationServiceRepo.Rollback()
+			return err
+		}
+	}
+
+	if err := txOrganizationServiceRepo.DeleteOrganizationService(organizationService); err != nil {
+		txOrganizationServiceRepo.Rollback()
+		return err
+	}
+
+	if err := txOrganizationServiceRepo.Commit(); err != nil {
+		return err
+	}
+
+	organizationLog := &models.OrganizationLog{
+		OrganizationId: organizationService.OrganizationId,
+		Action:         "Deleted",
+		Description:    "Deleted service " + organizationService.Slug + " from the organization",
+		CreatedBy:      requesterUserId,
+	}
+
+	if _, err := u.organizationLogRepo.CreateOrganizationLog(organizationLog); err != nil {
+		return err
+	}
+
+	return nil
 }

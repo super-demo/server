@@ -45,6 +45,34 @@ func (_m *OrganizationServiceRepository) BeginLog() (repositories.OrganizationSe
 	return r0, r1
 }
 
+// CheckOrganizationServiceExists provides a mock function with given fields: id, serviceId
+func (_m *OrganizationServiceRepository) CheckOrganizationServiceExists(id int, serviceId int) (bool, error) {
+	ret := _m.Called(id, serviceId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckOrganizationServiceExists")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int, int) (bool, error)); ok {
+		return rf(id, serviceId)
+	}
+	if rf, ok := ret.Get(0).(func(int, int) bool); ok {
+		r0 = rf(id, serviceId)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(id, serviceId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CheckOrganizationServiceExistsByName provides a mock function with given fields: name
 func (_m *OrganizationServiceRepository) CheckOrganizationServiceExistsByName(name string) (bool, error) {
 	ret := _m.Called(name)
@@ -119,6 +147,24 @@ func (_m *OrganizationServiceRepository) CreateOrganizationService(organizationS
 	}
 
 	return r0, r1
+}
+
+// DeleteOrganizationService provides a mock function with given fields: organizationService
+func (_m *OrganizationServiceRepository) DeleteOrganizationService(organizationService *models.OrganizationService) error {
+	ret := _m.Called(organizationService)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteOrganizationService")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.OrganizationService) error); ok {
+		r0 = rf(organizationService)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // Rollback provides a mock function with no fields

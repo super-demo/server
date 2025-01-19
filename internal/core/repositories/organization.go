@@ -16,7 +16,7 @@ type OrganizationRepository interface {
 	CheckOrganizationExistsByName(name string) (bool, error)
 	GetOrganizationById(id int) (*models.Organization, error)
 	GetOrganizationListByUserId(id int) (*[]models.Organization, error)
-	DeleteOrganization(id int) error
+	DeleteOrganization(organization *models.Organization) error
 }
 
 type organizationRepository struct {
@@ -87,9 +87,10 @@ func (r *organizationRepository) GetOrganizationListByUserId(id int) (*[]models.
 	return organization, nil
 }
 
-func (r *organizationRepository) DeleteOrganization(id int) error {
-	if err := r.db.Where("organization_id = ?", id).Delete(&models.Organization{}).Error; err != nil {
+func (r *organizationRepository) DeleteOrganization(organization *models.Organization) error {
+	if err := r.db.Where("organization_id = ?", organization.OrganizationId).Delete(organization).Error; err != nil {
 		return err
 	}
+
 	return nil
 }

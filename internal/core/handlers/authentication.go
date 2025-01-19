@@ -55,7 +55,7 @@ func (h *authenticationHandler) CmsSignInWithGoogle(c *gin.Context) {
 		return
 	}
 
-	middlewares.ResponseSuccess(c, data)
+	middlewares.ResponseSuccess(c, data, "Sign in successfully")
 }
 
 func (h *authenticationHandler) OrganizationSignInWithGoogle(c *gin.Context) {
@@ -70,7 +70,7 @@ func (h *authenticationHandler) OrganizationSignInWithGoogle(c *gin.Context) {
 		return
 	}
 
-	middlewares.ResponseSuccess(c, data)
+	middlewares.ResponseSuccess(c, data, "Sign in successfully")
 }
 
 func (h *authenticationHandler) RefreshToken(c *gin.Context) {
@@ -92,5 +92,5 @@ func (h *authenticationHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	middlewares.ResponseSuccess(c, accessTokenResponse)
+	middlewares.ResponseSuccess(c, accessTokenResponse, "Token refreshed successfully")
 }

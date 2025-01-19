@@ -45,9 +45,9 @@ func (_m *OrganizationUserRepository) BeginLog() (repositories.OrganizationUserR
 	return r0, r1
 }
 
-// CheckOrganizationUserExists provides a mock function with given fields: organizationUser, userId
-func (_m *OrganizationUserRepository) CheckOrganizationUserExists(organizationUser *models.OrganizationUser, userId int) (bool, error) {
-	ret := _m.Called(organizationUser, userId)
+// CheckOrganizationUserExists provides a mock function with given fields: id, userId
+func (_m *OrganizationUserRepository) CheckOrganizationUserExists(id int, userId int) (bool, error) {
+	ret := _m.Called(id, userId)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CheckOrganizationUserExists")
@@ -55,17 +55,17 @@ func (_m *OrganizationUserRepository) CheckOrganizationUserExists(organizationUs
 
 	var r0 bool
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*models.OrganizationUser, int) (bool, error)); ok {
-		return rf(organizationUser, userId)
+	if rf, ok := ret.Get(0).(func(int, int) (bool, error)); ok {
+		return rf(id, userId)
 	}
-	if rf, ok := ret.Get(0).(func(*models.OrganizationUser, int) bool); ok {
-		r0 = rf(organizationUser, userId)
+	if rf, ok := ret.Get(0).(func(int, int) bool); ok {
+		r0 = rf(id, userId)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	if rf, ok := ret.Get(1).(func(*models.OrganizationUser, int) error); ok {
-		r1 = rf(organizationUser, userId)
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(id, userId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -121,17 +121,17 @@ func (_m *OrganizationUserRepository) CreateOrganizationUser(organizationUser *m
 	return r0, r1
 }
 
-// DeleteOrganizationUser provides a mock function with given fields: id
-func (_m *OrganizationUserRepository) DeleteOrganizationUser(id int) error {
-	ret := _m.Called(id)
+// DeleteOrganizationUser provides a mock function with given fields: organizationUser
+func (_m *OrganizationUserRepository) DeleteOrganizationUser(organizationUser *models.OrganizationUser) error {
+	ret := _m.Called(organizationUser)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteOrganizationUser")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(*models.OrganizationUser) error); ok {
+		r0 = rf(organizationUser)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -139,17 +139,17 @@ func (_m *OrganizationUserRepository) DeleteOrganizationUser(id int) error {
 	return r0
 }
 
-// DeleteOrganizationUserByOrganizationId provides a mock function with given fields: organizationId
-func (_m *OrganizationUserRepository) DeleteOrganizationUserByOrganizationId(organizationId int) error {
-	ret := _m.Called(organizationId)
+// DeleteOrganizationUserByOrganizationId provides a mock function with given fields: organizationUser
+func (_m *OrganizationUserRepository) DeleteOrganizationUserByOrganizationId(organizationUser *models.OrganizationUser) error {
+	ret := _m.Called(organizationUser)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteOrganizationUserByOrganizationId")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int) error); ok {
-		r0 = rf(organizationId)
+	if rf, ok := ret.Get(0).(func(*models.OrganizationUser) error); ok {
+		r0 = rf(organizationUser)
 	} else {
 		r0 = ret.Error(0)
 	}

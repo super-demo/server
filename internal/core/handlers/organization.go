@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"server/internal/core/models"
-	"server/internal/core/repositories"
 	"server/internal/core/usecases"
 	"server/internal/middlewares"
 	"server/pkg/utils"
@@ -21,30 +20,7 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 
 	v1 := r.Group("/v1/organizations", globalMiddlewares...)
 
-	createOrganization := []gin.HandlerFunc{
-		middlewares.ValidateRequestBody(&models.Organization{}),
-		handler.CreateOrganization,
-	}
-
-	deleteOrganization := []gin.HandlerFunc{
-		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{
-				repositories.OwnerUserLevel.UserLevelId,
-			},
-		}),
-		handler.DeleteOrganization,
-	}
-
 	getOrganizationById := []gin.HandlerFunc{
-		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{
-				repositories.OwnerUserLevel.UserLevelId,
-				repositories.SuperAdminUserLevel.UserLevelId,
-				repositories.AdminUserLevel.UserLevelId,
-				repositories.MemberUserLevel.UserLevelId,
-				repositories.VisitorUserLevel.UserLevelId,
-			},
-		}),
 		handler.GetOrganizationById,
 	}
 
@@ -52,10 +28,20 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 		handler.GetOrganizationListByUserId,
 	}
 
-	v1.POST("/create", createOrganization...)
+	createOrganization := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.Organization{}),
+		handler.CreateOrganization,
+	}
+
+	deleteOrganization := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.Organization{}),
+		handler.DeleteOrganization,
+	}
+
 	v1.GET("/:id", getOrganizationById...)
 	v1.GET("/list", getOrganizationListByUserId...)
-	v1.DELETE("/:id", deleteOrganization...)
+	v1.POST("/create", createOrganization...)
+	v1.DELETE("/delete", deleteOrganization...)
 
 	return handler
 }
@@ -75,7 +61,7 @@ func (h *organizationHandler) CreateOrganization(c *gin.Context) {
 		return
 	}
 
-	middlewares.ResponseSuccess(c, organization)
+	middlewares.ResponseSuccess(c, organization, "Organization created successfully")
 }
 
 func (h *organizationHandler) GetOrganizationById(c *gin.Context) {
@@ -88,7 +74,7 @@ func (h *organizationHandler) GetOrganizationById(c *gin.Context) {
 		return
 	}
 
-	middlewares.ResponseSuccess(c, organization)
+	middlewares.ResponseSuccess(c, organization, "Organization retrieved successfully")
 }
 
 func (h *organizationHandler) GetOrganizationListByUserId(c *gin.Context) {
@@ -100,18 +86,18 @@ func (h *organizationHandler) GetOrganizationListByUserId(c *gin.Context) {
 		return
 	}
 
-	middlewares.ResponseSuccess(c, organization)
+	middlewares.ResponseSuccess(c, organization, "Organization list retrieved successfully")
 }
 
 func (h *organizationHandler) DeleteOrganization(c *gin.Context) {
-	organizationId := utils.GetIdFromParams(c)
+	organization := &models.Organization{}
 	requesterUserId := c.MustGet("user_id").(int)
 
-	err := h.organizationUsecase.DeleteOrganization(organizationId, requesterUserId)
+	err := h.organizationUsecase.DeleteOrganization(organization, requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
 
-	middlewares.ResponseSuccess(c, nil)
+	middlewares.ResponseSuccess(c, nil, "Organization deleted successfully")
 }

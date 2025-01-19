@@ -43,6 +43,24 @@ func (_m *OrganizationServiceUsecase) CreateOrganizationService(organizationServ
 	return r0, r1
 }
 
+// DeleteOrganizationService provides a mock function with given fields: organizationService, requesterUserId
+func (_m *OrganizationServiceUsecase) DeleteOrganizationService(organizationService *models.OrganizationService, requesterUserId int) error {
+	ret := _m.Called(organizationService, requesterUserId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteOrganizationService")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.OrganizationService, int) error); ok {
+		r0 = rf(organizationService, requesterUserId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // NewOrganizationServiceUsecase creates a new instance of OrganizationServiceUsecase. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewOrganizationServiceUsecase(t interface {

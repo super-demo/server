@@ -11,7 +11,9 @@ type OrganizationServiceRepository interface {
 	Commit() error
 	Rollback() error
 	CreateOrganizationService(organizationService *models.OrganizationService) (*models.OrganizationService, error)
+	CheckOrganizationServiceExists(id, serviceId int) (bool, error)
 	CheckOrganizationServiceExistsByName(name string) (bool, error)
+	DeleteOrganizationService(organizationService *models.OrganizationService) error
 }
 
 type organizationServiceRepository struct {
@@ -48,6 +50,19 @@ func (r *organizationServiceRepository) CreateOrganizationService(organizationSe
 	return organizationService, nil
 }
 
+func (r *organizationServiceRepository) CheckOrganizationServiceExists(id, serviceId int) (bool, error) {
+	var organizationService models.OrganizationService
+
+	if err := r.db.Where("organization_id = ?", id).Where("organization_service_id = ?", serviceId).First(&organizationService).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
 func (r *organizationServiceRepository) CheckOrganizationServiceExistsByName(name string) (bool, error) {
 	var organizationService models.OrganizationService
 	if err := r.db.Where("slug = ?", name).First(&organizationService).Error; err != nil {
@@ -59,4 +74,12 @@ func (r *organizationServiceRepository) CheckOrganizationServiceExistsByName(nam
 	}
 
 	return true, nil
+}
+
+func (r *organizationServiceRepository) DeleteOrganizationService(organizationService *models.OrganizationService) error {
+	if err := r.db.Where("organization_service_id = ?", organizationService.OrganizationServiceId).Delete(organizationService).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
