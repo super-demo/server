@@ -11,7 +11,7 @@ type OrganizationUserRepository interface {
 	Commit() error
 	Rollback() error
 	CreateOrganizationUser(organizationUser *models.OrganizationUser) (*models.OrganizationUser, error)
-	CheckOrganizationUserExists(organizationUser *models.OrganizationUser, userId int) (bool, error)
+	CheckOrganizationUserExists(id, userId int) (bool, error)
 	GetOrganizationUserById(id int) (*models.OrganizationUser, error)
 	GetOrganizationUserByEmail(email string) (*models.OrganizationUser, error)
 	GetOrganizationUserListByOrganizationId(organizationId int) (*[]models.OrganizationUser, error)
@@ -54,9 +54,14 @@ func (r *organizationUserRepository) CreateOrganizationUser(organizationUser *mo
 	return organizationUser, nil
 }
 
-func (r *organizationUserRepository) CheckOrganizationUserExists(organizationUser *models.OrganizationUser, userId int) (bool, error) {
-	err := r.db.Where("organization_id = ? AND user_id = ?", organizationUser.OrganizationId, userId).First(&organizationUser).Error
+func (r *organizationUserRepository) CheckOrganizationUserExists(id, userId int) (bool, error) {
+	var organizationUser models.OrganizationUser
+
+	err := r.db.Where("organization_id = ?", id).Where("user_id = ?", userId).First(&organizationUser).Error
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
 		return false, err
 	}
 
@@ -102,7 +107,7 @@ func (r *organizationUserRepository) UpdateOrganizationUser(organizationUser *mo
 }
 
 func (r *organizationUserRepository) DeleteOrganizationUser(organizationUser *models.OrganizationUser) error {
-	if err := r.db.Where("organization_user_id = ?", organizationUser.OrganizationUserId).Delete(organizationUser).Error; err != nil {
+	if err := r.db.Where("organization_user_id = ?", organizationUser.OrganizationUserId).Delete(&organizationUser).Error; err != nil {
 		return err
 	}
 
@@ -110,7 +115,7 @@ func (r *organizationUserRepository) DeleteOrganizationUser(organizationUser *mo
 }
 
 func (r *organizationUserRepository) DeleteOrganizationUserByOrganizationId(organizationUser *models.OrganizationUser) error {
-	if err := r.db.Where("organization_id = ?", organizationUser.OrganizationId).Delete(organizationUser).Error; err != nil {
+	if err := r.db.Where("organization_id = ?", organizationUser.OrganizationId).Delete(&organizationUser).Error; err != nil {
 		return err
 	}
 

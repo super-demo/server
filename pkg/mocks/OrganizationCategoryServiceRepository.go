@@ -139,6 +139,66 @@ func (_m *OrganizationCategoryServiceRepository) DeleteOrganizationCategoryServi
 	return r0
 }
 
+// GetOrganizationCategoryServiceByOrganizationCategoryId provides a mock function with given fields: id
+func (_m *OrganizationCategoryServiceRepository) GetOrganizationCategoryServiceByOrganizationCategoryId(id int) (*models.OrganizationCategoryService, error) {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrganizationCategoryServiceByOrganizationCategoryId")
+	}
+
+	var r0 *models.OrganizationCategoryService
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int) (*models.OrganizationCategoryService, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(int) *models.OrganizationCategoryService); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.OrganizationCategoryService)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetOrganizationCategoryServiceByOrganizationServiceId provides a mock function with given fields: id
+func (_m *OrganizationCategoryServiceRepository) GetOrganizationCategoryServiceByOrganizationServiceId(id int) (*models.OrganizationCategoryService, error) {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrganizationCategoryServiceByOrganizationServiceId")
+	}
+
+	var r0 *models.OrganizationCategoryService
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int) (*models.OrganizationCategoryService, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(int) *models.OrganizationCategoryService); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.OrganizationCategoryService)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Rollback provides a mock function with no fields
 func (_m *OrganizationCategoryServiceRepository) Rollback() error {
 	ret := _m.Called()

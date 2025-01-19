@@ -43,17 +43,17 @@ func (_m *OrganizationUserUsecase) CreateOrganizationUser(organizationUser *mode
 	return r0, r1
 }
 
-// DeleteOrganizationUser provides a mock function with given fields: organizationUser, requesterUserId
-func (_m *OrganizationUserUsecase) DeleteOrganizationUser(organizationUser *models.OrganizationUser, requesterUserId int) error {
-	ret := _m.Called(organizationUser, requesterUserId)
+// DeleteOrganizationUser provides a mock function with given fields: organizationUser, requesterUserId, requesterUserLevelId
+func (_m *OrganizationUserUsecase) DeleteOrganizationUser(organizationUser *models.OrganizationUser, requesterUserId int, requesterUserLevelId int) error {
+	ret := _m.Called(organizationUser, requesterUserId, requesterUserLevelId)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteOrganizationUser")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.OrganizationUser, int) error); ok {
-		r0 = rf(organizationUser, requesterUserId)
+	if rf, ok := ret.Get(0).(func(*models.OrganizationUser, int, int) error); ok {
+		r0 = rf(organizationUser, requesterUserId, requesterUserLevelId)
 	} else {
 		r0 = ret.Error(0)
 	}

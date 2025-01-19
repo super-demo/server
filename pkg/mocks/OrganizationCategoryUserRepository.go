@@ -139,6 +139,66 @@ func (_m *OrganizationCategoryUserRepository) DeleteOrganizationCategoryUser(org
 	return r0
 }
 
+// GetOrganizationCategoryUserByOrganizationCategoryId provides a mock function with given fields: id
+func (_m *OrganizationCategoryUserRepository) GetOrganizationCategoryUserByOrganizationCategoryId(id int) (*models.OrganizationCategoryUser, error) {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrganizationCategoryUserByOrganizationCategoryId")
+	}
+
+	var r0 *models.OrganizationCategoryUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int) (*models.OrganizationCategoryUser, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(int) *models.OrganizationCategoryUser); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.OrganizationCategoryUser)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetOrganizationCategoryUserByUserId provides a mock function with given fields: id
+func (_m *OrganizationCategoryUserRepository) GetOrganizationCategoryUserByUserId(id int) (*models.OrganizationCategoryUser, error) {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrganizationCategoryUserByUserId")
+	}
+
+	var r0 *models.OrganizationCategoryUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int) (*models.OrganizationCategoryUser, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(int) *models.OrganizationCategoryUser); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.OrganizationCategoryUser)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Rollback provides a mock function with no fields
 func (_m *OrganizationCategoryUserRepository) Rollback() error {
 	ret := _m.Called()

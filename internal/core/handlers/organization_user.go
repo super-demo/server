@@ -55,6 +55,7 @@ func (h *organizationUserHandler) CreateOrganizationUser(c *gin.Context) {
 
 func (h *organizationUserHandler) DeleteOrganizationUser(c *gin.Context) {
 	requesterUserId := c.MustGet("user_id").(int)
+	requesterUserLevelId := c.MustGet("user_level_id").(int)
 
 	organizationUser := &models.OrganizationUser{}
 	if err := c.ShouldBindJSON(organizationUser); err != nil {
@@ -62,7 +63,7 @@ func (h *organizationUserHandler) DeleteOrganizationUser(c *gin.Context) {
 		return
 	}
 
-	err := h.organizationUserUsecase.DeleteOrganizationUser(organizationUser, requesterUserId)
+	err := h.organizationUserUsecase.DeleteOrganizationUser(organizationUser, requesterUserId, requesterUserLevelId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return

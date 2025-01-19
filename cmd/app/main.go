@@ -47,9 +47,9 @@ func main() {
 	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository, organizationUserRepository)
 	userUsecase := usecases.NewUserUsecase(userRepository)
 	organizationUsecase := usecases.NewOrganizationUsecase(organizationRepository, organizationUserRepository, organizationLogRepository)
-	organizationUserUsecase := usecases.NewOrganizationUserUsecase(organizationRepository, organizationUserRepository, organizationLogRepository)
-	organizationServiceUsecase := usecases.NewOrganizationServiceUsecase(organizationRepository, organizationServiceRepository, organizationLogRepository)
-	organizationCategoryUsecase := usecases.NewOrganizationCategoryUsecase(organizationRepository, organizationCategoryRepository, organizationLogRepository)
+	organizationUserUsecase := usecases.NewOrganizationUserUsecase(organizationRepository, organizationUserRepository, organizationCategoryUserRepository, organizationLogRepository)
+	organizationServiceUsecase := usecases.NewOrganizationServiceUsecase(organizationRepository, organizationServiceRepository, organizationCategoryServiceRepository, organizationLogRepository)
+	organizationCategoryUsecase := usecases.NewOrganizationCategoryUsecase(organizationRepository, organizationCategoryRepository, organizationCategoryServiceRepository, organizationCategoryUserRepository, organizationLogRepository)
 	organizationCategoryUserUsecase := usecases.NewOrganizationCategoryUserUsecase(organizationCategoryRepository, organizationCategoryUserRepository, organizationLogRepository)
 	organizationCategoryServiceUsecase := usecases.NewOrganizationCategoryServiceUsecase(organizationCategoryRepository, organizationCategoryServiceRepository, organizationLogRepository)
 

@@ -54,10 +54,13 @@ var (
 	ErrInsufficientPermissions      = AppError{403, 403004, errors.New("insufficient permissions to access this resource")}
 	ErrAccessAnotherUser            = AppError{403, 403005, errors.New("you don't have permission to access another user's data")}
 	ErrOrganizationUserDeleteMyself = AppError{403, 403006, errors.New("you can't delete yourself from organization")}
+	ErrOrganizationDeleteOwner      = AppError{403, 403007, errors.New("you can't delete owner from organization")}
 
 	// 404 Not Found
-	ErrNotFound     = AppError{404, 404001, errors.New("not found")}
-	ErrUserNotFound = AppError{404, 404002, errors.New("user not found")}
+	ErrNotFound         = AppError{404, 404001, errors.New("not found")}
+	ErrUserNotFound     = AppError{404, 404002, errors.New("user not found")}
+	ErrServiceNotFound  = AppError{404, 404003, errors.New("service not found")}
+	ErrCategoryNotFound = AppError{404, 404004, errors.New("category not found")}
 
 	// 409 Conflict
 	ErrConflict                          = AppError{409, 409001, errors.New("conflict")}

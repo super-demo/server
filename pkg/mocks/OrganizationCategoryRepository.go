@@ -45,6 +45,34 @@ func (_m *OrganizationCategoryRepository) BeginLog() (repositories.OrganizationC
 	return r0, r1
 }
 
+// CheckOrganizationCategoryExists provides a mock function with given fields: id, categoryId
+func (_m *OrganizationCategoryRepository) CheckOrganizationCategoryExists(id int, categoryId int) (bool, error) {
+	ret := _m.Called(id, categoryId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckOrganizationCategoryExists")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int, int) (bool, error)); ok {
+		return rf(id, categoryId)
+	}
+	if rf, ok := ret.Get(0).(func(int, int) bool); ok {
+		r0 = rf(id, categoryId)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(id, categoryId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CheckOrganizationCategoryExistsByName provides a mock function with given fields: name
 func (_m *OrganizationCategoryRepository) CheckOrganizationCategoryExistsByName(name string) (bool, error) {
 	ret := _m.Called(name)

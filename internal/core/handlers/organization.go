@@ -21,12 +21,10 @@ func NewOrganizationHandler(r *gin.Engine, organizationUsecase usecases.Organiza
 	v1 := r.Group("/v1/organizations", globalMiddlewares...)
 
 	getOrganizationById := []gin.HandlerFunc{
-		middlewares.ValidateRequestBody(&models.Organization{}),
 		handler.GetOrganizationById,
 	}
 
 	getOrganizationListByUserId := []gin.HandlerFunc{
-		middlewares.ValidateRequestBody(&models.Organization{}),
 		handler.GetOrganizationListByUserId,
 	}
 

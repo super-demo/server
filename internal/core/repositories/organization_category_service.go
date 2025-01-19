@@ -12,6 +12,8 @@ type OrganizationCategoryServiceRepository interface {
 	Rollback() error
 	CreateOrganizationCategoryService(organizationCategoryService *models.OrganizationCategoryService) (*models.OrganizationCategoryService, error)
 	CheckOrganizationCategoryServiceExistsById(id int) (bool, error)
+	GetOrganizationCategoryServiceByOrganizationServiceId(id int) (*models.OrganizationCategoryService, error)
+	GetOrganizationCategoryServiceByOrganizationCategoryId(id int) (*models.OrganizationCategoryService, error)
 	DeleteOrganizationCategoryService(organizationCategoryService *models.OrganizationCategoryService) error
 }
 
@@ -60,6 +62,28 @@ func (r *organizationCategoryServiceRepository) CheckOrganizationCategoryService
 	}
 
 	return true, nil
+}
+
+func (r *organizationCategoryServiceRepository) GetOrganizationCategoryServiceByOrganizationServiceId(id int) (*models.OrganizationCategoryService, error) {
+	var organizationCategoryService models.OrganizationCategoryService
+
+	err := r.db.Where("organization_service_id = ?", id).First(&organizationCategoryService).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &organizationCategoryService, nil
+}
+
+func (r *organizationCategoryServiceRepository) GetOrganizationCategoryServiceByOrganizationCategoryId(id int) (*models.OrganizationCategoryService, error) {
+	var organizationCategoryService models.OrganizationCategoryService
+
+	err := r.db.Where("organization_category_id = ?", id).First(&organizationCategoryService).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &organizationCategoryService, nil
 }
 
 func (r *organizationCategoryServiceRepository) DeleteOrganizationCategoryService(organizationCategoryService *models.OrganizationCategoryService) error {

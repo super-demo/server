@@ -12,6 +12,8 @@ type OrganizationCategoryUserRepository interface {
 	Rollback() error
 	CreateOrganizationCategoryUser(organizationCategoryUser *models.OrganizationCategoryUser) (*models.OrganizationCategoryUser, error)
 	CheckOrganizationCategoryUserExistsById(id int) (bool, error)
+	GetOrganizationCategoryUserByUserId(id int) (*models.OrganizationCategoryUser, error)
+	GetOrganizationCategoryUserByOrganizationCategoryId(id int) (*models.OrganizationCategoryUser, error)
 	DeleteOrganizationCategoryUser(organizationCategoryUser *models.OrganizationCategoryUser) error
 }
 
@@ -60,6 +62,28 @@ func (r *organizationCategoryUserRepository) CheckOrganizationCategoryUserExists
 	}
 
 	return true, nil
+}
+
+func (r *organizationCategoryUserRepository) GetOrganizationCategoryUserByUserId(id int) (*models.OrganizationCategoryUser, error) {
+	var organizationCategoryUser models.OrganizationCategoryUser
+
+	err := r.db.Where("user_id = ?", id).First(&organizationCategoryUser).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &organizationCategoryUser, nil
+}
+
+func (r *organizationCategoryUserRepository) GetOrganizationCategoryUserByOrganizationCategoryId(id int) (*models.OrganizationCategoryUser, error) {
+	var organizationCategoryUser models.OrganizationCategoryUser
+
+	err := r.db.Where("organization_category_id = ?", id).First(&organizationCategoryUser).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &organizationCategoryUser, nil
 }
 
 func (r *organizationCategoryUserRepository) DeleteOrganizationCategoryUser(organizationCategoryUser *models.OrganizationCategoryUser) error {

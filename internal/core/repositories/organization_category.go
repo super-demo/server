@@ -11,6 +11,7 @@ type OrganizationCategoryRepository interface {
 	Commit() error
 	Rollback() error
 	CreateOrganizationCategory(organizationCategory *models.OrganizationCategory) (*models.OrganizationCategory, error)
+	CheckOrganizationCategoryExists(id, categoryId int) (bool, error)
 	CheckOrganizationCategoryExistsByName(name string) (bool, error)
 	GetOrganizationCategoryById(id int) (*models.OrganizationCategory, error)
 	UpdateOrganizationCategory(organizationCategory *models.OrganizationCategory) (*models.OrganizationCategory, error)
@@ -49,6 +50,19 @@ func (r *organizationCategoryRepository) CreateOrganizationCategory(organization
 	}
 
 	return organizationCategory, nil
+}
+
+func (r *organizationCategoryRepository) CheckOrganizationCategoryExists(id, categoryId int) (bool, error) {
+	var organizationCategory models.OrganizationCategory
+
+	if err := r.db.Where("organization_id = ?", id).Where("organization_category_id = ?", categoryId).First(&organizationCategory).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (r *organizationCategoryRepository) CheckOrganizationCategoryExistsByName(name string) (bool, error) {

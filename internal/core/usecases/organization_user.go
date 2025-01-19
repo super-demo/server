@@ -9,17 +9,18 @@ import (
 
 type OrganizationUserUsecase interface {
 	CreateOrganizationUser(organizationUser *models.OrganizationUser, requesterUserId int) (*models.OrganizationUser, error)
-	DeleteOrganizationUser(organizationUser *models.OrganizationUser, requesterUserId int) error
+	DeleteOrganizationUser(organizationUser *models.OrganizationUser, requesterUserId, requesterUserLevelId int) error
 }
 
 type organizationUserUsecase struct {
-	organizationRepo     repositories.OrganizationRepository
-	organizationUserRepo repositories.OrganizationUserRepository
-	organizationLogRepo  repositories.OrganizationLogRepository
+	organizationRepo             repositories.OrganizationRepository
+	organizationUserRepo         repositories.OrganizationUserRepository
+	organizationCategoryUserRepo repositories.OrganizationCategoryUserRepository
+	organizationLogRepo          repositories.OrganizationLogRepository
 }
 
-func NewOrganizationUserUsecase(organizationRepo repositories.OrganizationRepository, organizationUserRepo repositories.OrganizationUserRepository, organizationLogRepo repositories.OrganizationLogRepository) OrganizationUserUsecase {
-	return &organizationUserUsecase{organizationRepo, organizationUserRepo, organizationLogRepo}
+func NewOrganizationUserUsecase(organizationRepo repositories.OrganizationRepository, organizationUserRepo repositories.OrganizationUserRepository, organizationCategoryUserRepo repositories.OrganizationCategoryUserRepository, organizationLogRepo repositories.OrganizationLogRepository) OrganizationUserUsecase {
+	return &organizationUserUsecase{organizationRepo, organizationUserRepo, organizationCategoryUserRepo, organizationLogRepo}
 }
 
 func (u *organizationUserUsecase) CreateOrganizationUser(organizationUser *models.OrganizationUser, requesterUserId int) (*models.OrganizationUser, error) {
@@ -33,7 +34,7 @@ func (u *organizationUserUsecase) CreateOrganizationUser(organizationUser *model
 		}
 	}()
 
-	exists, err := txOrganizationUserRepo.CheckOrganizationUserExists(organizationUser, requesterUserId)
+	exists, err := txOrganizationUserRepo.CheckOrganizationUserExists(organizationUser.OrganizationId, organizationUser.UserId)
 	if err != nil {
 		txOrganizationUserRepo.Rollback()
 		return nil, err
@@ -70,12 +71,13 @@ func (u *organizationUserUsecase) CreateOrganizationUser(organizationUser *model
 	return newOrganizationUser, nil
 }
 
-// TODO: Implement the DeleteOrganizationUser
-// FYI: When deleting an organization user, you should also delete all the organization user services, services associated with that user.
-// FYI: You should also log the action in the organization log.
-func (u *organizationUserUsecase) DeleteOrganizationUser(organizationUser *models.OrganizationUser, requesterUserId int) error {
+func (u *organizationUserUsecase) DeleteOrganizationUser(organizationUser *models.OrganizationUser, requesterUserId, requesterUserLevelId int) error {
 	if organizationUser.UserId == requesterUserId {
 		return app.ErrOrganizationUserDeleteMyself
+	}
+
+	if repositories.OwnerUserLevel.UserLevelId == requesterUserLevelId {
+		return app.ErrOrganizationDeleteOwner
 	}
 
 	txOrganizationUserRepo, err := u.organizationUserRepo.BeginLog()
@@ -88,10 +90,28 @@ func (u *organizationUserUsecase) DeleteOrganizationUser(organizationUser *model
 		}
 	}()
 
-	_, err = txOrganizationUserRepo.CheckOrganizationUserExists(organizationUser, requesterUserId)
+	exists, err := txOrganizationUserRepo.CheckOrganizationUserExists(organizationUser.OrganizationId, organizationUser.UserId)
 	if err != nil {
 		txOrganizationUserRepo.Rollback()
 		return err
+	}
+
+	if !exists {
+		txOrganizationUserRepo.Rollback()
+		return app.ErrUserNotFound
+	}
+
+	organizationCategoryUser, err := u.organizationCategoryUserRepo.GetOrganizationCategoryUserByUserId(organizationUser.UserId)
+	if err != nil && organizationCategoryUser != nil {
+		txOrganizationUserRepo.Rollback()
+		return err
+	}
+
+	if organizationCategoryUser != nil {
+		if err := u.organizationCategoryUserRepo.DeleteOrganizationCategoryUser(organizationCategoryUser); err != nil {
+			txOrganizationUserRepo.Rollback()
+			return err
+		}
 	}
 
 	if err := txOrganizationUserRepo.DeleteOrganizationUser(organizationUser); err != nil {

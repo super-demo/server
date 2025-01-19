@@ -12,13 +12,14 @@ type OrganizationServiceUsecase interface {
 }
 
 type organizationServiceUsecase struct {
-	organizationRepo        repositories.OrganizationRepository
-	organizationServiceRepo repositories.OrganizationServiceRepository
-	organizationLogRepo     repositories.OrganizationLogRepository
+	organizationRepo                repositories.OrganizationRepository
+	organizationServiceRepo         repositories.OrganizationServiceRepository
+	organizationCategoryServiceRepo repositories.OrganizationCategoryServiceRepository
+	organizationLogRepo             repositories.OrganizationLogRepository
 }
 
-func NewOrganizationServiceUsecase(organizationRepo repositories.OrganizationRepository, organizationServiceRepo repositories.OrganizationServiceRepository, organizationLogRepo repositories.OrganizationLogRepository) OrganizationServiceUsecase {
-	return &organizationServiceUsecase{organizationRepo, organizationServiceRepo, organizationLogRepo}
+func NewOrganizationServiceUsecase(organizationRepo repositories.OrganizationRepository, organizationServiceRepo repositories.OrganizationServiceRepository, organizationCategoryServiceRepo repositories.OrganizationCategoryServiceRepository, organizationLogRepo repositories.OrganizationLogRepository) OrganizationServiceUsecase {
+	return &organizationServiceUsecase{organizationRepo, organizationServiceRepo, organizationCategoryServiceRepo, organizationLogRepo}
 }
 
 func (u *organizationServiceUsecase) CreateOrganizationService(organizationService *models.OrganizationService, requesterUserId int) (*models.OrganizationService, error) {
@@ -71,9 +72,6 @@ func (u *organizationServiceUsecase) CreateOrganizationService(organizationServi
 	return newOrganizationService, nil
 }
 
-// TODO: Implement the DeleteOrganizationService
-// FYI: When deleting an organization service, you should also delete all the organization service users, services associated with that service.
-// FYI: You should also log the action in the organization log.
 func (u *organizationServiceUsecase) DeleteOrganizationService(organizationService *models.OrganizationService, requesterUserId int) error {
 	txOrganizationServiceRepo, err := u.organizationServiceRepo.BeginLog()
 	if err != nil {
@@ -84,6 +82,30 @@ func (u *organizationServiceUsecase) DeleteOrganizationService(organizationServi
 			txOrganizationServiceRepo.Rollback()
 		}
 	}()
+
+	exists, err := txOrganizationServiceRepo.CheckOrganizationServiceExists(organizationService.OrganizationId, organizationService.OrganizationServiceId)
+	if err != nil {
+		txOrganizationServiceRepo.Rollback()
+		return err
+	}
+
+	if !exists {
+		txOrganizationServiceRepo.Rollback()
+		return app.ErrServiceNotFound
+	}
+
+	organizationCategoryService, err := u.organizationCategoryServiceRepo.GetOrganizationCategoryServiceByOrganizationServiceId(organizationService.OrganizationServiceId)
+	if err != nil && organizationCategoryService != nil {
+		txOrganizationServiceRepo.Rollback()
+		return err
+	}
+
+	if organizationCategoryService != nil {
+		if err := u.organizationCategoryServiceRepo.DeleteOrganizationCategoryService(organizationCategoryService); err != nil {
+			txOrganizationServiceRepo.Rollback()
+			return err
+		}
+	}
 
 	if err := txOrganizationServiceRepo.DeleteOrganizationService(organizationService); err != nil {
 		txOrganizationServiceRepo.Rollback()
@@ -96,8 +118,8 @@ func (u *organizationServiceUsecase) DeleteOrganizationService(organizationServi
 
 	organizationLog := &models.OrganizationLog{
 		OrganizationId: organizationService.OrganizationId,
-		Action:         "Deleted Service",
-		Description:    "Service Deleted " + organizationService.Slug + " in Organization",
+		Action:         "Deleted",
+		Description:    "Deleted service " + organizationService.Slug + " from the organization",
 		CreatedBy:      requesterUserId,
 	}
 

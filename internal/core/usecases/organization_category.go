@@ -14,13 +14,15 @@ type OrganizationCategoryUsecase interface {
 }
 
 type organizationCategoryUsecase struct {
-	organizationRepo         repositories.OrganizationRepository
-	organizationCategoryRepo repositories.OrganizationCategoryRepository
-	organizationLogRepo      repositories.OrganizationLogRepository
+	organizationRepo                repositories.OrganizationRepository
+	organizationCategoryRepo        repositories.OrganizationCategoryRepository
+	organizationCategoryServiceRepo repositories.OrganizationCategoryServiceRepository
+	organizationCategoryUserRepo    repositories.OrganizationCategoryUserRepository
+	organizationLogRepo             repositories.OrganizationLogRepository
 }
 
-func NewOrganizationCategoryUsecase(organizationRepo repositories.OrganizationRepository, organizationCategoryRepo repositories.OrganizationCategoryRepository, organizationLogRepo repositories.OrganizationLogRepository) OrganizationCategoryUsecase {
-	return &organizationCategoryUsecase{organizationRepo, organizationCategoryRepo, organizationLogRepo}
+func NewOrganizationCategoryUsecase(organizationRepo repositories.OrganizationRepository, organizationCategoryRepo repositories.OrganizationCategoryRepository, organizationCategoryServiceRepo repositories.OrganizationCategoryServiceRepository, organizationCategoryUserRepo repositories.OrganizationCategoryUserRepository, organizationLogRepo repositories.OrganizationLogRepository) OrganizationCategoryUsecase {
+	return &organizationCategoryUsecase{organizationRepo, organizationCategoryRepo, organizationCategoryServiceRepo, organizationCategoryUserRepo, organizationLogRepo}
 }
 
 func (u *organizationCategoryUsecase) CreateOrganizationCategory(organizationCategory *models.OrganizationCategory, requesterUserId int) (*models.OrganizationCategory, error) {
@@ -59,8 +61,8 @@ func (u *organizationCategoryUsecase) CreateOrganizationCategory(organizationCat
 
 	organizationLog := &models.OrganizationLog{
 		OrganizationId: newOrganizationCategory.OrganizationId,
-		Action:         "Created Category",
-		Description:    "Created Category " + newOrganizationCategory.Name + " in Organization",
+		Action:         "Created",
+		Description:    "Created category " + newOrganizationCategory.Name + " in Organization",
 		CreatedBy:      requesterUserId,
 	}
 
@@ -120,8 +122,8 @@ func (u *organizationCategoryUsecase) UpdateOrganizationCategory(organizationCat
 
 	organizationLog := &models.OrganizationLog{
 		OrganizationId: newOrganizationCategory.OrganizationId,
-		Action:         "Updated Category",
-		Description:    "Updated Category " + newOrganizationCategory.Name + " in Organization",
+		Action:         "Updated",
+		Description:    "Updated category " + newOrganizationCategory.Name + " in Organization",
 		CreatedBy:      requesterUserId,
 	}
 
@@ -132,9 +134,6 @@ func (u *organizationCategoryUsecase) UpdateOrganizationCategory(organizationCat
 	return newOrganizationCategory, nil
 }
 
-// TODO: Implement DeleteOrganizationCategory
-// FYI: When deleting an organization category, you should also delete all the organization category users, services associated with that category.
-// FYI: You should also log the action in the organization log.
 func (u *organizationCategoryUsecase) DeleteOrganizationCategory(organizationCategory *models.OrganizationCategory, requesterUserId int) error {
 	txOrganizationCategoryRepo, err := u.organizationCategoryRepo.BeginLog()
 	if err != nil {
@@ -146,13 +145,60 @@ func (u *organizationCategoryUsecase) DeleteOrganizationCategory(organizationCat
 		}
 	}()
 
-	oldOrganizationCategory, err := txOrganizationCategoryRepo.GetOrganizationCategoryById(organizationCategory.OrganizationCategoryId)
+	exists, err := txOrganizationCategoryRepo.CheckOrganizationCategoryExists(organizationCategory.OrganizationId, organizationCategory.OrganizationCategoryId)
 	if err != nil {
 		txOrganizationCategoryRepo.Rollback()
 		return err
 	}
 
-	if err := txOrganizationCategoryRepo.DeleteOrganizationCategory(oldOrganizationCategory); err != nil {
+	if !exists {
+		txOrganizationCategoryRepo.Rollback()
+		return app.ErrCategoryNotFound
+	}
+
+	organizationService, err := u.organizationCategoryServiceRepo.GetOrganizationCategoryServiceByOrganizationCategoryId(organizationCategory.OrganizationCategoryId)
+	if err != nil {
+		txOrganizationCategoryRepo.Rollback()
+		return err
+	}
+
+	organizationUser, err := u.organizationCategoryUserRepo.GetOrganizationCategoryUserByOrganizationCategoryId(organizationCategory.OrganizationCategoryId)
+	if err != nil {
+		txOrganizationCategoryRepo.Rollback()
+		return err
+	}
+
+	if organizationService != nil {
+		organizationCategoryService, err := u.organizationCategoryServiceRepo.GetOrganizationCategoryServiceByOrganizationServiceId(organizationService.OrganizationServiceId)
+		if err != nil {
+			txOrganizationCategoryRepo.Rollback()
+			return err
+		}
+
+		if organizationCategoryService != nil {
+			if err := u.organizationCategoryServiceRepo.DeleteOrganizationCategoryService(organizationCategoryService); err != nil {
+				txOrganizationCategoryRepo.Rollback()
+				return err
+			}
+		}
+	}
+
+	if organizationUser != nil {
+		organizationCategoryUser, err := u.organizationCategoryUserRepo.GetOrganizationCategoryUserByUserId(organizationUser.UserId)
+		if err != nil {
+			txOrganizationCategoryRepo.Rollback()
+			return err
+		}
+
+		if organizationCategoryUser != nil {
+			if err := u.organizationCategoryUserRepo.DeleteOrganizationCategoryUser(organizationCategoryUser); err != nil {
+				txOrganizationCategoryRepo.Rollback()
+				return err
+			}
+		}
+	}
+
+	if err := txOrganizationCategoryRepo.DeleteOrganizationCategory(organizationCategory); err != nil {
 		txOrganizationCategoryRepo.Rollback()
 		return err
 	}
@@ -162,9 +208,9 @@ func (u *organizationCategoryUsecase) DeleteOrganizationCategory(organizationCat
 	}
 
 	organizationLog := &models.OrganizationLog{
-		OrganizationId: oldOrganizationCategory.OrganizationId,
-		Action:         "Deleted Category",
-		Description:    "Deleted Category " + oldOrganizationCategory.Name + " in Organization",
+		OrganizationId: organizationCategory.OrganizationId,
+		Action:         "Deleted",
+		Description:    "Deleted Category " + organizationCategory.Name + " in Organization",
 		CreatedBy:      requesterUserId,
 	}
 
