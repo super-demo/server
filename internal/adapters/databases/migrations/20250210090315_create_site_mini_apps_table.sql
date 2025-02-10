@@ -1,12 +1,11 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE organization_services (
-    organization_service_id SERIAL PRIMARY KEY,
-    organization_id INTEGER NOT NULL,
-    service_id text,
+CREATE TABLE site_mini_apps (
+    site_mini_app_id SERIAL PRIMARY KEY,
+    site_id INTEGER NOT NULL,
     slug VARCHAR(255) NOT NULL,
     description TEXT,
-    webhook_url TEXT,
+    link_url TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INTEGER NOT NULL,
@@ -14,13 +13,11 @@ CREATE TABLE organization_services (
     updated_by INTEGER NOT NULL,
     deleted_at TIMESTAMP,
 
-    FOREIGN KEY (organization_id) REFERENCES organizations(organization_id),
-    FOREIGN KEY (created_by) REFERENCES users(user_id),
-    FOREIGN KEY (updated_by) REFERENCES users(user_id)
-)
+    FOREIGN KEY (site_id) REFERENCES sites(site_id)
+);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS organization_services;
+DROP TABLE IF EXISTS site_mini_apps;
 -- +goose StatementEnd

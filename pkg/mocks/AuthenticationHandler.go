@@ -18,11 +18,6 @@ func (_m *AuthenticationHandler) CmsSignInWithGoogle(c *gin.Context) {
 	_m.Called(c)
 }
 
-// OrganizationSignInWithGoogle provides a mock function with given fields: c
-func (_m *AuthenticationHandler) OrganizationSignInWithGoogle(c *gin.Context) {
-	_m.Called(c)
-}
-
 // RefreshToken provides a mock function with given fields: c
 func (_m *AuthenticationHandler) RefreshToken(c *gin.Context) {
 	_m.Called(c)

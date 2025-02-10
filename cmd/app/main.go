@@ -35,34 +35,15 @@ func main() {
 	// Initialize repositories
 	authenticationRepository := repositories.NewAuthenticationRepository()
 	userRepository := repositories.NewUserRepository(app.PostgresClient)
-	organizationRepository := repositories.NewOrganizationRepository(app.PostgresClient)
-	organizationUserRepository := repositories.NewOrganizationUserRepository(app.PostgresClient)
-	organizationServiceRepository := repositories.NewOrganizationServiceRepository(app.PostgresClient)
-	organizationCategoryRepository := repositories.NewOrganizationCategoryRepository(app.PostgresClient)
-	organizationCategoryUserRepository := repositories.NewOrganizationCategoryUserRepository(app.PostgresClient)
-	organizationCategoryServiceRepository := repositories.NewOrganizationCategoryServiceRepository(app.PostgresClient)
-	organizationLogRepository := repositories.NewOrganizationLogRepository(app.PostgresClient)
 
 	// Initialize usecases
-	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository, organizationUserRepository)
+	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository)
 	userUsecase := usecases.NewUserUsecase(userRepository)
-	organizationUsecase := usecases.NewOrganizationUsecase(organizationRepository, organizationUserRepository, organizationLogRepository)
-	organizationUserUsecase := usecases.NewOrganizationUserUsecase(organizationRepository, organizationUserRepository, organizationCategoryUserRepository, organizationLogRepository)
-	organizationServiceUsecase := usecases.NewOrganizationServiceUsecase(organizationRepository, organizationServiceRepository, organizationCategoryServiceRepository, organizationLogRepository)
-	organizationCategoryUsecase := usecases.NewOrganizationCategoryUsecase(organizationRepository, organizationCategoryRepository, organizationCategoryServiceRepository, organizationCategoryUserRepository, organizationLogRepository)
-	organizationCategoryUserUsecase := usecases.NewOrganizationCategoryUserUsecase(organizationCategoryRepository, organizationCategoryUserRepository, organizationLogRepository)
-	organizationCategoryServiceUsecase := usecases.NewOrganizationCategoryServiceUsecase(organizationCategoryRepository, organizationCategoryServiceRepository, organizationLogRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
 	handlers.NewAuthenticationHandler(engine, authUsecase)
 	handlers.NewUserHandler(engine, userUsecase, middlewares.Jwt())
-	handlers.NewOrganizationHandler(engine, organizationUsecase, middlewares.Jwt())
-	handlers.NewOrganizationUserHandler(engine, organizationUserUsecase, middlewares.Jwt())
-	handlers.NewOrganizationServiceHandler(engine, organizationServiceUsecase, middlewares.Jwt())
-	handlers.NewOrganizationCategoryHandler(engine, organizationCategoryUsecase, middlewares.Jwt())
-	handlers.NewOrganizationCategoryUserHandler(engine, organizationCategoryUserUsecase, middlewares.Jwt())
-	handlers.NewOrganizationCategoryServiceHandler(engine, organizationCategoryServiceUsecase, middlewares.Jwt())
 
 	server := fmt.Sprintf("%s:%s", app.Config.Host, app.Config.Port)
 	app.SLog.Info("Running golang server")
