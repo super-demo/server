@@ -3,8 +3,24 @@ package repositories
 import "server/internal/core/models"
 
 var (
-	OwnerUserLevel = models.UserLevel{
+	RootUserLevel = models.UserLevel{
 		UserLevelId: 1,
+		Slug:        "Root",
+		Description: "Good for people who mange everything.",
+	}
+)
+
+var (
+	StaffUserLevel = models.UserLevel{
+		UserLevelId: 2,
+		Slug:        "Staff",
+		Description: "Good for people who manage something.",
+	}
+)
+
+var (
+	OwnerUserLevel = models.UserLevel{
+		UserLevelId: 3,
 		Slug:        "Owner",
 		Description: "Good for people who own everything.",
 	}
@@ -12,7 +28,7 @@ var (
 
 var (
 	SuperAdminUserLevel = models.UserLevel{
-		UserLevelId: 2,
+		UserLevelId: 4,
 		Slug:        "Super Admin",
 		Description: "Good for people who can manage everything.",
 	}
@@ -20,7 +36,7 @@ var (
 
 var (
 	AdminUserLevel = models.UserLevel{
-		UserLevelId: 3,
+		UserLevelId: 5,
 		Slug:        "Admin",
 		Description: "Good for people who just need to manage something.",
 	}
@@ -28,16 +44,8 @@ var (
 
 var (
 	MemberUserLevel = models.UserLevel{
-		UserLevelId: 4,
+		UserLevelId: 6,
 		Slug:        "Member",
 		Description: "Good for poeple who just need to view something.",
-	}
-)
-
-var (
-	VisitorUserLevel = models.UserLevel{
-		UserLevelId: 5,
-		Slug:        "Visitor",
-		Description: "Good for people who just need to view something.",
 	}
 )

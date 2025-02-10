@@ -2,16 +2,18 @@
 -- +goose StatementBegin
 CREATE TABLE users (
   user_id SERIAL PRIMARY KEY,
+  user_level_id INT,
   google_token TEXT,
   avatar_url TEXT,
   name VARCHAR(255) NOT NULL,
   nickname VARCHAR(255),
-  role VARCHAR(255),
   email VARCHAR(255) UNIQUE NOT NULL,
   phone_number VARCHAR(255),
-  birthday DATE,
+  birth_date DATE,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (user_level_id) REFERENCES user_levels(user_level_id)
 );
 -- +goose StatementEnd
 

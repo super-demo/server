@@ -43,36 +43,6 @@ func (_m *AuthenticationUsecase) CmsSignInWithGoogle(token string) (*models.Toke
 	return r0, r1
 }
 
-// OrganizationSignInWithGoogle provides a mock function with given fields: token
-func (_m *AuthenticationUsecase) OrganizationSignInWithGoogle(token string) (*models.TokenResponse, error) {
-	ret := _m.Called(token)
-
-	if len(ret) == 0 {
-		panic("no return value specified for OrganizationSignInWithGoogle")
-	}
-
-	var r0 *models.TokenResponse
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*models.TokenResponse, error)); ok {
-		return rf(token)
-	}
-	if rf, ok := ret.Get(0).(func(string) *models.TokenResponse); ok {
-		r0 = rf(token)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.TokenResponse)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(token)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // RefreshToken provides a mock function with given fields: refreshToken
 func (_m *AuthenticationUsecase) RefreshToken(refreshToken string) (*models.AccessTokenResponse, error) {
 	ret := _m.Called(refreshToken)
