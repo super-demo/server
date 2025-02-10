@@ -15,5 +15,5 @@ CREATE TABLE site_logs (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE site_logs;
+DROP TABLE IF EXISTS site_logs;
 -- +goose StatementEnd
