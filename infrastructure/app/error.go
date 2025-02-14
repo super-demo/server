@@ -48,29 +48,19 @@ var (
 	ErrRefreshTokenEmpty = AppError{401, 401001, errors.New("refresh token is empty")}
 
 	// 403 Forbidden
-	ErrInvalidToken                 = AppError{403, 403001, errors.New("token is invalid")}
-	ErrInvalidAppSecret             = AppError{403, 403002, errors.New("app secret is invalid")}
-	ErrInvalidCompanyDomainName     = AppError{403, 403003, errors.New("company domain name is invalid")}
-	ErrInsufficientPermissions      = AppError{403, 403004, errors.New("insufficient permissions to access this resource")}
-	ErrAccessAnotherUser            = AppError{403, 403005, errors.New("you don't have permission to access another user's data")}
-	ErrOrganizationUserDeleteMyself = AppError{403, 403006, errors.New("you can't delete yourself from organization")}
-	ErrOrganizationDeleteOwner      = AppError{403, 403007, errors.New("you can't delete owner from organization")}
+	ErrInvalidToken             = AppError{403, 403001, errors.New("token is invalid")}
+	ErrInvalidAppSecret         = AppError{403, 403002, errors.New("app secret is invalid")}
+	ErrInvalidCompanyDomainName = AppError{403, 403003, errors.New("company domain name is invalid")}
+	ErrInsufficientPermissions  = AppError{403, 403004, errors.New("insufficient permissions to access this resource")}
+	ErrAccessAnotherUser        = AppError{403, 403005, errors.New("you don't have permission to access another user's data")}
 
 	// 404 Not Found
-	ErrNotFound         = AppError{404, 404001, errors.New("not found")}
-	ErrUserNotFound     = AppError{404, 404002, errors.New("user not found")}
-	ErrServiceNotFound  = AppError{404, 404003, errors.New("service not found")}
-	ErrCategoryNotFound = AppError{404, 404004, errors.New("category not found")}
+	ErrNotFound = AppError{404, 404001, errors.New("not found")}
 
 	// 409 Conflict
-	ErrConflict                          = AppError{409, 409001, errors.New("conflict")}
-	ErrEmailExist                        = AppError{409, 409002, errors.New("email already exist")}
-	ErrOrganizationNameExists            = AppError{409, 409003, errors.New("organization name already exists")}
-	ErrOrganizationUserExists            = AppError{409, 409004, errors.New("user in organization already exists")}
-	ErrOrganizationServiceNameExists     = AppError{409, 409005, errors.New("organization service name already exists")}
-	ErrOrganizationCategoryNameExists    = AppError{409, 409006, errors.New("organization category name already exists")}
-	ErrOrganizationCategoryUserExists    = AppError{409, 409007, errors.New("organization category user already exists")}
-	ErrOrganizationCategoryServiceExists = AppError{409, 409008, errors.New("organization category service already exists")}
+	ErrConflict   = AppError{409, 409001, errors.New("conflict")}
+	ErrEmailExist = AppError{409, 409002, errors.New("email already exist")}
+	ErrNameExist  = AppError{409, 409003, errors.New("name already exist")}
 
 	// 422 Unprocessable Entity
 	ErrUnprocessableEntity     = AppError{422, 422001, errors.New("unprocessable entity")}

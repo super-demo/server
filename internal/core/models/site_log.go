@@ -8,5 +8,5 @@ type SiteLog struct {
 	Action    string    `json:"action" gorm:"column:action"`
 	Detail    string    `json:"detail" gorm:"column:detail"`
 	CreatedAt time.Time `json:"created_at" gorm:"column:created_at"`
-	CreteaBy  int       `json:"created_by" gorm:"column:created_by"`
+	CreatedBy int       `json:"created_by" gorm:"column:created_by"`
 }
