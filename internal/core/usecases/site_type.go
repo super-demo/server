@@ -9,6 +9,7 @@ import (
 type SiteTypeUsecase interface {
 	CreateSiteType(siteType *models.SiteType, requesterUserId int) (*models.SiteType, error)
 	GetListSiteType() ([]models.SiteType, error)
+	DeleteSiteType(siteType *models.SiteType, requesterUserId int) error
 }
 
 type siteTypeUsecase struct {
@@ -38,7 +39,7 @@ func (u *siteTypeUsecase) CreateSiteType(siteType *models.SiteType, requesterUse
 		}
 	}()
 
-	exists, err := txSiteTypeRepo.CheckSiteTypeExistsByName(siteType.Slug)
+	exists, err := txSiteTypeRepo.CheckSiteTypeExistsBySlug(siteType.Slug)
 	if err != nil {
 		txSiteTypeRepo.Rollback()
 		return nil, err
@@ -49,6 +50,8 @@ func (u *siteTypeUsecase) CreateSiteType(siteType *models.SiteType, requesterUse
 		return nil, app.ErrNameExist
 	}
 
+	siteType.CreatedBy = requesterUserId
+	siteType.UpdatedBy = requesterUserId
 	newSiteType, err := txSiteTypeRepo.CreateSiteType(siteType)
 	if err != nil {
 		txSiteTypeRepo.Rollback()
@@ -64,4 +67,27 @@ func (u *siteTypeUsecase) CreateSiteType(siteType *models.SiteType, requesterUse
 
 func (u *siteTypeUsecase) GetListSiteType() ([]models.SiteType, error) {
 	return u.siteTypeRepo.GetListSiteType()
+}
+
+func (u *siteTypeUsecase) DeleteSiteType(siteType *models.SiteType, requesterUserId int) error {
+	txSiteTypeRepo, err := u.siteTypeRepo.BeginLog()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txSiteTypeRepo.Rollback()
+		}
+	}()
+
+	if err := txSiteTypeRepo.DeleteSiteType(siteType); err != nil {
+		txSiteTypeRepo.Rollback()
+		return err
+	}
+
+	if err := txSiteTypeRepo.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }

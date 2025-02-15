@@ -13,7 +13,9 @@ CREATE TABLE site_mini_apps (
     updated_by INTEGER NOT NULL,
     deleted_at TIMESTAMP,
 
-    FOREIGN KEY (site_id) REFERENCES sites(site_id)
+    FOREIGN KEY (site_id) REFERENCES sites(site_id),
+    FOREIGN KEY (created_by) REFERENCES users(user_id),
+    FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );
 -- +goose StatementEnd
 

@@ -35,8 +35,17 @@ func NewSiteTypeHandler(r *gin.Engine, siteTypeUsecase usecases.SiteTypeUsecase,
 		handler.GetListSiteType,
 	}
 
+	deleteSiteType := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.SiteType{}),
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.StaffUserLevel.UserLevelId},
+		}),
+		handler.DeleteSiteType,
+	}
+
 	v1.GET("/list", getListSiteType...)
 	v1.POST("/create", createSiteType...)
+	v1.DELETE("/delete", deleteSiteType...)
 
 	return handler
 }
@@ -67,4 +76,22 @@ func (h *siteTypeHandler) GetListSiteType(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, siteTypes, "Site types retrieved successfully")
+}
+
+func (h *siteTypeHandler) DeleteSiteType(c *gin.Context) {
+	siteType := &models.SiteType{}
+	if err := c.ShouldBindJSON(siteType); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	requesterUserId := c.MustGet("user_id").(int)
+
+	err := h.siteTypeUsecase.DeleteSiteType(siteType, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, nil, "Site type deleted successfully")
 }

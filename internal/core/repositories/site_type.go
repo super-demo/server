@@ -11,8 +11,9 @@ type SiteTypeRepository interface {
 	Commit() error
 	Rollback() error
 	CreateSiteType(siteType *models.SiteType) (*models.SiteType, error)
-	CheckSiteTypeExistsByName(name string) (bool, error)
+	CheckSiteTypeExistsBySlug(slug string) (bool, error)
 	GetListSiteType() ([]models.SiteType, error)
+	DeleteSiteType(siteType *models.SiteType) error
 }
 
 type siteTypeRepository struct {
@@ -49,10 +50,10 @@ func (r *siteTypeRepository) CreateSiteType(siteType *models.SiteType) (*models.
 	return siteType, nil
 }
 
-func (r *siteTypeRepository) CheckSiteTypeExistsByName(name string) (bool, error) {
+func (r *siteTypeRepository) CheckSiteTypeExistsBySlug(slug string) (bool, error) {
 	var siteType models.SiteType
 
-	err := r.db.Where("name = ?", name).First(&siteType).Error
+	err := r.db.Where("slug = ?", slug).First(&siteType).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return false, nil
@@ -72,4 +73,12 @@ func (r *siteTypeRepository) GetListSiteType() ([]models.SiteType, error) {
 	}
 
 	return siteTypes, nil
+}
+
+func (r *siteTypeRepository) DeleteSiteType(siteType *models.SiteType) error {
+	if err := r.db.Where("site_type_id = ?", siteType.SiteTypeId).Delete(siteType).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

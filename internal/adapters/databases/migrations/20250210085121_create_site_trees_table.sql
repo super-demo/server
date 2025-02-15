@@ -11,7 +11,9 @@ CREATE TABLE site_trees (
     deleted_at TIMESTAMP,
 
     FOREIGN KEY (site_parent_id) REFERENCES sites(site_id),
-    FOREIGN KEY (site_child_id) REFERENCES sites(site_id)
+    FOREIGN KEY (site_child_id) REFERENCES sites(site_id),
+    FOREIGN KEY (created_by) REFERENCES users(user_id),
+    FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );
 -- +goose StatementEnd
 

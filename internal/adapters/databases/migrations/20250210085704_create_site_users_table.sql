@@ -12,7 +12,9 @@ CREATE TABLE site_users (
     deleted_at TIMESTAMP,
 
     FOREIGN KEY (site_id) REFERENCES sites(site_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (created_by) REFERENCES users(user_id),
+    FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );
 -- +goose StatementEnd
 

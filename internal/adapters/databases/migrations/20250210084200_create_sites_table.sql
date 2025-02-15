@@ -13,7 +13,9 @@ CREATE TABLE sites (
     updated_by INTEGER NOT NULL,
     deleted_at TIMESTAMP,
 
-    FOREIGN KEY (site_type_id) REFERENCES site_types(site_type_id)
+    FOREIGN KEY (site_type_id) REFERENCES site_types(site_type_id),
+    FOREIGN KEY (created_by) REFERENCES users(user_id),
+    FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );
 -- +goose StatementEnd
 

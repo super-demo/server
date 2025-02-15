@@ -38,8 +38,9 @@ var ErrNil AppError
 // HTTP-Based Application errors
 var (
 	// 400 Bad Request
-	ErrBadRequest    = AppError{400, 400001, errors.New("bad request")}
-	ErrInvalidUserId = AppError{400, 400002, errors.New("invalid user id")}
+	ErrBadRequest     = AppError{400, 400001, errors.New("bad request")}
+	ErrInvalidUserId  = AppError{400, 400002, errors.New("invalid user id")}
+	ErrInvalidRequest = AppError{400, 400003, errors.New("invalid request")}
 
 	// 401 Unauthorized
 	ErrAccessTokenEmpty  = AppError{401, 401001, errors.New("access token is empty")}
