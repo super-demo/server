@@ -15,6 +15,7 @@ type SiteRepository interface {
 	CheckSiteExistsByName(name string) (bool, error)
 	GetListSite() ([]models.Site, error)
 	GetListSiteBySiteTypeId(siteTypeId int) ([]models.Site, error)
+	GetListSiteWithoutBySiteTypeId(siteTypeId int) ([]models.Site, error)
 	GetSiteById(id int) (*models.Site, error)
 }
 
@@ -81,6 +82,16 @@ func (r *siteRepository) GetListSiteBySiteTypeId(siteTypeId int) ([]models.Site,
 	var sites []models.Site
 
 	if err := r.db.Where("site_type_id = ?", siteTypeId).Find(&sites).Error; err != nil {
+		return nil, err
+	}
+
+	return sites, nil
+}
+
+func (r *siteRepository) GetListSiteWithoutBySiteTypeId(siteTypeId int) ([]models.Site, error) {
+	var sites []models.Site
+
+	if err := r.db.Where("site_type_id != ?", siteTypeId).Find(&sites).Error; err != nil {
 		return nil, err
 	}
 

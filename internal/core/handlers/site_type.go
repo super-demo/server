@@ -23,14 +23,14 @@ func NewSiteTypeHandler(r *gin.Engine, siteTypeUsecase usecases.SiteTypeUsecase,
 	createSiteType := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.SiteType{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.StaffUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
 		}),
 		handler.CreateSiteType,
 	}
 
 	getListSiteType := []gin.HandlerFunc{
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.StaffUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
 		}),
 		handler.GetListSiteType,
 	}
@@ -38,7 +38,7 @@ func NewSiteTypeHandler(r *gin.Engine, siteTypeUsecase usecases.SiteTypeUsecase,
 	deleteSiteType := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.SiteType{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.StaffUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
 		}),
 		handler.DeleteSiteType,
 	}

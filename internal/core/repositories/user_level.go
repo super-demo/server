@@ -11,24 +11,16 @@ var (
 )
 
 var (
-	StaffUserLevel = models.UserLevel{
+	DeveloperUserLevel = models.UserLevel{
 		UserLevelId: 2,
-		Slug:        "Staff",
+		Slug:        "Developer",
 		Description: "Good for people who manage something.",
 	}
 )
 
 var (
-	OwnerUserLevel = models.UserLevel{
-		UserLevelId: 3,
-		Slug:        "Owner",
-		Description: "Good for people who own everything.",
-	}
-)
-
-var (
 	SuperAdminUserLevel = models.UserLevel{
-		UserLevelId: 4,
+		UserLevelId: 3,
 		Slug:        "Super Admin",
 		Description: "Good for people who can manage everything.",
 	}
@@ -36,7 +28,7 @@ var (
 
 var (
 	AdminUserLevel = models.UserLevel{
-		UserLevelId: 5,
+		UserLevelId: 4,
 		Slug:        "Admin",
 		Description: "Good for people who just need to manage something.",
 	}
@@ -44,7 +36,7 @@ var (
 
 var (
 	MemberUserLevel = models.UserLevel{
-		UserLevelId: 6,
+		UserLevelId: 5,
 		Slug:        "Member",
 		Description: "Good for poeple who just need to view something.",
 	}

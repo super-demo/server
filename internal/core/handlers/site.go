@@ -23,28 +23,36 @@ func NewSiteHandler(r *gin.Engine, siteUsecase usecases.SiteUsecase, globalMiddl
 
 	getListSite := []gin.HandlerFunc{
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.StaffUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
 		}),
 		handler.GetListSite,
 	}
 
 	getListSiteBySiteTypeId := []gin.HandlerFunc{
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.StaffUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
 		}),
 		handler.GetListSiteBySiteTypeId,
+	}
+
+	getListSiteWithoutBySiteTypeId := []gin.HandlerFunc{
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
+		}),
+		handler.GetListSiteWithoutBySiteTypeId,
 	}
 
 	createSite := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.Site{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.StaffUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
 		}),
 		handler.CreateSite,
 	}
 
 	v1.GET("/list", getListSite...)
 	v1.GET("/list/:site_type_id", getListSiteBySiteTypeId...)
+	v1.GET("/list/without/:site_type_id", getListSiteWithoutBySiteTypeId...)
 	v1.POST("/create", createSite...)
 
 	return handler
@@ -92,4 +100,20 @@ func (h *siteHandler) GetListSiteBySiteTypeId(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, sites, "List of sites by site type id")
+}
+
+func (h *siteHandler) GetListSiteWithoutBySiteTypeId(c *gin.Context) {
+	siteTypeIdStr := c.Param("site_type_id")
+	siteTypeId, err := strconv.Atoi(siteTypeIdStr)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+	sites, err := h.siteUsecase.GetListSiteWithoutBySiteTypeId(siteTypeId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, sites, "List of sites without site type id")
 }
