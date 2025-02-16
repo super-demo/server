@@ -6,6 +6,7 @@ CREATE TABLE sites (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     short_description TEXT,
+    url TEXT,
     image_url TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INTEGER NOT NULL,

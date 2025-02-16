@@ -12,6 +12,7 @@ type Site struct {
 	Name             string         `json:"name" gorm:"column:name"`
 	Description      string         `json:"description" gorm:"column:description"`
 	ShortDescription string         `json:"short_description" gorm:"column:short_description"`
+	Url              string         `json:"url" gorm:"column:url"`
 	ImageUrl         string         `json:"image_url" gorm:"column:image_url"`
 	CreatedAt        time.Time      `json:"created_at" gorm:"column:created_at"`
 	CreatedBy        int            `json:"created_by" gorm:"column:created_by"`

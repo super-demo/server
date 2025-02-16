@@ -13,6 +13,8 @@ type SiteRepository interface {
 	Rollback() error
 	CreateSite(site *models.Site) (*models.Site, error)
 	CheckSiteExistsByName(name string) (bool, error)
+	GetListSite() ([]models.Site, error)
+	GetListSiteBySiteTypeId(siteTypeId int) ([]models.Site, error)
 	GetSiteById(id int) (*models.Site, error)
 }
 
@@ -63,6 +65,26 @@ func (r *siteRepository) CheckSiteExistsByName(name string) (bool, error) {
 	}
 
 	return true, app.ErrNameExist
+}
+
+func (r *siteRepository) GetListSite() ([]models.Site, error) {
+	var sites []models.Site
+
+	if err := r.db.Find(&sites).Error; err != nil {
+		return nil, err
+	}
+
+	return sites, nil
+}
+
+func (r *siteRepository) GetListSiteBySiteTypeId(siteTypeId int) ([]models.Site, error) {
+	var sites []models.Site
+
+	if err := r.db.Where("site_type_id = ?", siteTypeId).Find(&sites).Error; err != nil {
+		return nil, err
+	}
+
+	return sites, nil
 }
 
 func (r *siteRepository) GetSiteById(id int) (*models.Site, error) {

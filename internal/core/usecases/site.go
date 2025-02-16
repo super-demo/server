@@ -8,6 +8,8 @@ import (
 
 type SiteUsecase interface {
 	CreateSite(site *models.Site, requesterUserId int) (*models.Site, error)
+	GetListSite() ([]models.Site, error)
+	GetListSiteBySiteTypeId(siteTypeId int) ([]models.Site, error)
 }
 
 type siteUsecase struct {
@@ -35,17 +37,19 @@ func (u *siteUsecase) CreateSite(site *models.Site, requesterUserId int) (*model
 		}
 	}()
 
-	exists, err := txSiteRepo.CheckSiteExistsByName(site.Name)
-	if err != nil {
-		txSiteRepo.Rollback()
-		return nil, err
+	if site.SiteTypeId == 1 {
+		exists, err := txSiteRepo.CheckSiteExistsByName(site.Name)
+		if err != nil {
+			txSiteRepo.Rollback()
+			return nil, err
+		}
+		if exists {
+			txSiteRepo.Rollback()
+			return nil, app.ErrNameExist
+		}
 	}
 
-	if exists {
-		txSiteRepo.Rollback()
-		return nil, app.ErrNameExist
-	}
-
+	site.Url = "https://super-office-cms-ecru.vercel.app/" + site.Name
 	site.CreatedBy = requesterUserId
 	site.UpdatedBy = requesterUserId
 	newSite, err := txSiteRepo.CreateSite(site)
@@ -82,4 +86,12 @@ func (u *siteUsecase) CreateSite(site *models.Site, requesterUserId int) (*model
 	}
 
 	return newSite, nil
+}
+
+func (u *siteUsecase) GetListSite() ([]models.Site, error) {
+	return u.siteRepo.GetListSite()
+}
+
+func (u *siteUsecase) GetListSiteBySiteTypeId(siteTypeId int) ([]models.Site, error) {
+	return u.siteRepo.GetListSiteBySiteTypeId(siteTypeId)
 }
