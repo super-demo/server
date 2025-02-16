@@ -45,6 +45,7 @@ func main() {
 	userUsecase := usecases.NewUserUsecase(userRepository)
 	siteUsecase := usecases.NewSiteUsecase(siteRepository, siteUserRepository, siteLogRepository)
 	siteTypeUsecase := usecases.NewSiteTypeUsecase(siteTypeRepository, siteRepository, siteUserRepository, siteLogRepository)
+	siteUserUsecase := usecases.NewSiteUserUsecase(siteUserRepository, siteRepository, siteLogRepository, userRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
@@ -52,6 +53,7 @@ func main() {
 	handlers.NewUserHandler(engine, userUsecase, middlewares.Jwt())
 	handlers.NewSiteHandler(engine, siteUsecase, middlewares.Jwt())
 	handlers.NewSiteTypeHandler(engine, siteTypeUsecase, middlewares.Jwt())
+	handlers.NewSiteUserHandler(engine, siteUserUsecase, middlewares.Jwt())
 
 	server := fmt.Sprintf("%s:%s", app.Config.Host, app.Config.Port)
 	app.SLog.Info("Running golang server")

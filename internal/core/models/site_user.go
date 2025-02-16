@@ -17,3 +17,8 @@ type SiteUser struct {
 	UpdatedBy  int            `json:"updated_by" gorm:"column:updated_by"`
 	DeletedAt  gorm.DeletedAt `json:"deleted_at" gorm:"column:deleted_at"`
 }
+
+type CreateSiteUserWithoutSignRequest struct {
+	SiteId int    `json:"site_id"`
+	Email  string `json:"email"`
+}
