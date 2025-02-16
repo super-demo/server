@@ -21,6 +21,13 @@ func NewSiteHandler(r *gin.Engine, siteUsecase usecases.SiteUsecase, globalMiddl
 
 	v1 := r.Group("/v1/sites", globalMiddlewares...)
 
+	getSiteByName := []gin.HandlerFunc{
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
+		}),
+		handler.GetSiteByName,
+	}
+
 	getListSite := []gin.HandlerFunc{
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
@@ -50,6 +57,7 @@ func NewSiteHandler(r *gin.Engine, siteUsecase usecases.SiteUsecase, globalMiddl
 		handler.CreateSite,
 	}
 
+	v1.GET("/:name", getSiteByName...)
 	v1.GET("/list", getListSite...)
 	v1.GET("/list/:site_type_id", getListSiteBySiteTypeId...)
 	v1.GET("/list/without/:site_type_id", getListSiteWithoutBySiteTypeId...)
@@ -116,4 +124,15 @@ func (h *siteHandler) GetListSiteWithoutBySiteTypeId(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, sites, "List of sites without site type id")
+}
+
+func (h *siteHandler) GetSiteByName(c *gin.Context) {
+	name := c.Param("name")
+	site, err := h.siteUsecase.GetSiteByName(name)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, site, "Site retrieved successfully")
 }

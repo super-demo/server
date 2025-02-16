@@ -17,6 +17,7 @@ type SiteRepository interface {
 	GetListSiteBySiteTypeId(siteTypeId int) ([]models.Site, error)
 	GetListSiteWithoutBySiteTypeId(siteTypeId int) ([]models.Site, error)
 	GetSiteById(id int) (*models.Site, error)
+	GetSiteByName(name string) (*models.Site, error)
 }
 
 type siteRepository struct {
@@ -102,6 +103,16 @@ func (r *siteRepository) GetSiteById(id int) (*models.Site, error) {
 	site := new(models.Site)
 
 	if err := r.db.Where("site_id = ?", id).First(site).Error; err != nil {
+		return nil, err
+	}
+
+	return site, nil
+}
+
+func (r *siteRepository) GetSiteByName(name string) (*models.Site, error) {
+	site := new(models.Site)
+
+	if err := r.db.Where("name = ?", name).First(site).Error; err != nil {
 		return nil, err
 	}
 

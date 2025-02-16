@@ -11,6 +11,7 @@ type SiteUsecase interface {
 	GetListSite() ([]models.Site, error)
 	GetListSiteBySiteTypeId(siteTypeId int) ([]models.Site, error)
 	GetListSiteWithoutBySiteTypeId(siteTypeId int) ([]models.Site, error)
+	GetSiteByName(name string) (*models.Site, error)
 }
 
 type siteUsecase struct {
@@ -99,4 +100,8 @@ func (u *siteUsecase) GetListSiteBySiteTypeId(siteTypeId int) ([]models.Site, er
 
 func (u *siteUsecase) GetListSiteWithoutBySiteTypeId(siteTypeId int) ([]models.Site, error) {
 	return u.siteRepo.GetListSiteWithoutBySiteTypeId(siteTypeId)
+}
+
+func (u *siteUsecase) GetSiteByName(name string) (*models.Site, error) {
+	return u.siteRepo.GetSiteByName(name)
 }
