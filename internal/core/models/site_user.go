@@ -18,6 +18,19 @@ type SiteUser struct {
 	DeletedAt  gorm.DeletedAt `json:"deleted_at" gorm:"column:deleted_at"`
 }
 
+type SiteUserJoinTable struct {
+	SiteUserId int            `json:"site_user_id"`
+	SiteId     int            `json:"site_id"`
+	UserId     int            `json:"user_id"`
+	User       User           `json:"user" gorm:"foreignKey:UserId;references:UserId"`
+	IsActive   bool           `json:"is_active"`
+	CreatedAt  time.Time      `json:"created_at"`
+	CreatedBy  int            `json:"created_by"`
+	UpdatedAt  time.Time      `json:"updated_at"`
+	UpdatedBy  int            `json:"updated_by"`
+	DeletedAt  gorm.DeletedAt `json:"deleted_at"`
+}
+
 type CreateSiteUserWithoutSignRequest struct {
 	SiteId int    `json:"site_id"`
 	Email  string `json:"email"`

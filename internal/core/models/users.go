@@ -16,6 +16,19 @@ type User struct {
 	UpdatedAt   time.Time `json:"updated_at" gorm:"column:updated_at;not null"`
 }
 
+type BulkImportUser struct {
+	Name     string `json:"name"`
+	Nickname string `json:"nickname"`
+	Email    string `json:"email"`
+}
+
+type BulkImportFailure struct {
+	Name     string `json:"name"`
+	Nickname string `json:"nickname"`
+	Email    string `json:"email"`
+	Message  string `json:"message"`
+}
+
 type UserInfoResponse struct {
 	Id            string `json:"id"`
 	Name          string `json:"name"`
@@ -23,4 +36,10 @@ type UserInfoResponse struct {
 	VerifiedEmail bool   `json:"verified_email"`
 	Picture       string `json:"picture"`
 	HD            string `json:"hd"`
+}
+
+type BulkImportResponse struct {
+	SuccessCount int                 `json:"success_count"`
+	FailedCount  int                 `json:"failed_count"`
+	Failures     []BulkImportFailure `json:"failures"`
 }
