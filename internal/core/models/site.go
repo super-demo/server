@@ -20,3 +20,8 @@ type Site struct {
 	UpdatedBy        int            `json:"updated_by" gorm:"column:updated_by"`
 	DeletedAt        gorm.DeletedAt `json:"deleted_at" gorm:"column:deleted_at"`
 }
+
+type CreateSiteWorkspaceRequest struct {
+	Site         Site `json:"site"`
+	SiteParentId int  `json:"site_parent_id"`
+}

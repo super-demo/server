@@ -23,28 +23,49 @@ func NewSiteTypeHandler(r *gin.Engine, siteTypeUsecase usecases.SiteTypeUsecase,
 	createSiteType := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.SiteType{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
+			},
 		}),
 		handler.CreateSiteType,
 	}
 
 	getListSiteType := []gin.HandlerFunc{
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
+			},
 		}),
 		handler.GetListSiteType,
+	}
+
+	updateSiteType := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.SiteType{}),
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
+			},
+		}),
+		handler.UpdateSiteType,
 	}
 
 	deleteSiteType := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.SiteType{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
+			},
 		}),
 		handler.DeleteSiteType,
 	}
 
 	v1.GET("/list", getListSiteType...)
 	v1.POST("/create", createSiteType...)
+	v1.PUT("/update", updateSiteType...)
 	v1.DELETE("/delete", deleteSiteType...)
 
 	return handler
@@ -76,6 +97,24 @@ func (h *siteTypeHandler) GetListSiteType(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, siteTypes, "Site types retrieved successfully")
+}
+
+func (h *siteTypeHandler) UpdateSiteType(c *gin.Context) {
+	siteType := &models.SiteType{}
+	if err := c.ShouldBindJSON(siteType); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	requesterUserId := c.MustGet("user_id").(int)
+
+	siteType, err := h.siteTypeUsecase.UpdateSiteType(siteType, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, siteType, "Site type updated successfully")
 }
 
 func (h *siteTypeHandler) DeleteSiteType(c *gin.Context) {

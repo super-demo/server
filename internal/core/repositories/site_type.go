@@ -13,6 +13,7 @@ type SiteTypeRepository interface {
 	CreateSiteType(siteType *models.SiteType) (*models.SiteType, error)
 	CheckSiteTypeExistsBySlug(slug string) (bool, error)
 	GetListSiteType() ([]models.SiteType, error)
+	UpdateSiteType(siteType *models.SiteType) (*models.SiteType, error)
 	DeleteSiteType(siteType *models.SiteType) error
 }
 
@@ -73,6 +74,14 @@ func (r *siteTypeRepository) GetListSiteType() ([]models.SiteType, error) {
 	}
 
 	return siteTypes, nil
+}
+
+func (r *siteTypeRepository) UpdateSiteType(siteType *models.SiteType) (*models.SiteType, error) {
+	if err := r.db.Save(siteType).Error; err != nil {
+		return nil, err
+	}
+
+	return siteType, nil
 }
 
 func (r *siteTypeRepository) DeleteSiteType(siteType *models.SiteType) error {

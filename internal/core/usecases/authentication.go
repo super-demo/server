@@ -73,6 +73,16 @@ func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenRespo
 	return result, nil
 }
 
+// TODO: Implement the UserSignWithGoogle method
+func (u *authenticationUsecase) UserSignWithGoogle(token string) (*models.TokenResponse, error) {
+	result, err := u.SignWithGoogle(token)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func (u *authenticationUsecase) RefreshToken(refreshToken string) (*models.AccessTokenResponse, error) {
 	claims := &models.RefreshTokenClaims{}
 

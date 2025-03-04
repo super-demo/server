@@ -18,6 +18,8 @@ type SiteRepository interface {
 	GetListSiteWithoutBySiteTypeId(siteTypeId int) ([]models.Site, error)
 	GetSiteById(id int) (*models.Site, error)
 	GetSiteByName(name string) (*models.Site, error)
+	UpdateSite(site *models.Site) (*models.Site, error)
+	DeleteSite(site *models.Site) error
 }
 
 type siteRepository struct {
@@ -117,4 +119,20 @@ func (r *siteRepository) GetSiteByName(name string) (*models.Site, error) {
 	}
 
 	return site, nil
+}
+
+func (r *siteRepository) UpdateSite(site *models.Site) (*models.Site, error) {
+	if err := r.db.Save(site).Error; err != nil {
+		return nil, err
+	}
+
+	return site, nil
+}
+
+func (r *siteRepository) DeleteSite(site *models.Site) error {
+	if err := r.db.Where("site_id = ?", site.SiteId).Delete(site).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

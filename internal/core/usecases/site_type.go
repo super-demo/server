@@ -9,6 +9,7 @@ import (
 type SiteTypeUsecase interface {
 	CreateSiteType(siteType *models.SiteType, requesterUserId int) (*models.SiteType, error)
 	GetListSiteType() ([]models.SiteType, error)
+	UpdateSiteType(siteType *models.SiteType, requesterUserId int) (*models.SiteType, error)
 	DeleteSiteType(siteType *models.SiteType, requesterUserId int) error
 }
 
@@ -67,6 +68,42 @@ func (u *siteTypeUsecase) CreateSiteType(siteType *models.SiteType, requesterUse
 
 func (u *siteTypeUsecase) GetListSiteType() ([]models.SiteType, error) {
 	return u.siteTypeRepo.GetListSiteType()
+}
+
+func (u *siteTypeUsecase) UpdateSiteType(siteType *models.SiteType, requesterUserId int) (*models.SiteType, error) {
+	txSiteTypeRepo, err := u.siteTypeRepo.BeginLog()
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txSiteTypeRepo.Rollback()
+		}
+	}()
+
+	exists, err := txSiteTypeRepo.CheckSiteTypeExistsBySlug(siteType.Slug)
+	if err != nil {
+		txSiteTypeRepo.Rollback()
+		return nil, err
+	}
+
+	if exists {
+		txSiteTypeRepo.Rollback()
+		return nil, app.ErrNameExist
+	}
+
+	siteType.UpdatedBy = requesterUserId
+	updatedSiteType, err := txSiteTypeRepo.UpdateSiteType(siteType)
+	if err != nil {
+		txSiteTypeRepo.Rollback()
+		return nil, err
+	}
+
+	if err := txSiteTypeRepo.Commit(); err != nil {
+		return nil, err
+	}
+
+	return updatedSiteType, nil
 }
 
 func (u *siteTypeUsecase) DeleteSiteType(siteType *models.SiteType, requesterUserId int) error {
