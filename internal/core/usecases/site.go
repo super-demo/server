@@ -12,7 +12,6 @@ type SiteUsecase interface {
 	GetListSiteBySiteTypeId(siteTypeId int) ([]models.Site, error)
 	GetListSiteWithoutBySiteTypeId(siteTypeId int) ([]models.Site, error)
 	GetSiteById(siteId int) (*models.Site, error)
-	GetSiteByName(name string) (*models.Site, error)
 
 	CreateSiteWorkspace(request *models.CreateSiteWorkspaceRequest, requesterUserId int) (*models.Site, error)
 	UpdateSiteWorkspace(site *models.Site, requesterUserId int) (*models.Site, error)
@@ -111,10 +110,6 @@ func (u *siteUsecase) GetListSiteWithoutBySiteTypeId(siteTypeId int) ([]models.S
 
 func (u *siteUsecase) GetSiteById(siteId int) (*models.Site, error) {
 	return u.siteRepo.GetSiteById(siteId)
-}
-
-func (u *siteUsecase) GetSiteByName(name string) (*models.Site, error) {
-	return u.siteRepo.GetSiteByName(name)
 }
 
 func (u *siteUsecase) CreateSiteWorkspace(request *models.CreateSiteWorkspaceRequest, requesterUserId int) (*models.Site, error) {

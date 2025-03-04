@@ -34,16 +34,6 @@ func NewSiteHandler(r *gin.Engine, siteUsecase usecases.SiteUsecase, globalMiddl
 		handler.GetSiteById,
 	}
 
-	getSiteByName := []gin.HandlerFunc{
-		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{
-				repositories.RootUserLevel.UserLevelId,
-				repositories.DeveloperUserLevel.UserLevelId,
-			},
-		}),
-		handler.GetSiteByName,
-	}
-
 	getListSite := []gin.HandlerFunc{
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{
@@ -123,7 +113,6 @@ func NewSiteHandler(r *gin.Engine, siteUsecase usecases.SiteUsecase, globalMiddl
 
 	v1.GET("/:id", getSiteById...)
 
-	v1.GET("/:name", getSiteByName...)
 	v1.GET("/list", getListSite...)
 	v1.GET("/list/:site_type_id", getListSiteBySiteTypeId...)
 	v1.GET("/list/without/:site_type_id", getListSiteWithoutBySiteTypeId...)
@@ -204,17 +193,6 @@ func (h *siteHandler) GetSiteById(c *gin.Context) {
 		return
 	}
 	site, err := h.siteUsecase.GetSiteById(id)
-	if err != nil {
-		middlewares.ResponseError(c, err)
-		return
-	}
-
-	middlewares.ResponseSuccess(c, site, "Site retrieved successfully")
-}
-
-func (h *siteHandler) GetSiteByName(c *gin.Context) {
-	name := c.Param("name")
-	site, err := h.siteUsecase.GetSiteByName(name)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
