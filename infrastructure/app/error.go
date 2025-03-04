@@ -38,8 +38,9 @@ var ErrNil AppError
 // HTTP-Based Application errors
 var (
 	// 400 Bad Request
-	ErrBadRequest    = AppError{400, 400001, errors.New("bad request")}
-	ErrInvalidUserId = AppError{400, 400002, errors.New("invalid user id")}
+	ErrBadRequest     = AppError{400, 400001, errors.New("bad request")}
+	ErrInvalidUserId  = AppError{400, 400002, errors.New("invalid user id")}
+	ErrInvalidRequest = AppError{400, 400003, errors.New("invalid request")}
 
 	// 401 Unauthorized
 	ErrAccessTokenEmpty  = AppError{401, 401001, errors.New("access token is empty")}
@@ -55,12 +56,12 @@ var (
 	ErrAccessAnotherUser        = AppError{403, 403005, errors.New("you don't have permission to access another user's data")}
 
 	// 404 Not Found
-	ErrNotFound     = AppError{404, 404001, errors.New("not found")}
-	ErrUserNotFound = AppError{404, 404002, errors.New("user not found")}
+	ErrNotFound = AppError{404, 404001, errors.New("not found")}
 
 	// 409 Conflict
 	ErrConflict   = AppError{409, 409001, errors.New("conflict")}
 	ErrEmailExist = AppError{409, 409002, errors.New("email already exist")}
+	ErrNameExist  = AppError{409, 409003, errors.New("name already exist")}
 
 	// 422 Unprocessable Entity
 	ErrUnprocessableEntity     = AppError{422, 422001, errors.New("unprocessable entity")}

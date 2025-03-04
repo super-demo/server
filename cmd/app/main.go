@@ -35,19 +35,32 @@ func main() {
 	// Initialize repositories
 	authenticationRepository := repositories.NewAuthenticationRepository()
 	userRepository := repositories.NewUserRepository(app.PostgresClient)
-	organizationRepository := repositories.NewOrganizationRepository(app.PostgresClient)
-	organizationUserRepository := repositories.NewOrganizationUserRepository(app.PostgresClient)
+	siteRepository := repositories.NewSiteRepository(app.PostgresClient)
+	siteTypeRepository := repositories.NewSiteTypeRepository(app.PostgresClient)
+	siteTreeRepository := repositories.NewSiteTreeRepository(app.PostgresClient)
+	siteUserRepository := repositories.NewSiteUserRepository(app.PostgresClient)
+	siteMiniAppRepository := repositories.NewSiteMiniAppRepository(app.PostgresClient)
+	siteLogRepository := repositories.NewSiteLogRepository(app.PostgresClient)
 
 	// Initialize usecases
-	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository, organizationUserRepository)
+	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository)
 	userUsecase := usecases.NewUserUsecase(userRepository)
-	organizationUsecase := usecases.NewOrganizationUsecase(organizationRepository, organizationUserRepository)
+	siteUsecase := usecases.NewSiteUsecase(siteRepository, siteTreeRepository, siteUserRepository, siteLogRepository)
+	siteTypeUsecase := usecases.NewSiteTypeUsecase(siteTypeRepository, siteRepository, siteUserRepository, siteLogRepository)
+	siteTreeUsecase := usecases.NewSiteTreeUsecase(siteTreeRepository, siteRepository, siteUserRepository, siteLogRepository)
+	siteUserUsecase := usecases.NewSiteUserUsecase(siteUserRepository, siteRepository, siteLogRepository, userRepository)
+	siteMiniAppUsecase := usecases.NewSiteMiniAppUsecase(siteMiniAppRepository, siteRepository, siteTreeRepository, siteLogRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
+	handlers.NewGatewayHandler(engine)
 	handlers.NewAuthenticationHandler(engine, authUsecase)
 	handlers.NewUserHandler(engine, userUsecase, middlewares.Jwt())
-	handlers.NewOrganizationHandler(engine, organizationUsecase, middlewares.Jwt())
+	handlers.NewSiteHandler(engine, siteUsecase, middlewares.Jwt())
+	handlers.NewSiteTypeHandler(engine, siteTypeUsecase, middlewares.Jwt())
+	handlers.NewSiteTreeHandler(engine, siteTreeUsecase, middlewares.Jwt())
+	handlers.NewSiteUserHandler(engine, siteUserUsecase, middlewares.Jwt())
+	handlers.NewSiteMiniAppHandler(engine, siteMiniAppUsecase, middlewares.Jwt())
 
 	server := fmt.Sprintf("%s:%s", app.Config.Host, app.Config.Port)
 	app.SLog.Info("Running golang server")

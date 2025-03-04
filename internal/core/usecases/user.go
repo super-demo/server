@@ -8,7 +8,6 @@ import (
 
 type UserUsecase interface {
 	GetUserById(id int, requesterUserId int) (*models.User, error)
-	GetUserByEmail(email string) (*models.User, error)
 }
 
 type userUsecase struct {
@@ -25,15 +24,6 @@ func (u *userUsecase) GetUserById(id int, requesterUserId int) (*models.User, er
 	}
 
 	user, err := u.userRepo.GetUserById(id)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
-func (u *userUsecase) GetUserByEmail(email string) (*models.User, error) {
-	user, err := u.userRepo.GetUserByEmail(email)
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"server/infrastructure/app"
 	"server/internal/core/models"
 
@@ -43,7 +42,7 @@ func GenerateAccessToken(payload models.JwtPayload, exp int64) (string, error) {
 	claims["user_id"] = payload.UserId
 	claims["user_level_id"] = payload.UserLevelId
 	claims["email"] = payload.Email
-	claims["name"] = fmt.Sprintf("%s", payload.Name)
+	claims["name"] = payload.Name
 	claims["exp"] = exp
 
 	return token.SignedString([]byte(app.Config.Jwt.JwtSecretKey))
