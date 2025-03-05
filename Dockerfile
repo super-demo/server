@@ -17,6 +17,6 @@ FROM alpine:3.19
 WORKDIR /app
 COPY --from=builder /builder/bin/goose .
 COPY --from=builder /builder/bin/api .
-COPY --from=builder /builder/migrations ./migrations
+COPY --from=builder /builder/internal/adapters/databases/migrations ./migrations
 
 CMD [ "./api" ]
