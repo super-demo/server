@@ -6,6 +6,7 @@ CREATE TABLE site_mini_apps (
     slug VARCHAR(255) NOT NULL,
     description TEXT,
     link_url TEXT,
+    image_url TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INTEGER NOT NULL,

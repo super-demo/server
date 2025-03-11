@@ -15,6 +15,8 @@ CREATE TABLE users (
 
   FOREIGN KEY (user_level_id) REFERENCES user_levels(user_level_id)
 );
+
+INSERT INTO users (user_level_id, name, email) VALUES (1, 'Root', 'root@localhost');
 -- +goose StatementEnd
 
 -- +goose Down

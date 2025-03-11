@@ -123,6 +123,7 @@ func (u *siteUsecase) CreateSiteWorkspace(request *models.CreateSiteWorkspaceReq
 		}
 	}()
 
+	request.Site.SiteTypeId = 1
 	request.Site.CreatedBy = requesterUserId
 	request.Site.UpdatedBy = requesterUserId
 	newSite, err := txSiteRepo.CreateSite(&request.Site)
