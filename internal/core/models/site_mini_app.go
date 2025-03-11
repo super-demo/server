@@ -8,6 +8,7 @@ type SiteMiniApp struct {
 	Slug          string    `json:"slug" gorm:"column:slug"`
 	Description   string    `json:"description" gorm:"column:description"`
 	LinkUrl       string    `json:"link_url" gorm:"column:link_url"`
+	ImageUrl      string    `json:"image_url" gorm:"column:image_url"`
 	IsActive      bool      `json:"is_active" gorm:"column:is_active"`
 	CreatedAt     time.Time `json:"created_at" gorm:"column:created_at"`
 	CreatedBy     int       `json:"created_by" gorm:"column:created_by"`
