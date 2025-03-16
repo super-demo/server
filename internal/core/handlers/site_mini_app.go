@@ -6,6 +6,7 @@ import (
 	"server/internal/core/usecases"
 	"server/internal/middlewares"
 	"server/pkg/utils"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -110,7 +111,8 @@ func (h *siteMiniAppHandler) CreateSiteMiniApp(c *gin.Context) {
 }
 
 func (h *siteMiniAppHandler) GetListSiteMiniAppBySiteId(c *gin.Context) {
-	siteId := utils.GetIdFromParams(c)
+	siteIdStr, _ := c.Params.Get("site_id")
+	siteId, _ := strconv.Atoi(siteIdStr)
 
 	siteMiniApps, err := h.siteMiniAppUsecase.GetListSiteMiniAppBySiteId(siteId)
 	if err != nil {

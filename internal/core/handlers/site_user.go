@@ -24,7 +24,7 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 	v1 := r.Group("/v1/site-users", globalMiddlewares...)
 
 	createSiteUserWithoutSign := []gin.HandlerFunc{
-		middlewares.ValidateRequestBody(&models.CreateSiteUserWithoutSignRequest{}),
+		// middlewares.ValidateRequestBody([]models.CreateSiteUserWithoutSignRequest{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
 		}),
@@ -63,8 +63,8 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 }
 
 func (h *siteUserHandler) CreateSiteUserWithoutSign(c *gin.Context) {
-	request := &models.CreateSiteUserWithoutSignRequest{}
-	if err := c.ShouldBindJSON(request); err != nil {
+	request := []models.CreateSiteUserWithoutSignRequest{}
+	if err := c.ShouldBindJSON(&request); err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}

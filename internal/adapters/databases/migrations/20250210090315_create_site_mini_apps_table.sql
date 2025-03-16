@@ -22,5 +22,5 @@ CREATE TABLE site_mini_apps (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS site_mini_apps;
+DROP TABLE IF EXISTS site_mini_apps CASCADE;
 -- +goose StatementEnd

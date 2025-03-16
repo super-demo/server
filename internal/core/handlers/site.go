@@ -34,6 +34,19 @@ func NewSiteHandler(r *gin.Engine, siteUsecase usecases.SiteUsecase, globalMiddl
 		handler.GetSiteById,
 	}
 
+	getWorkspaceById := []gin.HandlerFunc{
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+				repositories.MemberUserLevel.UserLevelId,
+			},
+		}),
+		handler.GetWorkspaceById,
+	}
+
 	getListSite := []gin.HandlerFunc{
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{
@@ -112,6 +125,7 @@ func NewSiteHandler(r *gin.Engine, siteUsecase usecases.SiteUsecase, globalMiddl
 	}
 
 	v1.GET("/:id", getSiteById...)
+	v1.GET("/workspace/:id", getWorkspaceById...)
 
 	v1.GET("/list", getListSite...)
 	v1.GET("/list/:site_type_id", getListSiteBySiteTypeId...)
@@ -199,6 +213,22 @@ func (h *siteHandler) GetSiteById(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, site, "Site retrieved successfully")
+}
+
+func (h *siteHandler) GetWorkspaceById(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+	site, err := h.siteUsecase.GetWorkspaceById(id)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, site, "Workspace retrieved successfully")
 }
 
 func (h *siteHandler) CreateSiteWorkspace(c *gin.Context) {

@@ -17,6 +17,7 @@ type SiteRepository interface {
 	GetListSiteBySiteTypeId(siteTypeId int) ([]models.Site, error)
 	GetListSiteWithoutBySiteTypeId(siteTypeId int) ([]models.Site, error)
 	GetSiteById(id int) (*models.Site, error)
+	GetWorkspaceById(id int) (*models.Workspace, error)
 	UpdateSite(site *models.Site) (*models.Site, error)
 	DeleteSite(site *models.Site) error
 }
@@ -108,6 +109,35 @@ func (r *siteRepository) GetSiteById(id int) (*models.Site, error) {
 	}
 
 	return site, nil
+}
+
+func (r *siteRepository) GetWorkspaceById(id int) (*models.Workspace, error) {
+	workspace := new(models.Workspace)
+
+	err := r.db.Raw(`
+		SELECT 
+			s.site_id, 
+			st.site_parent_id,
+			s.site_type_id, 
+			s.name, 
+			s.description, 
+			s.short_description, 
+			s.url, 
+			s.image_url, 
+			s.created_at, 
+			s.created_by, 
+			s.updated_at, 
+			s.updated_by, 
+			s.deleted_at
+		FROM site_trees st
+		JOIN sites s ON st.site_child_id = s.site_id
+		WHERE s.site_id = ?`, id).Scan(workspace).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return workspace, nil
 }
 
 func (r *siteRepository) UpdateSite(site *models.Site) (*models.Site, error) {

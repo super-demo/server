@@ -5,7 +5,7 @@ import (
 	"server/internal/core/repositories"
 	"server/internal/core/usecases"
 	"server/internal/middlewares"
-	"server/pkg/utils"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -97,16 +97,18 @@ func (h *siteTreeHandler) CreateSiteTree(c *gin.Context) {
 }
 
 func (h *siteTreeHandler) GetListSiteTreeBySiteId(c *gin.Context) {
-	siteId := utils.GetIdFromParams(c)
+	siteIdStr, _ := c.Params.Get("site_id")
+	siteId, _ := strconv.Atoi(siteIdStr)
+
 	requesterUserId := c.MustGet("user_id").(int)
 
-	siteTree, err := h.siteTreeUsecase.GetListSiteTreeBySiteId(siteId, requesterUserId)
+	siteList, err := h.siteTreeUsecase.GetListSiteTreeBySiteId(siteId, requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
 
-	middlewares.ResponseSuccess(c, siteTree, "Site tree retrieved successfully")
+	middlewares.ResponseSuccess(c, siteList, "Site tree retrieved successfully")
 }
 
 func (h *siteTreeHandler) UpdateSiteTree(c *gin.Context) {
