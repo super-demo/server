@@ -53,7 +53,7 @@ func main() {
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
-	handlers.NewGatewayHandler(engine)
+	handlers.NewSuperHandler(engine)
 	handlers.NewAuthenticationHandler(engine, authUsecase)
 	handlers.NewUserHandler(engine, userUsecase, middlewares.Jwt())
 	handlers.NewSiteHandler(engine, siteUsecase, middlewares.Jwt())
