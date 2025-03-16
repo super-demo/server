@@ -32,8 +32,8 @@ func registerMiniApp(c *gin.Context) {
 		return
 	}
 	miniAppRegistry[data.AppName] = data.Functions
-	log.Printf("📌 Registered Mini-App: %s\n", data.AppName)
-	log.Printf("📌 Functions: %v\n", miniAppRegistry)
+	log.Printf("Registered Mini-App: %s\n", data.AppName)
+	log.Printf("Functions: %v\n", miniAppRegistry)
 	c.JSON(http.StatusOK, gin.H{"message": "Mini-App registered successfully!"})
 }
 
@@ -55,26 +55,26 @@ func callMiniAppFunction(c *gin.Context) {
 	// Read the raw request body
 	requestData, _ := ioutil.ReadAll(c.Request.Body)
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(requestData))
-	log.Printf("📥 Raw Request Body: %s\n", string(requestData))
+	log.Printf("Raw Request Body: %s\n", string(requestData))
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		log.Printf("❌ JSON Parsing Error: %v\n", err)
+		log.Printf("JSON Parsing Error: %v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
 		return
 	}
 
-	log.Printf("✅ Parsed Request: %+v\n", req)
+	log.Printf("Parsed Request: %+v\n", req)
 
 	functions, exists := miniAppRegistry[req.TargetApp]
 	if !exists || !contains(functions, req.FunctionName) {
-		log.Printf("❌ Function not found: %s.%s\n", req.TargetApp, req.FunctionName)
+		log.Printf("Function not found: %s.%s\n", req.TargetApp, req.FunctionName)
 		c.JSON(http.StatusNotFound, gin.H{"error": "Function not found"})
 		return
 	}
 
 	payloadBytes, err := json.Marshal(req.Payload)
 	if err != nil {
-		log.Printf("❌ Error encoding payload: %v\n", err)
+		log.Printf("Error encoding payload: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error encoding payload"})
 		return
 	}
@@ -95,7 +95,7 @@ func callMiniAppFunction(c *gin.Context) {
 
 	// Try each URL until one works
 	for _, url := range urls {
-		log.Printf("🔄 Trying to forward request to: %s with payload: %s\n", url, string(payloadBytes))
+		log.Printf("Trying to forward request to: %s with payload: %s\n", url, string(payloadBytes))
 
 		client := &http.Client{
 			Timeout: 5 * time.Second,
@@ -103,7 +103,7 @@ func callMiniAppFunction(c *gin.Context) {
 
 		request, err := http.NewRequest("POST", url, bytes.NewBuffer(payloadBytes))
 		if err != nil {
-			log.Printf("❌ Error creating request: %v\n", err)
+			log.Printf("Error creating request: %v\n", err)
 			continue
 		}
 
@@ -111,7 +111,7 @@ func callMiniAppFunction(c *gin.Context) {
 
 		response, err := client.Do(request)
 		if err != nil {
-			log.Printf("❌ Error forwarding to %s: %v\n", url, err)
+			log.Printf("Error forwarding to %s: %v\n", url, err)
 			responseErr = err
 			continue
 		}
@@ -121,18 +121,18 @@ func callMiniAppFunction(c *gin.Context) {
 		response.Body.Close()
 
 		if err != nil {
-			log.Printf("❌ Error reading response from %s: %v\n", url, err)
+			log.Printf("Error reading response from %s: %v\n", url, err)
 			responseErr = err
 			continue
 		}
 
-		log.Printf("✅ Successfully received response from %s: %s\n", url, string(responseBody))
+		log.Printf("Successfully received response from %s: %s\n", url, string(responseBody))
 		successful = true
 		break
 	}
 
 	if !successful {
-		log.Printf("❌ All connection attempts failed. Last error: %v\n", responseErr)
+		log.Printf("All connection attempts failed. Last error: %v\n", responseErr)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error forwarding request: %v", responseErr)})
 		return
 	}
@@ -140,7 +140,7 @@ func callMiniAppFunction(c *gin.Context) {
 	// Parse the response
 	var result map[string]interface{}
 	if err := json.Unmarshal(responseBody, &result); err != nil {
-		log.Printf("❌ Error parsing response: %v\n", err)
+		log.Printf("Error parsing response: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error parsing response"})
 		return
 	}
