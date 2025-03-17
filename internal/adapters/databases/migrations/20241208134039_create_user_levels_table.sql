@@ -17,5 +17,5 @@ INSERT INTO user_levels (user_level_id, slug, description) VALUES (6, 'People', 
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS user_levels CASCADE;
+DROP TABLE IF EXISTS user_levels;
 -- +goose StatementEnd
