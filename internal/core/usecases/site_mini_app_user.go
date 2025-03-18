@@ -1,12 +1,13 @@
 package usecases
 
 import (
+	"server/infrastructure/app"
 	"server/internal/core/models"
 	"server/internal/core/repositories"
 )
 
 type SiteMiniAppUserUsecase interface {
-	CreateSiteMiniAppUser(siteMiniAppUser []models.SiteMiniAppUser) ([]models.SiteMiniAppUser, error)
+	CreateSiteMiniAppUserWithoutSign(request []models.CreateSiteMiniAppUserWithoutSignRequest, requesterUserId int) ([]models.SiteMiniAppUser, error)
 	GetListSiteMiniAppUserBySiteId(siteId int) ([]models.SiteMiniAppUserJoinTable, error)
 	DeleteSiteMiniAppUserBySiteIdAndUserId(siteMiniAppUser []models.SiteMiniAppUser) error
 }
@@ -27,43 +28,75 @@ func NewSiteMiniAppUserUsecase(siteMiniAppUser repositories.SiteMiniAppUserRepos
 	}
 }
 
-func (u *siteMiniAppUserUsecase) CreateSiteMiniAppUser(siteMiniAppUser []models.SiteMiniAppUser) ([]models.SiteMiniAppUser, error) {
-	txSiteMiniAppUserRepo, err := u.siteMiniAppUser.BeginLog()
+func (u *siteMiniAppUserUsecase) CreateSiteMiniAppUserWithoutSign(request []models.CreateSiteMiniAppUserWithoutSignRequest, requesterUserId int) ([]models.SiteMiniAppUser, error) {
+	txUserRepo, err := u.userRepo.BeginLog()
 	if err != nil {
 		return nil, err
 	}
 	defer func() {
 		if r := recover(); r != nil {
-			txSiteMiniAppUserRepo.Rollback()
+			txUserRepo.Rollback()
 		}
 	}()
 
-	var createdSiteMiniAppUser []models.SiteMiniAppUser
+	var createdUsers []models.SiteMiniAppUser
 
-	for _, siteMiniAppUser := range siteMiniAppUser {
-		exists, err := txSiteMiniAppUserRepo.CheckSiteMiniAppUserExistsBySiteIdAndUserId(siteMiniAppUser.SiteMiniAppId, siteMiniAppUser.UserId)
+	for _, user := range request {
+		exists, err := txUserRepo.CheckUserExistsByEmail(user.Email)
 		if err != nil {
-			txSiteMiniAppUserRepo.Rollback()
+			txUserRepo.Rollback()
 			return nil, err
 		}
 
+		var requestUser = &models.User{
+			UserLevelId: user.UserLevelId,
+			Name:        "",
+			Email:       user.Email,
+		}
+
+		var newUser *models.User
 		if exists {
-			continue
+			newUser, err = txUserRepo.GetUserByEmail(user.Email)
+		} else {
+			newUser, err = txUserRepo.CreateUser(requestUser)
 		}
 
-		createdUser, err := txSiteMiniAppUserRepo.CreateSiteMiniAppUser(&siteMiniAppUser)
 		if err != nil {
-			txSiteMiniAppUserRepo.Rollback()
+			txUserRepo.Rollback()
 			return nil, err
 		}
-		createdSiteMiniAppUser = append(createdSiteMiniAppUser, *createdUser)
+
+		siteMiniAppUser := &models.SiteMiniAppUser{
+			SiteMiniAppId: user.SiteMiniAppId,
+			UserId:        newUser.UserId,
+			CreatedBy:     requesterUserId,
+			UpdatedBy:     requesterUserId,
+		}
+
+		exists, err = u.siteMiniAppUser.CheckSiteMiniAppUserExistsBySiteIdAndUserId(siteMiniAppUser.SiteMiniAppId, siteMiniAppUser.UserId)
+		if err != nil {
+			txUserRepo.Rollback()
+			return nil, err
+		}
+		if exists {
+			txUserRepo.Rollback()
+			return nil, app.ErrNameExist
+		}
+
+		newSiteMiniAppUser, err := u.siteMiniAppUser.CreateSiteMiniAppUser(siteMiniAppUser)
+		if err != nil {
+			txUserRepo.Rollback()
+			return nil, err
+		}
+
+		createdUsers = append(createdUsers, *newSiteMiniAppUser)
 	}
 
-	if err := txSiteMiniAppUserRepo.Commit(); err != nil {
+	if err := txUserRepo.Commit(); err != nil {
 		return nil, err
 	}
 
-	return createdSiteMiniAppUser, nil
+	return createdUsers, nil
 }
 
 func (u *siteMiniAppUserUsecase) GetListSiteMiniAppUserBySiteId(siteId int) ([]models.SiteMiniAppUserJoinTable, error) {

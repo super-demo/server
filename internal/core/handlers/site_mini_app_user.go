@@ -21,17 +21,25 @@ func NewSiteMiniAppUserHandler(r *gin.Engine, siteMiniAppUserUsecase usecases.Si
 
 	v1 := r.Group("/v1/site-mini-app-users", globalMiddlewares...)
 
-	createSiteMiniAppUser := []gin.HandlerFunc{
-		middlewares.ValidateRequestBody([]models.SiteMiniAppUser{}),
+	CreateSiteMiniAppUserWithoutSign := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody([]models.CreateSiteMiniAppUserWithoutSignRequest{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+			},
 		}),
 		handler.CreateSiteMiniAppUser,
 	}
 
 	getListSiteMiniAppUserBySiteId := []gin.HandlerFunc{
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.SuperAdminUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+			},
 		}),
 		handler.GetListSiteMiniAppUserBySiteId,
 	}
@@ -39,26 +47,32 @@ func NewSiteMiniAppUserHandler(r *gin.Engine, siteMiniAppUserUsecase usecases.Si
 	deleteSiteMiniAppUserBySiteIdAndUserId := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.SiteMiniAppUser{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.SuperAdminUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+			},
 		}),
 		handler.DeleteSiteMiniAppUserBySiteIdAndUserId,
 	}
 
-	v1.POST("/create", createSiteMiniAppUser...)
 	v1.GET("/list/:siteId", getListSiteMiniAppUserBySiteId...)
+	v1.POST("/create/without/sign", CreateSiteMiniAppUserWithoutSign...)
 	v1.DELETE("/delete", deleteSiteMiniAppUserBySiteIdAndUserId...)
 
 	return handler
 }
 
 func (h *siteMiniAppUserHandler) CreateSiteMiniAppUser(c *gin.Context) {
-	siteMiniAppUser := []models.SiteMiniAppUser{}
-	if err := c.ShouldBindJSON(siteMiniAppUser); err != nil {
+	request := []models.CreateSiteMiniAppUserWithoutSignRequest{}
+	if err := c.ShouldBindJSON(&request); err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
 
-	siteMiniAppUser, err := h.siteMiniAppUserHandler.CreateSiteMiniAppUser(siteMiniAppUser)
+	requesterUserId := c.MustGet("user_id").(int)
+
+	siteMiniAppUser, err := h.siteMiniAppUserHandler.CreateSiteMiniAppUserWithoutSign(request, requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return

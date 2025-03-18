@@ -30,3 +30,9 @@ type SiteMiniAppUserJoinTable struct {
 	UpdatedBy         int            `json:"updated_by"`
 	DeletedAt         gorm.DeletedAt `json:"deleted_at"`
 }
+
+type CreateSiteMiniAppUserWithoutSignRequest struct {
+	SiteMiniAppId int    `json:"site_mini_app_id" binding:"required"`
+	Email         string `json:"email" binding:"required"`
+	UserLevelId   int    `json:"user_level_id" binding:"required"`
+}
