@@ -36,7 +36,7 @@ func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenRespo
 	user, err := u.userRepo.GetUserByEmail(userInfo.Email)
 	if err != nil {
 		user = &models.User{
-			UserLevelId: repositories.MemberUserLevel.UserLevelId,
+			UserLevelId: repositories.PeopleUserLevel.UserLevelId,
 			GoogleToken: userInfo.Id,
 			AvatarUrl:   userInfo.Picture,
 			Name:        userInfo.Name,

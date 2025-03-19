@@ -41,6 +41,8 @@ func main() {
 	siteUserRepository := repositories.NewSiteUserRepository(app.PostgresClient)
 	siteMiniAppRepository := repositories.NewSiteMiniAppRepository(app.PostgresClient)
 	siteLogRepository := repositories.NewSiteLogRepository(app.PostgresClient)
+	notificationRepository := repositories.NewNotificationRepository(app.PostgresClient)
+	notificationUserRepository := repositories.NewNotificationUserRepository(app.PostgresClient)
 
 	// Initialize usecases
 	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository)
@@ -50,6 +52,8 @@ func main() {
 	siteTreeUsecase := usecases.NewSiteTreeUsecase(siteTreeRepository, siteRepository, siteUserRepository, siteLogRepository)
 	siteUserUsecase := usecases.NewSiteUserUsecase(siteUserRepository, siteRepository, siteLogRepository, userRepository)
 	siteMiniAppUsecase := usecases.NewSiteMiniAppUsecase(siteMiniAppRepository, siteRepository, siteTreeRepository, siteLogRepository)
+	notificationUsecase := usecases.NewNotificationUsecase(notificationRepository, notificationUserRepository, siteUserRepository)
+	notificationUserUsecase := usecases.NewNotificationUserUsecase(notificationUserRepository, notificationRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
@@ -61,6 +65,8 @@ func main() {
 	handlers.NewSiteTreeHandler(engine, siteTreeUsecase, middlewares.Jwt())
 	handlers.NewSiteUserHandler(engine, siteUserUsecase, middlewares.Jwt())
 	handlers.NewSiteMiniAppHandler(engine, siteMiniAppUsecase, middlewares.Jwt())
+	handlers.NewNotificationHandler(engine, notificationUsecase)
+	handlers.NewNotificationUserHandler(engine, notificationUserUsecase)
 
 	server := fmt.Sprintf("%s:%s", app.Config.Host, app.Config.Port)
 	app.SLog.Info("Running golang server")

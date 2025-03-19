@@ -38,9 +38,11 @@ func NewSiteMiniAppHandler(r *gin.Engine, siteMiniAppUsecase usecases.SiteMiniAp
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{
 				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
 				repositories.SuperAdminUserLevel.UserLevelId,
 				repositories.AdminUserLevel.UserLevelId,
-				repositories.MemberUserLevel.UserLevelId,
+				repositories.ViewerUserLevel.UserLevelId,
+				repositories.PeopleUserLevel.UserLevelId,
 			},
 		}),
 		handler.GetListSiteMiniAppBySiteId,
@@ -50,9 +52,11 @@ func NewSiteMiniAppHandler(r *gin.Engine, siteMiniAppUsecase usecases.SiteMiniAp
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{
 				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
 				repositories.SuperAdminUserLevel.UserLevelId,
 				repositories.AdminUserLevel.UserLevelId,
-				repositories.MemberUserLevel.UserLevelId,
+				repositories.ViewerUserLevel.UserLevelId,
+				repositories.PeopleUserLevel.UserLevelId,
 			},
 		}),
 		handler.GetSiteMiniAppById,
@@ -75,9 +79,11 @@ func NewSiteMiniAppHandler(r *gin.Engine, siteMiniAppUsecase usecases.SiteMiniAp
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{
 				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
 				repositories.SuperAdminUserLevel.UserLevelId,
 				repositories.AdminUserLevel.UserLevelId,
-				repositories.MemberUserLevel.UserLevelId,
+				repositories.ViewerUserLevel.UserLevelId,
+				repositories.PeopleUserLevel.UserLevelId,
 			},
 		}),
 		handler.DeleteSiteMiniApp,

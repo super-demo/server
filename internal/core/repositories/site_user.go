@@ -12,6 +12,7 @@ type SiteUserRepository interface {
 	Rollback() error
 	CreateSiteUser(siteUser *models.SiteUser) (*models.SiteUser, error)
 	CheckSiteUserExistsBySiteIdAndUserId(siteId, userId int) (bool, error)
+	GetListUserBySiteId(siteId int) ([]models.SiteUser, error)
 	GetListSiteUserBySiteId(siteId int) ([]models.SiteUserJoinTable, error)
 	DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser) error
 }
@@ -62,6 +63,15 @@ func (r *siteUserRepository) CheckSiteUserExistsBySiteIdAndUserId(siteId, userId
 	}
 
 	return true, nil
+}
+
+func (r *siteUserRepository) GetListUserBySiteId(siteId int) ([]models.SiteUser, error) {
+	var siteUsers []models.SiteUser
+	err := r.db.Where("site_id = ?", siteId).Find(&siteUsers).Error
+	if err != nil {
+		return nil, err
+	}
+	return siteUsers, nil
 }
 
 func (r *siteUserRepository) GetListSiteUserBySiteId(siteId int) ([]models.SiteUserJoinTable, error) {
