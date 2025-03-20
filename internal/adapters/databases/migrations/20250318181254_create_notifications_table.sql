@@ -5,6 +5,7 @@ CREATE TABLE notifications (
   site_id INTEGER NOT NULL,
   action VARCHAR(255) NOT NULL,
   detail TEXT,
+  image_url TEXT,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   created_by INTEGER NOT NULL,
 

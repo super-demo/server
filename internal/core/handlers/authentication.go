@@ -63,7 +63,7 @@ func (h *authenticationHandler) UserSignWithGoogle(c *gin.Context) {
 		middlewares.ResponseError(c, err)
 		return
 	}
-	data, err := h.authenticationUsecase.SignWithGoogle(req.AccessToken)
+	data, err := h.authenticationUsecase.UserSignWithGoogleInSite(req.AccessToken)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return

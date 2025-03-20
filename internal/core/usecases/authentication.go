@@ -12,19 +12,22 @@ import (
 
 type AuthenticationUsecase interface {
 	SignWithGoogle(token string) (*models.TokenResponse, error)
+	UserSignWithGoogleInSite(token string) (*models.TokenResponse, error)
 	RefreshToken(refreshToken string) (*models.AccessTokenResponse, error)
 }
 
 type authenticationUsecase struct {
 	userRepo           repositories.UserRepository
 	authenticationRepo repositories.AuthenticationRepository
+	siteUserRepo       repositories.SiteUserRepository
 }
 
 func NewAuthenticationUsecase(
 	userRepo repositories.UserRepository,
 	authenticationRepo repositories.AuthenticationRepository,
+	siteUserRepo repositories.SiteUserRepository,
 ) AuthenticationUsecase {
-	return &authenticationUsecase{userRepo, authenticationRepo}
+	return &authenticationUsecase{userRepo, authenticationRepo, siteUserRepo}
 }
 
 func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenResponse, error) {
@@ -73,9 +76,39 @@ func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenRespo
 	return result, nil
 }
 
-// TODO: Implement the UserSignWithGoogle method
-func (u *authenticationUsecase) UserSignWithGoogle(token string) (*models.TokenResponse, error) {
-	result, err := u.SignWithGoogle(token)
+func (u *authenticationUsecase) UserSignWithGoogleInSite(token string) (*models.TokenResponse, error) {
+	userInfo, err := u.authenticationRepo.GetUserInfoByAccessToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := u.userRepo.GetUserByEmail(userInfo.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	if user.SiteId != 1 {
+		return nil, app.ErrUnauthorized
+	}
+
+	if user.GoogleToken == "" {
+		user.GoogleToken = userInfo.Id
+	}
+
+	user.AvatarUrl = userInfo.Picture
+
+	if _, err := u.userRepo.UpdateUser(user); err != nil {
+		return nil, err
+	}
+
+	payload := models.JwtPayload{
+		UserId:      user.UserId,
+		UserLevelId: user.UserLevelId,
+		Email:       user.Email,
+		Name:        user.Name,
+	}
+
+	result, err := utils.GenerateJwtToken(payload)
 	if err != nil {
 		return nil, err
 	}

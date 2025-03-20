@@ -45,7 +45,7 @@ func main() {
 	notificationUserRepository := repositories.NewNotificationUserRepository(app.PostgresClient)
 
 	// Initialize usecases
-	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository)
+	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository, siteUserRepository)
 	userUsecase := usecases.NewUserUsecase(userRepository)
 	siteUsecase := usecases.NewSiteUsecase(siteRepository, siteTreeRepository, siteUserRepository, siteLogRepository)
 	siteTypeUsecase := usecases.NewSiteTypeUsecase(siteTypeRepository, siteRepository, siteUserRepository, siteLogRepository)
@@ -65,8 +65,8 @@ func main() {
 	handlers.NewSiteTreeHandler(engine, siteTreeUsecase, middlewares.Jwt())
 	handlers.NewSiteUserHandler(engine, siteUserUsecase, middlewares.Jwt())
 	handlers.NewSiteMiniAppHandler(engine, siteMiniAppUsecase, middlewares.Jwt())
-	handlers.NewNotificationHandler(engine, notificationUsecase)
-	handlers.NewNotificationUserHandler(engine, notificationUserUsecase)
+	handlers.NewNotificationHandler(engine, notificationUsecase, middlewares.Jwt())
+	handlers.NewNotificationUserHandler(engine, notificationUserUsecase, middlewares.Jwt())
 
 	server := fmt.Sprintf("%s:%s", app.Config.Host, app.Config.Port)
 	app.SLog.Info("Running golang server")

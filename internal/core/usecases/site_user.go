@@ -51,6 +51,7 @@ func (u *siteUserUsecase) CreateSiteUserWithoutSign(users []models.CreateSiteUse
 
 		var requestUser = &models.User{
 			UserLevelId: user.UserLevelId,
+			SiteId:      1,
 			Name:        "",
 			Email:       user.Email,
 		}
@@ -136,6 +137,7 @@ func (u *siteUserUsecase) BulkImportUserWithoutSign(siteId int, users []models.B
 
 		var requestUser = &models.User{
 			UserLevelId: repositories.SuperAdminUserLevel.UserLevelId,
+			SiteId:      1,
 			Name:        user.Name,
 			Nickname:    user.Nickname,
 			Email:       user.Email,
