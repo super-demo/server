@@ -16,6 +16,22 @@ CREATE TABLE site_users (
     FOREIGN KEY (created_by) REFERENCES users(user_id),
     FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );
+
+INSERT INTO site_users (site_id, user_id, created_by, updated_by) VALUES (1, 1, 1, 1);
+INSERT INTO site_users (site_id, user_id, created_by, updated_by) VALUES (1, 2, 1, 1);
+INSERT INTO site_users (site_id, user_id, created_by, updated_by) VALUES (1, 3, 1, 1);
+
+INSERT INTO site_users (site_id, user_id, created_by, updated_by) VALUES (2, 1, 1, 1);
+INSERT INTO site_users (site_id, user_id, created_by, updated_by) VALUES (2, 2, 1, 1);
+
+INSERT INTO site_users (site_id, user_id, created_by, updated_by) VALUES (3, 1, 1, 1);
+INSERT INTO site_users (site_id, user_id, created_by, updated_by) VALUES (3, 2, 1, 1);
+
+INSERT INTO site_users (site_id, user_id, created_by, updated_by) VALUES (4, 1, 1, 1);
+INSERT INTO site_users (site_id, user_id, created_by, updated_by) VALUES (4, 2, 1, 1);
+
+INSERT INTO site_users (site_id, user_id, created_by, updated_by) VALUES (5, 1, 1, 1);
+INSERT INTO site_users (site_id, user_id, created_by, updated_by) VALUES (5, 2, 1, 1);
 -- +goose StatementEnd
 
 -- +goose Down

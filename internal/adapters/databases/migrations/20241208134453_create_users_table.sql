@@ -19,6 +19,7 @@ CREATE TABLE users (
 
 INSERT INTO users (user_level_id, name, email) VALUES (1, 'Root', 'root@localhost');
 INSERT INTO users (user_level_id, name, email) VALUES (1, 'Nopnapat Norasri', 'nopnapatn@gmail.com');
+INSERT INTO users (user_level_id, name, email) VALUES (2, 'Nopnapat NORASRI', 'nopnapat.n@ku.th');
 -- +goose StatementEnd
 
 -- +goose Down

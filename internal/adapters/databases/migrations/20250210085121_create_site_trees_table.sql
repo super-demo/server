@@ -15,6 +15,12 @@ CREATE TABLE site_trees (
     FOREIGN KEY (created_by) REFERENCES users(user_id),
     FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );
+
+INSERT INTO site_trees (site_parent_id, site_child_id, created_by, updated_by) VALUES (1, 2, 1, 1);
+INSERT INTO site_trees (site_parent_id, site_child_id, created_by, updated_by) VALUES (1, 3, 1, 1);
+INSERT INTO site_trees (site_parent_id, site_child_id, created_by, updated_by) VALUES (1, 4, 1, 1);
+INSERT INTO site_trees (site_parent_id, site_child_id, created_by, updated_by) VALUES (2, 5, 1, 1);
+INSERT INTO site_trees (site_parent_id, site_child_id, created_by, updated_by) VALUES (2, 6, 1, 1);
 -- +goose StatementEnd
 
 -- +goose Down
