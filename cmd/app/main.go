@@ -44,11 +44,13 @@ func main() {
 	notificationRepository := repositories.NewNotificationRepository(app.PostgresClient)
 	notificationUserRepository := repositories.NewNotificationUserRepository(app.PostgresClient)
 	announcementRepository := repositories.NewAnnouncementRepository(app.PostgresClient)
+	peopleRoleRepository := repositories.NewPeopleRoleRepository(app.PostgresClient)
+	sitePeopleRepository := repositories.NewSitePeopleRepository(app.PostgresClient)
 
 	// Initialize usecases
 	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository, siteUserRepository)
 	userUsecase := usecases.NewUserUsecase(userRepository)
-	siteUsecase := usecases.NewSiteUsecase(siteRepository, siteTreeRepository, siteUserRepository, siteLogRepository)
+	siteUsecase := usecases.NewSiteUsecase(siteRepository, siteTreeRepository, siteUserRepository, siteLogRepository, peopleRoleRepository)
 	siteTypeUsecase := usecases.NewSiteTypeUsecase(siteTypeRepository, siteRepository, siteUserRepository, siteLogRepository)
 	siteTreeUsecase := usecases.NewSiteTreeUsecase(siteTreeRepository, siteRepository, siteUserRepository, siteLogRepository)
 	siteUserUsecase := usecases.NewSiteUserUsecase(siteUserRepository, siteRepository, siteLogRepository, userRepository)
@@ -56,6 +58,7 @@ func main() {
 	notificationUsecase := usecases.NewNotificationUsecase(notificationRepository, notificationUserRepository, siteUserRepository)
 	notificationUserUsecase := usecases.NewNotificationUserUsecase(notificationUserRepository, notificationRepository)
 	announcementUsecase := usecases.NewAnnouncementUsecase(announcementRepository, notificationRepository, notificationUserRepository, siteUserRepository)
+	sitePeopleUsecase := usecases.NewSitePeopleUsecase(siteUserRepository, siteRepository, siteLogRepository, userRepository, sitePeopleRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)
@@ -70,6 +73,7 @@ func main() {
 	handlers.NewNotificationHandler(engine, notificationUsecase, middlewares.Jwt())
 	handlers.NewNotificationUserHandler(engine, notificationUserUsecase, middlewares.Jwt())
 	handlers.NewAnnouncementHandler(engine, announcementUsecase, middlewares.Jwt())
+	handlers.NewSitePeopleHandler(engine, siteUserUsecase, sitePeopleUsecase, middlewares.Jwt())
 
 	server := fmt.Sprintf("%s:%s", app.Config.Host, app.Config.Port)
 	app.SLog.Info("Running golang server")

@@ -46,6 +46,7 @@ func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenRespo
 			Email:       userInfo.Email,
 		}
 
+		// TODO: remove create user when user not in site_user
 		if _, err := u.userRepo.CreateUser(user); err != nil {
 			return nil, err
 		}
@@ -82,6 +83,7 @@ func (u *authenticationUsecase) UserSignWithGoogleInSite(token string) (*models.
 		return nil, err
 	}
 
+	// TODO: check by site_user
 	user, err := u.userRepo.GetUserByEmail(userInfo.Email)
 	if err != nil {
 		return nil, err

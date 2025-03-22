@@ -126,6 +126,30 @@ func NewSiteHandler(r *gin.Engine, siteUsecase usecases.SiteUsecase, globalMiddl
 		handler.DeleteSiteWorkspace,
 	}
 
+	createPeopleRole := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.CreatePeopleRoleRequest{}),
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+			},
+		}),
+		handler.CreatePeopleRole,
+	}
+
+	getListPeopleRole := []gin.HandlerFunc{
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+			},
+		}),
+		handler.GetListPeopleRole,
+	}
+
 	v1.GET("/:id", getSiteById...)
 	v1.GET("/workspace/:id", getWorkspaceById...)
 
@@ -137,6 +161,9 @@ func NewSiteHandler(r *gin.Engine, siteUsecase usecases.SiteUsecase, globalMiddl
 	v1.POST("/create/workspace", createSiteWorkspace...)
 	v1.PUT("/update/workspace", updateSiteWorkspace...)
 	v1.DELETE("/delete/workspace", deleteSiteWorkspace...)
+
+	v1.POST("/create/people-role", createPeopleRole...)
+	v1.GET("/list/people-role/:site_id", getListPeopleRole...)
 
 	return handler
 }
@@ -285,4 +312,40 @@ func (h *siteHandler) DeleteSiteWorkspace(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, nil, "Site workspace deleted successfully")
+}
+
+func (h *siteHandler) CreatePeopleRole(c *gin.Context) {
+
+	peopleRole := &models.CreatePeopleRoleRequest{}
+	if err := c.ShouldBindJSON(peopleRole); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	requesterUserId := c.MustGet("user_id").(int)
+
+	role, err := h.siteUsecase.CreatePeopleRole(peopleRole, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, role, "Site people role created successfully")
+
+}
+
+func (h *siteHandler) GetListPeopleRole(c *gin.Context) {
+	siteIdStr := c.Param("site_id")
+	siteId, err := strconv.Atoi(siteIdStr)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+	roles, err := h.siteUsecase.GetListPeopleRole(siteId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, roles, "List of people role")
 }

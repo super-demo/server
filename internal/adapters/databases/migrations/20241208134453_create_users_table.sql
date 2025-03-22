@@ -3,6 +3,7 @@
 CREATE TABLE users (
   user_id SERIAL PRIMARY KEY,
   user_level_id INT,
+  sub_role_id INT,
   site_id INT,
   google_token TEXT,
   avatar_url TEXT,
@@ -20,6 +21,8 @@ CREATE TABLE users (
 INSERT INTO users (user_level_id, name, email) VALUES (1, 'Root', 'root@localhost');
 INSERT INTO users (user_level_id, name, email) VALUES (1, 'Nopnapat Norasri', 'nopnapatn@gmail.com');
 INSERT INTO users (user_level_id, name, email) VALUES (2, 'Nopnapat NORASRI', 'nopnapat.n@ku.th');
+INSERT INTO users (user_level_id, name, email) VALUES (1, 'Thanyamas Chancharoen', 'thanyamas.c@ku.th');
+
 -- +goose StatementEnd
 
 -- +goose Down

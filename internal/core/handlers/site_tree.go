@@ -47,6 +47,20 @@ func NewSiteTreeHandler(r *gin.Engine, siteTreeUsecase usecases.SiteTreeUsecase,
 		handler.GetListSiteTreeBySiteId,
 	}
 
+	getListWorkspaceBySiteIdAndSitePeople := []gin.HandlerFunc{
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+				repositories.ViewerUserLevel.UserLevelId,
+				repositories.PeopleUserLevel.UserLevelId,
+			},
+		}),
+		handler.GetListWorkspaceBySiteIdAndSitePeople,
+	}
+
 	updateSiteTree := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.SiteTree{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
@@ -72,6 +86,7 @@ func NewSiteTreeHandler(r *gin.Engine, siteTreeUsecase usecases.SiteTreeUsecase,
 	}
 
 	v1.GET("/list/:site_id", getListSiteTreeBySiteId...)
+	v1.GET("/list/workspace/:site_id", getListWorkspaceBySiteIdAndSitePeople...)
 	v1.POST("/create", createSiteTree...)
 	v1.PUT("/update", updateSiteTree...)
 	v1.DELETE("/delete", deleteSiteTree...)
@@ -104,6 +119,21 @@ func (h *siteTreeHandler) GetListSiteTreeBySiteId(c *gin.Context) {
 	requesterUserId := c.MustGet("user_id").(int)
 
 	siteList, err := h.siteTreeUsecase.GetListSiteTreeBySiteId(siteId, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, siteList, "Site tree retrieved successfully")
+}
+
+func (h *siteTreeHandler) GetListWorkspaceBySiteIdAndSitePeople(c *gin.Context) {
+	siteIdStr, _ := c.Params.Get("site_id")
+	siteId, _ := strconv.Atoi(siteIdStr)
+
+	requesterUserId := c.MustGet("user_id").(int)
+
+	siteList, err := h.siteTreeUsecase.GetListWorkspaceBySiteIdAndSitePeople(siteId, requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return

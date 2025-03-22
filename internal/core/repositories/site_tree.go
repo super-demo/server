@@ -11,7 +11,8 @@ type SiteTreeRepository interface {
 	Commit() error
 	Rollback() error
 	CreateSiteTree(siteTree *models.SiteTree) (*models.SiteTree, error)
-	GetListSiteTreeBySiteId(siteId int) ([]models.GetWorkspaceList, error)
+	GetListSiteTreeBySiteId(siteId int, userId int) ([]models.GetWorkspaceList, error)
+	GetListWorkspaceBySiteIdAndPeople(siteId int, userId int) ([]models.GetWorkspaceList, error)
 	UpdateSiteTree(siteTree *models.SiteTree) (*models.SiteTree, error)
 	DeleteSiteTree(siteTree *models.SiteTree) error
 }
@@ -50,23 +51,48 @@ func (r *siteTreeRepository) CreateSiteTree(siteTree *models.SiteTree) (*models.
 	return siteTree, nil
 }
 
-func (r *siteTreeRepository) GetListSiteTreeBySiteId(siteId int) ([]models.GetWorkspaceList, error) {
+func (r *siteTreeRepository) GetListSiteTreeBySiteId(siteId int, userId int) ([]models.GetWorkspaceList, error) {
 	var siteList []models.GetWorkspaceList
 
 	query := `
-		SELECT 
+		SELECT
 			s.*,
 			st.site_parent_id,
 			sp.name AS site_parent_name
 		FROM sites s
 		INNER JOIN site_trees st ON s.site_id = st.site_child_id
-		LEFT JOIN sites sp ON st.site_parent_id = sp.site_id 
+		LEFT JOIN sites sp ON st.site_parent_id = sp.site_id
 		WHERE st.site_parent_id = $1
 		ORDER BY s.site_id;
 
 	`
 
 	err := r.db.Raw(query, siteId).Scan(&siteList).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return siteList, nil
+}
+
+func (r *siteTreeRepository) GetListWorkspaceBySiteIdAndPeople(siteId int, userId int) ([]models.GetWorkspaceList, error) {
+	var siteList []models.GetWorkspaceList
+
+	query := `
+		SELECT
+			s.*,
+			st.site_parent_id,
+			sp.name AS site_parent_name
+		FROM sites s
+		INNER JOIN site_trees st ON s.site_id = st.site_child_id
+		LEFT JOIN sites sp ON st.site_parent_id = sp.site_id
+		INNER JOIN site_users su ON su.site_id = s.site_id  -- Ensure user is in site_users for site_child
+		WHERE st.site_parent_id = $1
+		AND su.user_id = $2 
+		ORDER BY s.site_id;
+	`
+
+	err := r.db.Raw(query, siteId, userId).Scan(&siteList).Error
 	if err != nil {
 		return nil, err
 	}

@@ -25,6 +25,7 @@ INSERT INTO sites (site_type_id, name, description, short_description, url, imag
 INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 3', 'Site 3 for test usecases', 'Site 3', 'http://localhost:3001', 'https://localhost:3001', 1, 1);
 INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 4', 'Site 4 for test usecases', 'Site 4', 'http://localhost:3001', 'https://localhost:3001', 1, 1);
 INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 5', 'Site 5 for test usecases', 'Site 5', 'http://localhost:3001', 'https://localhost:3001', 1, 1);
+INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'KU Workspace', 'Kenyatta University', 'Kenyatta University', 'https://ku.ac.ke', 'https://ku.ac.ke/logo.png', 1, 1);
 -- +goose StatementEnd
 
 -- +goose Down

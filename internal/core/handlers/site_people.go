@@ -12,23 +12,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type SiteUserHandler interface{}
+type SitePeopleHandler interface{}
 
-type siteUserHandler struct {
-	siteUserUsecase usecases.SiteUserUsecase
+type sitePeopleHandler struct {
+	siteUserUsecase   usecases.SiteUserUsecase
+	sitePeopleUsecase usecases.SitePeopleUsecase
 }
 
-func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase, globalMiddlewares ...gin.HandlerFunc) SiteUserHandler {
-	handler := &siteUserHandler{siteUserUsecase}
+func NewSitePeopleHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase, sitePeopleUsecase usecases.SitePeopleUsecase, globalMiddlewares ...gin.HandlerFunc) SitePeopleHandler {
+	handler := &sitePeopleHandler{siteUserUsecase, sitePeopleUsecase}
 
-	v1 := r.Group("/v1/site-users", globalMiddlewares...)
+	v1 := r.Group("/v1/site-people", globalMiddlewares...)
 
-	createSiteUserWithoutSign := []gin.HandlerFunc{
+	createSitePeople := []gin.HandlerFunc{
 		// middlewares.ValidateRequestBody([]models.CreateSiteUserWithoutSignRequest{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
 		}),
-		handler.CreateSiteUserWithoutSign,
+		handler.CreateSitePeople,
 	}
 
 	bulkImportUserWithoutSign := []gin.HandlerFunc{
@@ -39,11 +40,11 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 		handler.BulkImportUserWithoutSign,
 	}
 
-	getListSiteUserBySiteId := []gin.HandlerFunc{
+	getListSitePeopleBySiteId := []gin.HandlerFunc{
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.SuperAdminUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
 		}),
-		handler.GetListSiteUserBySiteId,
+		handler.GetListSitePeopleBySiteId,
 	}
 
 	deleteSiteUserBySiteIdAndUserId := []gin.HandlerFunc{
@@ -54,32 +55,32 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 		handler.DeleteSiteUserBySiteIdAndUserId,
 	}
 
-	v1.GET("/list/:siteId", getListSiteUserBySiteId...)
-	v1.POST("/create/without/sign", createSiteUserWithoutSign...)
+	v1.GET("/list/:siteId", getListSitePeopleBySiteId...)
+	v1.POST("/create", createSitePeople...)
 	v1.POST("/bulk-import/without/sign/:siteId", bulkImportUserWithoutSign...)
 	v1.DELETE("/delete", deleteSiteUserBySiteIdAndUserId...)
 
 	return handler
 }
 
-func (h *siteUserHandler) CreateSiteUserWithoutSign(c *gin.Context) {
-	requests := []models.CreateSiteUserWithoutSignRequest{}
-	if err := c.ShouldBindJSON(&requests); err != nil {
+func (h *sitePeopleHandler) CreateSitePeople(c *gin.Context) {
+	request := []models.CreateSitePeopleRequest{}
+	if err := c.ShouldBindJSON(&request); err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
 	requesterUserId := c.MustGet("user_id").(int)
 
-	siteUser, err := h.siteUserUsecase.CreateSiteUserWithoutSign(requests, requesterUserId)
+	siteUser, err := h.sitePeopleUsecase.CreateSitePeople(request, requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
 
-	middlewares.ResponseSuccess(c, siteUser, "Site user created successfully")
+	middlewares.ResponseSuccess(c, siteUser, "Site people created successfully")
 }
 
-func (h *siteUserHandler) BulkImportUserWithoutSign(c *gin.Context) {
+func (h *sitePeopleHandler) BulkImportUserWithoutSign(c *gin.Context) {
 	siteId, err := strconv.Atoi(c.Param("siteId"))
 	if err != nil {
 		middlewares.ResponseError(c, err)
@@ -141,23 +142,23 @@ func (h *siteUserHandler) BulkImportUserWithoutSign(c *gin.Context) {
 	middlewares.ResponseSuccess(c, bulkImportResult, "Bulk import user created successfully")
 }
 
-func (h *siteUserHandler) GetListSiteUserBySiteId(c *gin.Context) {
+func (h *sitePeopleHandler) GetListSitePeopleBySiteId(c *gin.Context) {
 	siteId, err := strconv.Atoi(c.Param("siteId"))
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
 
-	siteUsers, err := h.siteUserUsecase.GetListSiteUserBySiteId(siteId)
+	siteUsers, err := h.sitePeopleUsecase.GetListSitePeopleBySiteId(siteId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
 
-	middlewares.ResponseSuccess(c, siteUsers, "Site users retrieved successfully")
+	middlewares.ResponseSuccess(c, siteUsers, "Site people retrieved successfully")
 }
 
-func (h *siteUserHandler) DeleteSiteUserBySiteIdAndUserId(c *gin.Context) {
+func (h *sitePeopleHandler) DeleteSiteUserBySiteIdAndUserId(c *gin.Context) {
 	siteUser := &models.SiteUser{}
 	if err := c.ShouldBindJSON(siteUser); err != nil {
 		middlewares.ResponseError(c, err)

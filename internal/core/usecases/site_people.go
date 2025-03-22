@@ -1,35 +1,38 @@
 package usecases
 
 import (
+	"log"
 	"server/infrastructure/app"
 	"server/internal/core/models"
 	"server/internal/core/repositories"
 )
 
-type SiteUserUsecase interface {
-	CreateSiteUserWithoutSign(requests []models.CreateSiteUserWithoutSignRequest, requesterUserId int) ([]models.SiteUser, error)
+type SitePeopleUsecase interface {
+	CreateSitePeople(users []models.CreateSitePeopleRequest, requesterUserId int) ([]models.SitePeople, error)
 	BulkImportUserWithoutSign(siteId int, users []models.BulkImportUser, requesterUserId int) (*models.BulkImportResponse, error)
-	GetListSiteUserBySiteId(siteId int) ([]models.SiteUserJoinTable, error)
+	GetListSitePeopleBySiteId(siteId int) ([]models.SitePeopleJoinTable, error)
 	DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser, requesterUserId int) error
 }
 
-type siteUserUsecase struct {
-	siteUserRepo repositories.SiteUserRepository
-	siteRepo     repositories.SiteRepository
-	siteLogRepo  repositories.SiteLogRepository
-	userRepo     repositories.UserRepository
+type sitePeopleUsecase struct {
+	siteUserRepo   repositories.SiteUserRepository
+	siteRepo       repositories.SiteRepository
+	siteLogRepo    repositories.SiteLogRepository
+	userRepo       repositories.UserRepository
+	sitePeopleRepo repositories.SitePeopleRepository
 }
 
-func NewSiteUserUsecase(siteUserRepo repositories.SiteUserRepository, siteRepo repositories.SiteRepository, siteLogRepo repositories.SiteLogRepository, userRepo repositories.UserRepository) SiteUserUsecase {
-	return &siteUserUsecase{
-		siteUserRepo: siteUserRepo,
-		siteRepo:     siteRepo,
-		siteLogRepo:  siteLogRepo,
-		userRepo:     userRepo,
+func NewSitePeopleUsecase(siteUserRepo repositories.SiteUserRepository, siteRepo repositories.SiteRepository, siteLogRepo repositories.SiteLogRepository, userRepo repositories.UserRepository, sitePeopleRepo repositories.SitePeopleRepository) SitePeopleUsecase {
+	return &sitePeopleUsecase{
+		siteUserRepo:   siteUserRepo,
+		siteRepo:       siteRepo,
+		siteLogRepo:    siteLogRepo,
+		userRepo:       userRepo,
+		sitePeopleRepo: sitePeopleRepo,
 	}
 }
 
-func (u *siteUserUsecase) CreateSiteUserWithoutSign(requests []models.CreateSiteUserWithoutSignRequest, requesterUserId int) ([]models.SiteUser, error) {
+func (u *sitePeopleUsecase) CreateSitePeople(users []models.CreateSitePeopleRequest, requesterUserId int) ([]models.SitePeople, error) {
 	txUserRepo, err := u.userRepo.BeginLog()
 	if err != nil {
 		return nil, err
@@ -40,56 +43,58 @@ func (u *siteUserUsecase) CreateSiteUserWithoutSign(requests []models.CreateSite
 		}
 	}()
 
-	var createdUsers []models.SiteUser
+	var createdPeople []models.SitePeople
 
-	for _, user := range requests {
+	for _, user := range users {
 		exists, err := txUserRepo.CheckUserExistsByEmail(user.Email)
 		if err != nil {
 			txUserRepo.Rollback()
 			return nil, err
 		}
 
-		var newUser = &models.User{
-			SiteId:      user.SiteId,
-			UserLevelId: user.SiteUserLevelId,
-			Name:        "",
-			Email:       user.Email,
+		var requestUser = &models.User{
+			SubRoleId: user.SubRoleId,
+			SiteId:    1,
+			Name:      "",
+			Email:     user.Email,
 		}
 
-		var requestUser *models.User
+		var newUser *models.User
 		if exists {
-			requestUser, err = txUserRepo.GetUserByEmail(user.Email)
+			log.Println("requestUser exists", requestUser)
+			newUser, err = txUserRepo.GetUserByEmail(user.Email)
 			if err != nil {
 				txUserRepo.Rollback()
 				return nil, err
 			}
-		} else {
-			if newUser.SiteId != 1 {
-				newUser.UserLevelId = repositories.ViewerUserLevel.UserLevelId
-				newUser.SiteId = 1
+
+			newUser.SubRoleId = user.SubRoleId
+			newUser, err = txUserRepo.UpdateUser(newUser)
+			if err != nil {
+				txUserRepo.Rollback()
+				return nil, err
 			}
 
-			requestUser, err = txUserRepo.CreateUser(newUser)
+			log.Println("newUser", newUser)
+		} else {
+			requestUser.UserLevelId = repositories.PeopleUserLevel.UserLevelId
+			log.Println("requestUser", requestUser)
+			newUser, err = txUserRepo.CreateUser(requestUser)
 			if err != nil {
 				txUserRepo.Rollback()
 				return nil, err
 			}
 		}
 
-		siteUser := &models.SiteUser{
+		sitePeople := &models.SitePeople{
 			SiteId:    user.SiteId,
-			UserId:    requestUser.UserId,
+			UserId:    newUser.UserId,
 			CreatedBy: requesterUserId,
 			UpdatedBy: requesterUserId,
 		}
 
-		if user.SiteId != 1 && user.SiteUserLevelId == 3 {
-			siteUser.SiteUserLevelId = repositories.AdminUserLevel.UserLevelId
-		} else {
-			siteUser.SiteUserLevelId = user.SiteUserLevelId
-		}
-
-		exists, err = u.siteUserRepo.CheckSiteUserExistsBySiteIdAndUserId(siteUser.SiteId, siteUser.UserId)
+		log.Println("sitePeople", sitePeople)
+		exists, err = u.sitePeopleRepo.CheckSiteUserExistsBySiteIdAndUserId(sitePeople.SiteId, sitePeople.UserId)
 		if err != nil {
 			txUserRepo.Rollback()
 			return nil, err
@@ -100,13 +105,17 @@ func (u *siteUserUsecase) CreateSiteUserWithoutSign(requests []models.CreateSite
 			return nil, app.ErrNameExist
 		}
 
-		createdSiteUser, err := u.siteUserRepo.CreateSiteUser(siteUser)
+		log.Println("sitePeople", sitePeople)
+
+		createdSitePeople, err := u.sitePeopleRepo.CreateSitePeople(sitePeople)
 		if err != nil {
 			txUserRepo.Rollback()
 			return nil, err
 		}
 
-		createdUsers = append(createdUsers, *createdSiteUser)
+		createdPeople = append(createdPeople, *createdSitePeople)
+
+		log.Println("createdPeople", createdPeople)
 	}
 
 	err = txUserRepo.Commit()
@@ -114,10 +123,10 @@ func (u *siteUserUsecase) CreateSiteUserWithoutSign(requests []models.CreateSite
 		return nil, err
 	}
 
-	return createdUsers, nil
+	return createdPeople, nil
 }
 
-func (u *siteUserUsecase) BulkImportUserWithoutSign(siteId int, users []models.BulkImportUser, requesterUserId int) (*models.BulkImportResponse, error) {
+func (u *sitePeopleUsecase) BulkImportUserWithoutSign(siteId int, users []models.BulkImportUser, requesterUserId int) (*models.BulkImportResponse, error) {
 	txUserRepo, err := u.userRepo.BeginLog()
 	if err != nil {
 		return nil, err
@@ -210,11 +219,11 @@ func (u *siteUserUsecase) BulkImportUserWithoutSign(siteId int, users []models.B
 	return result, nil
 }
 
-func (u *siteUserUsecase) GetListSiteUserBySiteId(siteId int) ([]models.SiteUserJoinTable, error) {
-	return u.siteUserRepo.GetListSiteUserBySiteId(siteId)
+func (u *sitePeopleUsecase) GetListSitePeopleBySiteId(siteId int) ([]models.SitePeopleJoinTable, error) {
+	return u.sitePeopleRepo.GetListSitePeopleBySiteId(siteId)
 }
 
-func (u *siteUserUsecase) DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser, requesterUserId int) error {
+func (u *sitePeopleUsecase) DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser, requesterUserId int) error {
 	txSiteUserRepo, err := u.siteUserRepo.BeginLog()
 	if err != nil {
 		return err

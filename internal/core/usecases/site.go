@@ -16,21 +16,25 @@ type SiteUsecase interface {
 	CreateSiteWorkspace(request *models.CreateSiteWorkspaceRequest, requesterUserId int) (*models.Site, error)
 	UpdateSiteWorkspace(site *models.Site, requesterUserId int) (*models.Site, error)
 	DeleteSiteWorkspace(site *models.Site, requesterUserId int) error
+	CreatePeopleRole(request *models.CreatePeopleRoleRequest, requesterUserId int) (*models.PeopleRole, error)
+	GetListPeopleRole(siteId int) ([]models.PeopleRole, error)
 }
 
 type siteUsecase struct {
-	siteRepo     repositories.SiteRepository
-	siteTreeRepo repositories.SiteTreeRepository
-	siteUserRepo repositories.SiteUserRepository
-	siteLogRepo  repositories.SiteLogRepository
+	siteRepo       repositories.SiteRepository
+	siteTreeRepo   repositories.SiteTreeRepository
+	siteUserRepo   repositories.SiteUserRepository
+	siteLogRepo    repositories.SiteLogRepository
+	peopleRoleRepo repositories.PeopleRoleRepository
 }
 
-func NewSiteUsecase(siteRepo repositories.SiteRepository, siteTreeRepo repositories.SiteTreeRepository, siteUserRepo repositories.SiteUserRepository, siteLogRepo repositories.SiteLogRepository) SiteUsecase {
+func NewSiteUsecase(siteRepo repositories.SiteRepository, siteTreeRepo repositories.SiteTreeRepository, siteUserRepo repositories.SiteUserRepository, siteLogRepo repositories.SiteLogRepository, peopleRoleRepo repositories.PeopleRoleRepository) SiteUsecase {
 	return &siteUsecase{
-		siteRepo:     siteRepo,
-		siteTreeRepo: siteTreeRepo,
-		siteUserRepo: siteUserRepo,
-		siteLogRepo:  siteLogRepo,
+		siteRepo:       siteRepo,
+		siteTreeRepo:   siteTreeRepo,
+		siteUserRepo:   siteUserRepo,
+		siteLogRepo:    siteLogRepo,
+		peopleRoleRepo: peopleRoleRepo,
 	}
 }
 
@@ -164,16 +168,26 @@ func (u *siteUsecase) CreateSiteWorkspace(request *models.CreateSiteWorkspaceReq
 		return nil, err
 	}
 
-	siteUser := &models.SiteUser{
-		SiteId:    newSite.SiteId,
-		UserId:    requesterUserId,
-		IsActive:  true,
-		CreatedBy: requesterUserId,
-		UpdatedBy: requesterUserId,
-	}
+	parentSiteUsers, err := u.siteUserRepo.GetListSiteUserBySiteId(request.SiteParentId)
 
-	if _, err := u.siteUserRepo.CreateSiteUser(siteUser); err != nil {
-		return nil, err
+	for _, parentSiteUser := range parentSiteUsers {
+
+		newSiteUser := &models.SiteUser{
+			SiteId:    newSite.SiteId,
+			UserId:    parentSiteUser.UserId,
+			CreatedBy: requesterUserId,
+			UpdatedBy: requesterUserId,
+		}
+
+		if parentSiteUser.SiteUserLevelId == 3 {
+			newSiteUser.SiteUserLevelId = 4
+		} else {
+			newSiteUser.SiteUserLevelId = parentSiteUser.SiteUserLevelId
+		}
+
+		if _, err := u.siteUserRepo.CreateSiteUser(newSiteUser); err != nil {
+			return nil, err
+		}
 	}
 
 	return newSite, nil
@@ -248,4 +262,61 @@ func (u *siteUsecase) DeleteSiteWorkspace(site *models.Site, requesterUserId int
 	}
 
 	return nil
+}
+
+func (u *siteUsecase) CreatePeopleRole(request *models.CreatePeopleRoleRequest, requesterUserId int) (*models.PeopleRole, error) {
+	txPeopleRoleRepo, err := u.peopleRoleRepo.BeginLog()
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txPeopleRoleRepo.Rollback()
+		}
+	}()
+
+	exists, err := u.peopleRoleRepo.CheckRoleExistsByName(request.Slug)
+	if err != nil {
+		txPeopleRoleRepo.Rollback()
+		return nil, err
+	}
+	if exists {
+		txPeopleRoleRepo.Rollback()
+		return nil, app.ErrNameExist
+	}
+
+	role := &models.PeopleRole{
+		Slug:        request.Slug,
+		Description: request.Description,
+		SiteId:      request.SiteId,
+		CreatedBy:   requesterUserId,
+		UpdatedBy:   requesterUserId,
+	}
+
+	newRole, err := txPeopleRoleRepo.CreatePeopleRole(role)
+	if err != nil {
+		txPeopleRoleRepo.Rollback()
+		return nil, err
+	}
+
+	if err := txPeopleRoleRepo.Commit(); err != nil {
+		return nil, err
+	}
+
+	siteLog := &models.SiteLog{
+		SiteId:    1,
+		Action:    "Created",
+		Detail:    "Created people role " + role.Slug,
+		CreatedBy: requesterUserId,
+	}
+
+	if _, err := u.siteLogRepo.CreateSiteLog(siteLog); err != nil {
+		return nil, err
+	}
+
+	return newRole, nil
+}
+
+func (u *siteUsecase) GetListPeopleRole(siteId int) ([]models.PeopleRole, error) {
+	return u.peopleRoleRepo.GetRoleListBySiteId(siteId)
 }

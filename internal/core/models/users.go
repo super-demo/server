@@ -5,6 +5,7 @@ import "time"
 type User struct {
 	UserId      int       `json:"user_id" gorm:"primaryKey;column:user_id;not null"`
 	UserLevelId int       `json:"user_level_id" gorm:"column:user_level_id;not null"`
+	SubRoleId   int       `json:"sub_role_id" gorm:"column:sub_role_id;not null"`
 	SiteId      int       `json:"site_id" gorm:"column:site_id"`
 	GoogleToken string    `json:"google_token" gorm:"column:google_token"`
 	AvatarUrl   string    `json:"avatar_url" gorm:"column:avatar_url"`

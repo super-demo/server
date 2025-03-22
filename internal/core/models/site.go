@@ -38,6 +38,18 @@ type Workspace struct {
 	DeletedAt        gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
 }
 
+type PeopleRole struct {
+	PeopleRoleId int            `gorm:"primaryKey;autoIncrement" json:"people_role_id"`
+	Slug         string         `json:"slug" gorm:"column:slug"`
+	Description  string         `json:"description" gorm:"column:description"`
+	SiteId       int            `json:"site_id" gorm:"column:site_id"`
+	CreatedAt    time.Time      `gorm:"autoCreateTime" json:"created_at"`
+	CreatedBy    int            `gorm:"not null" json:"created_by"`
+	UpdatedAt    time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+	UpdatedBy    int            `gorm:"not null" json:"updated_by"`
+	DeletedAt    gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
+}
+
 type GetWorkspaceList struct {
 	SiteID           int            `gorm:"primaryKey;autoIncrement" json:"site_id"`
 	SiteTypeID       int            `gorm:"not null;index" json:"site_type_id"`
@@ -60,4 +72,10 @@ type GetWorkspaceList struct {
 type CreateSiteWorkspaceRequest struct {
 	Site         Site `json:"site"`
 	SiteParentId int  `json:"site_parent_id"`
+}
+
+type CreatePeopleRoleRequest struct {
+	Slug        string `json:"slug" gorm:"column:slug"`
+	Description string `json:"description" gorm:"column:description"`
+	SiteId      int    `json:"site_id" gorm:"column:site_id"`
 }

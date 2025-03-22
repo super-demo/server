@@ -54,6 +54,7 @@ var (
 	ErrInvalidCompanyDomainName = AppError{403, 403003, errors.New("company domain name is invalid")}
 	ErrInsufficientPermissions  = AppError{403, 403004, errors.New("insufficient permissions to access this resource")}
 	ErrAccessAnotherUser        = AppError{403, 403005, errors.New("you don't have permission to access another user's data")}
+	ErrInvalidUserLevelId       = AppError{403, 403006, errors.New("invalid user level id")}
 
 	// 404 Not Found
 	ErrNotFound = AppError{404, 404001, errors.New("not found")}

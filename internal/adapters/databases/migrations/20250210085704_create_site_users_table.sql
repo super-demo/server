@@ -4,6 +4,7 @@ CREATE TABLE site_users (
     site_user_id SERIAL PRIMARY KEY,
     site_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
+    site_user_level_id INTEGER NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by INTEGER NOT NULL,
@@ -13,6 +14,7 @@ CREATE TABLE site_users (
 
     FOREIGN KEY (site_id) REFERENCES sites(site_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (site_user_level_id) REFERENCES user_levels(user_level_id),
     FOREIGN KEY (created_by) REFERENCES users(user_id),
     FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );

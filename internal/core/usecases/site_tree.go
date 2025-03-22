@@ -8,6 +8,7 @@ import (
 type SiteTreeUsecase interface {
 	CreateSiteTree(siteTree *models.SiteTree, requesterUserId int) (*models.SiteTree, error)
 	GetListSiteTreeBySiteId(siteId int, requesterUserId int) ([]models.GetWorkspaceList, error)
+	GetListWorkspaceBySiteIdAndSitePeople(siteId int, requesterUserId int) ([]models.GetWorkspaceList, error)
 	UpdateSiteTree(siteTree *models.SiteTree, requesterUserId int) (*models.SiteTree, error)
 	DeleteSiteTree(siteTree *models.SiteTree, requesterUserId int) error
 }
@@ -52,7 +53,16 @@ func (u *siteTreeUsecase) CreateSiteTree(siteTree *models.SiteTree, requesterUse
 }
 
 func (u *siteTreeUsecase) GetListSiteTreeBySiteId(siteId int, requesterUserId int) ([]models.GetWorkspaceList, error) {
-	siteList, err := u.siteTreeRepo.GetListSiteTreeBySiteId(siteId)
+	siteList, err := u.siteTreeRepo.GetListSiteTreeBySiteId(siteId, requesterUserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return siteList, nil
+}
+
+func (u *siteTreeUsecase) GetListWorkspaceBySiteIdAndSitePeople(siteId int, requesterUserId int) ([]models.GetWorkspaceList, error) {
+	siteList, err := u.siteTreeRepo.GetListWorkspaceBySiteIdAndPeople(siteId, requesterUserId)
 	if err != nil {
 		return nil, err
 	}
