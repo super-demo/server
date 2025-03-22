@@ -11,6 +11,8 @@ type SiteLogRepository interface {
 	Commit() error
 	Rollback() error
 	CreateSiteLog(siteLog *models.SiteLog) (*models.SiteLog, error)
+	GetListSiteLog() ([]models.SiteLog, error)
+	GetSiteLogBySiteId(siteId int) ([]models.SiteLog, error)
 }
 
 type siteLogRepository struct {
@@ -45,4 +47,22 @@ func (r *siteLogRepository) CreateSiteLog(siteLog *models.SiteLog) (*models.Site
 	}
 
 	return siteLog, nil
+}
+
+func (r *siteLogRepository) GetListSiteLog() ([]models.SiteLog, error) {
+	var siteLogs []models.SiteLog
+	if err := r.db.Find(&siteLogs).Error; err != nil {
+		return []models.SiteLog{}, err
+	}
+
+	return siteLogs, nil
+}
+
+func (r *siteLogRepository) GetSiteLogBySiteId(siteId int) ([]models.SiteLog, error) {
+	var siteLogs []models.SiteLog
+	if err := r.db.Where("site_id = ?", siteId).Find(&siteLogs).Error; err != nil {
+		return nil, err
+	}
+
+	return siteLogs, nil
 }

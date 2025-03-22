@@ -13,6 +13,8 @@ type AnnouncementRepository interface {
 	CreateAnnouncement(announcement *models.Announcement) (*models.Announcement, error)
 	GetAnnouncementById(announcementId int) (*models.Announcement, error)
 	GetListAnnouncementBySiteId(siteId int) ([]models.Announcement, error)
+	UpdateAnnouncement(announcement *models.Announcement) (*models.Announcement, error)
+	DeleteAnnouncement(announcementId int) error
 }
 
 type announcementRepository struct {
@@ -65,4 +67,20 @@ func (r *announcementRepository) GetListAnnouncementBySiteId(siteId int) ([]mode
 	}
 
 	return announcements, nil
+}
+
+func (r *announcementRepository) UpdateAnnouncement(announcement *models.Announcement) (*models.Announcement, error) {
+	if err := r.db.Save(announcement).Error; err != nil {
+		return nil, err
+	}
+
+	return announcement, nil
+}
+
+func (r *announcementRepository) DeleteAnnouncement(announcementId int) error {
+	if err := r.db.Where("announcement_id = ?", announcementId).Delete(&models.Announcement{}).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

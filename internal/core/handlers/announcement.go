@@ -61,9 +61,34 @@ func NewAnnouncementHandler(r *gin.Engine, announcementUsecase usecases.Announce
 		handler.GetAnnouncementById,
 	}
 
-	v1.POST("create", createAnnouncement...)
+	updateAnnouncement := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.Announcement{}),
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+			},
+		}),
+		handler.UpdateAnnouncement,
+	}
+
+	deleteAnnouncement := []gin.HandlerFunc{
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+			},
+		}),
+		handler.DeleteAnnouncement,
+	}
+
+	v1.POST("/create", createAnnouncement...)
 	v1.GET("/:id", getAnnouncementById...)
 	v1.GET("/list/:id", getListAnnouncementBySiteId...)
+	v1.PUT("/update", updateAnnouncement...)
+	v1.DELETE("/delete/:id", deleteAnnouncement...)
 
 	return handler
 }
@@ -75,7 +100,9 @@ func (h *announcementHandler) CreateAnnouncement(c *gin.Context) {
 		return
 	}
 
-	announcement, err := h.announcementUsecase.CreateAnnouncement(announcement)
+	requesterUserId := c.MustGet("user_id").(int)
+
+	announcement, err := h.announcementUsecase.CreateAnnouncement(announcement, requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
@@ -116,4 +143,37 @@ func (h *announcementHandler) GetListAnnouncementBySiteId(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, announcements, "Get list announcement successfully")
+}
+
+func (h *announcementHandler) UpdateAnnouncement(c *gin.Context) {
+	announcement := &models.Announcement{}
+	if err := c.ShouldBindJSON(announcement); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	announcement, err := h.announcementUsecase.UpdateAnnouncement(announcement)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, announcement, "Update announcement successfully")
+}
+
+func (h *announcementHandler) DeleteAnnouncement(c *gin.Context) {
+	announcementIdStr := c.Param("id")
+	announcementId, err := strconv.Atoi(announcementIdStr)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	err = h.announcementUsecase.DeleteAnnouncement(announcementId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, nil, "Delete announcement successfully")
 }

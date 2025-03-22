@@ -6,9 +6,11 @@ import (
 )
 
 type AnnouncementUsecase interface {
-	CreateAnnouncement(announcement *models.Announcement) (*models.Announcement, error)
+	CreateAnnouncement(announcement *models.Announcement, requesterUserId int) (*models.Announcement, error)
 	GetAnnouncementById(announcementId int) (*models.Announcement, error)
 	GetListAnnouncementBySiteId(siteId int) ([]models.Announcement, error)
+	UpdateAnnouncement(announcement *models.Announcement) (*models.Announcement, error)
+	DeleteAnnouncement(announcementId int) error
 }
 
 type announcementUsecase struct {
@@ -27,7 +29,7 @@ func NewAnnouncementUsecase(announcementRepo repositories.AnnouncementRepository
 	}
 }
 
-func (u *announcementUsecase) CreateAnnouncement(announcement *models.Announcement) (*models.Announcement, error) {
+func (u *announcementUsecase) CreateAnnouncement(announcement *models.Announcement, requesterUserId int) (*models.Announcement, error) {
 	txAnnouncementRepo, err := u.announcementRepo.BeginLog()
 	if err != nil {
 		return nil, err
@@ -75,7 +77,7 @@ func (u *announcementUsecase) CreateAnnouncement(announcement *models.Announceme
 		Action:    announcement.Title,
 		Detail:    announcement.ShortDescription,
 		IamgeUrl:  announcement.ImageUrl,
-		CreatedBy: announcement.CreatedBy,
+		CreatedBy: requesterUserId,
 	}
 
 	newNotification, err := txNotificationRepo.CreateNotification(notification)
@@ -104,6 +106,7 @@ func (u *announcementUsecase) CreateAnnouncement(announcement *models.Announceme
 		}
 	}
 
+	announcement.CreatedBy = requesterUserId
 	newAnnouncement, err := txAnnouncementRepo.CreateAnnouncement(announcement)
 	if err != nil {
 		txAnnouncementRepo.Rollback()
@@ -145,4 +148,51 @@ func (u *announcementUsecase) GetListAnnouncementBySiteId(siteId int) ([]models.
 	}
 
 	return announcements, nil
+}
+
+func (u *announcementUsecase) UpdateAnnouncement(announcement *models.Announcement) (*models.Announcement, error) {
+	txAnnouncementRepo, err := u.announcementRepo.BeginLog()
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txAnnouncementRepo.Rollback()
+		}
+	}()
+
+	updatedAnnouncement, err := txAnnouncementRepo.UpdateAnnouncement(announcement)
+	if err != nil {
+		txAnnouncementRepo.Rollback()
+		return nil, err
+	}
+
+	if err := txAnnouncementRepo.Commit(); err != nil {
+		return nil, err
+	}
+
+	return updatedAnnouncement, nil
+}
+
+func (u *announcementUsecase) DeleteAnnouncement(announcementId int) error {
+	txAnnouncementRepo, err := u.announcementRepo.BeginLog()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txAnnouncementRepo.Rollback()
+		}
+	}()
+
+	if err := txAnnouncementRepo.DeleteAnnouncement(announcementId); err != nil {
+		txAnnouncementRepo.Rollback()
+		return err
+	}
+
+	if err := txAnnouncementRepo.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }
