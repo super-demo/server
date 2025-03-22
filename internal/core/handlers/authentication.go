@@ -29,14 +29,14 @@ func NewAuthenticationHandler(r *gin.Engine, authenticationUsecase usecases.Auth
 		handler.SignWithGoogle,
 	}
 
-	UserSignWithGoogle := []gin.HandlerFunc{
+	UserSignWithGoogleApp := []gin.HandlerFunc{
 		middlewares.ValidateAppSecret(),
 		middlewares.ValidateRequestBody(&models.GoogleSignInRequest{}),
-		handler.UserSignWithGoogle,
+		handler.UserSignWithGoogleApp,
 	}
 
 	v1.POST("/sign/google", SignWithGoogle...)
-	v1.POST("/user/sign/google", UserSignWithGoogle...)
+	v1.POST("/user/sign/google", UserSignWithGoogleApp...)
 	v1.POST("/token/refresh", middlewares.BearerAuth(), handler.RefreshToken)
 
 	return handler
@@ -57,13 +57,13 @@ func (h *authenticationHandler) SignWithGoogle(c *gin.Context) {
 	middlewares.ResponseSuccess(c, data, "Sign in successfully")
 }
 
-func (h *authenticationHandler) UserSignWithGoogle(c *gin.Context) {
+func (h *authenticationHandler) UserSignWithGoogleApp(c *gin.Context) {
 	var req models.GoogleSignInRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
-	data, err := h.authenticationUsecase.UserSignWithGoogleInSite(req.AccessToken)
+	data, err := h.authenticationUsecase.UserSignWithGoogleApp(req.AccessToken)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return

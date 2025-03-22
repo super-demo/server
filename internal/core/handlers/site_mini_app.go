@@ -141,6 +141,19 @@ func (h *siteMiniAppHandler) GetSiteMiniAppById(c *gin.Context) {
 	middlewares.ResponseSuccess(c, siteMiniApp, "Site mini app retrieved successfully")
 }
 
+func (h *siteMiniAppHandler) GetSiteMiniAppBySiteIdAndSitePeople(c *gin.Context) {
+	siteMiniAppId := utils.GetIdFromParams(c)
+
+	siteMiniApp, err := h.siteMiniAppUsecase.GetSiteMiniAppById(siteMiniAppId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, siteMiniApp, "Site mini app retrieved successfully")
+}
+
+
 func (h *siteMiniAppHandler) UpdateSiteMiniApp(c *gin.Context) {
 	siteMiniApp := &models.SiteMiniApp{}
 	if err := c.ShouldBindJSON(siteMiniApp); err != nil {

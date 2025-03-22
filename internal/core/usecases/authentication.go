@@ -12,7 +12,7 @@ import (
 
 type AuthenticationUsecase interface {
 	SignWithGoogle(token string) (*models.TokenResponse, error)
-	UserSignWithGoogleInSite(token string) (*models.TokenResponse, error)
+	UserSignWithGoogleApp(token string) (*models.TokenResponse, error)
 	RefreshToken(refreshToken string) (*models.AccessTokenResponse, error)
 }
 
@@ -20,14 +20,16 @@ type authenticationUsecase struct {
 	userRepo           repositories.UserRepository
 	authenticationRepo repositories.AuthenticationRepository
 	siteUserRepo       repositories.SiteUserRepository
+	sitePeopleRepo     repositories.SitePeopleRepository
 }
 
 func NewAuthenticationUsecase(
 	userRepo repositories.UserRepository,
 	authenticationRepo repositories.AuthenticationRepository,
 	siteUserRepo repositories.SiteUserRepository,
+	sitePeopleRepo repositories.SitePeopleRepository,
 ) AuthenticationUsecase {
-	return &authenticationUsecase{userRepo, authenticationRepo, siteUserRepo}
+	return &authenticationUsecase{userRepo, authenticationRepo, siteUserRepo, sitePeopleRepo}
 }
 
 func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenResponse, error) {
@@ -77,19 +79,23 @@ func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenRespo
 	return result, nil
 }
 
-func (u *authenticationUsecase) UserSignWithGoogleInSite(token string) (*models.TokenResponse, error) {
+func (u *authenticationUsecase) UserSignWithGoogleApp(token string) (*models.TokenResponse, error) {
 	userInfo, err := u.authenticationRepo.GetUserInfoByAccessToken(token)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: check by site_user
 	user, err := u.userRepo.GetUserByEmail(userInfo.Email)
 	if err != nil {
 		return nil, err
 	}
 
-	if user.SiteId != 1 {
+	exists, err := u.sitePeopleRepo.CheckSiteUserExistsBySiteIdAndUserId(1, user.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	if !exists {
 		return nil, app.ErrUnauthorized
 	}
 

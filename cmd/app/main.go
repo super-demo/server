@@ -48,7 +48,7 @@ func main() {
 	sitePeopleRepository := repositories.NewSitePeopleRepository(app.PostgresClient)
 
 	// Initialize usecases
-	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository, siteUserRepository)
+	authUsecase := usecases.NewAuthenticationUsecase(userRepository, authenticationRepository, siteUserRepository, sitePeopleRepository)
 	userUsecase := usecases.NewUserUsecase(userRepository)
 	siteUsecase := usecases.NewSiteUsecase(siteRepository, siteTreeRepository, siteUserRepository, siteLogRepository, peopleRoleRepository)
 	siteTypeUsecase := usecases.NewSiteTypeUsecase(siteTypeRepository, siteRepository, siteUserRepository, siteLogRepository)
