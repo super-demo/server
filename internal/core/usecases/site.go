@@ -85,16 +85,18 @@ func (u *siteUsecase) CreateSite(site *models.Site, requesterUserId int) (*model
 		return nil, err
 	}
 
-	siteUser := &models.SiteUser{
-		SiteId:    newSite.SiteId,
-		UserId:    requesterUserId,
-		IsActive:  true,
-		CreatedBy: requesterUserId,
-		UpdatedBy: requesterUserId,
-	}
+	if newSite.SiteId != 1 {
+		siteUser := &models.SiteUser{
+			SiteId:    newSite.SiteId,
+			UserId:    requesterUserId,
+			IsActive:  true,
+			CreatedBy: requesterUserId,
+			UpdatedBy: requesterUserId,
+		}
 
-	if _, err := u.siteUserRepo.CreateSiteUser(siteUser); err != nil {
-		return nil, err
+		if _, err := u.siteUserRepo.CreateSiteUser(siteUser); err != nil {
+			return nil, err
+		}
 	}
 
 	return newSite, nil
