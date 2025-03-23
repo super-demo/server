@@ -86,7 +86,7 @@ func (r *siteTreeRepository) GetListWorkspaceBySiteIdAndPeople(siteId int, userI
 		FROM sites s
 		INNER JOIN site_trees st ON s.site_id = st.site_child_id
 		LEFT JOIN sites sp ON st.site_parent_id = sp.site_id
-		INNER JOIN site_users su ON su.site_id = s.site_id  -- Ensure user is in site_users for site_child
+		INNER JOIN site_peoples su ON su.site_id = s.site_id
 		WHERE st.site_parent_id = $1
 		AND su.user_id = $2 
 		AND s.deleted_at IS NULL
