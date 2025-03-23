@@ -12,8 +12,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Mini-App Registry
-var miniAppRegistry = make(map[string][]string)
+// MiniAppInfo stores information about registered mini-apps
+type MiniAppInfo struct {
+	Functions []string
+	URL       string
+}
+
+// Mini-App Registry with URL information
+var miniAppRegistry = make(map[string]MiniAppInfo)
 
 func NewSuperHandler(r *gin.Engine) {
 	// Configure routes to match what the SDK expects
@@ -23,29 +29,53 @@ func NewSuperHandler(r *gin.Engine) {
 }
 
 func registerMiniApp(c *gin.Context) {
+	// Updated registration data structure to include URL
 	var data struct {
 		AppName   string   `json:"appName"`
 		Functions []string `json:"functions"`
+		URL       string   `json:"url"`
 	}
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid registration data"})
 		return
 	}
-	miniAppRegistry[data.AppName] = data.Functions
+
+	// Make sure the URL doesn't end with a slash
+	if len(data.URL) > 0 && data.URL[len(data.URL)-1] == '/' {
+		data.URL = data.URL[:len(data.URL)-1]
+	}
+
+	// Store the mini-app information including URL
+	miniAppRegistry[data.AppName] = MiniAppInfo{
+		Functions: data.Functions,
+		URL:       data.URL,
+	}
+
 	log.Printf("Registered Mini-App: %s\n", data.AppName)
-	log.Printf("Functions: %v\n", miniAppRegistry)
+	log.Printf("Functions: %v\n", data.Functions)
+	log.Printf("URL: %s\n", data.URL)
+
 	c.JSON(http.StatusOK, gin.H{"message": "Mini-App registered successfully!"})
 }
 
 func getlistMiniApp(c *gin.Context) {
+	// Format the registry to include functions and URLs
+	response := make(map[string]map[string]interface{})
+
+	for appName, info := range miniAppRegistry {
+		response[appName] = map[string]interface{}{
+			"functions": info.Functions,
+			"url":       info.URL,
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"miniApps": miniAppRegistry,
+		"miniApps": response,
 	})
 }
 
 func callMiniAppFunction(c *gin.Context) {
 	var req struct {
-		Url          string         `json:"url"`
 		Caller       string         `json:"caller"`
 		TargetApp    string         `json:"targetApp"`
 		FunctionName string         `json:"functionName"`
@@ -65,8 +95,9 @@ func callMiniAppFunction(c *gin.Context) {
 
 	log.Printf("Parsed Request: %+v\n", req)
 
-	functions, exists := miniAppRegistry[req.TargetApp]
-	if !exists || !contains(functions, req.FunctionName) {
+	// Look up the target mini-app info
+	targetAppInfo, exists := miniAppRegistry[req.TargetApp]
+	if !exists || !contains(targetAppInfo.Functions, req.FunctionName) {
 		log.Printf("Function not found: %s.%s\n", req.TargetApp, req.FunctionName)
 		c.JSON(http.StatusNotFound, gin.H{"error": "Function not found"})
 		return
@@ -79,63 +110,50 @@ func callMiniAppFunction(c *gin.Context) {
 		return
 	}
 
-	// Try multiple possible hostnames to connect to mini-app-b
-	urls := []string{
-		// use this URL if you are running the server locally
-		fmt.Sprintf("%s/%s", req.Url, req.FunctionName),
+	// Get the base URL of the target Mini-App from the registry
+	miniAppBaseURL := targetAppInfo.URL
+	fmt.Println("asdfasdf", miniAppBaseURL)
 
-		// use this URL if you are running the server in a Docker container
-		fmt.Sprintf("http://localhost:8081/%s", req.FunctionName),
-		fmt.Sprintf("http://host.docker.internal:8081/%s", req.FunctionName),
+	// Make sure the base URL doesn't end with a slash
+	if len(miniAppBaseURL) > 0 && miniAppBaseURL[len(miniAppBaseURL)-1] == '/' {
+		miniAppBaseURL = miniAppBaseURL[:len(miniAppBaseURL)-1]
 	}
 
-	var responseBody []byte
-	var responseErr error
-	var successful bool
+	// Construct the full URL using the convention: baseURL/v1/super/functionName
+	url := fmt.Sprintf("%s/%s", miniAppBaseURL, req.FunctionName)
+	log.Printf("Forwarding request to target app URL: %s with payload: %s\n", url, string(payloadBytes))
 
-	// Try each URL until one works
-	for _, url := range urls {
-		log.Printf("Trying to forward request to: %s with payload: %s\n", url, string(payloadBytes))
-
-		client := &http.Client{
-			Timeout: 5 * time.Second,
-		}
-
-		request, err := http.NewRequest("POST", url, bytes.NewBuffer(payloadBytes))
-		if err != nil {
-			log.Printf("Error creating request: %v\n", err)
-			continue
-		}
-
-		request.Header.Set("Content-Type", "application/json")
-
-		response, err := client.Do(request)
-		if err != nil {
-			log.Printf("Error forwarding to %s: %v\n", url, err)
-			responseErr = err
-			continue
-		}
-
-		// Read the response body
-		responseBody, err = ioutil.ReadAll(response.Body)
-		response.Body.Close()
-
-		if err != nil {
-			log.Printf("Error reading response from %s: %v\n", url, err)
-			responseErr = err
-			continue
-		}
-
-		log.Printf("Successfully received response from %s: %s\n", url, string(responseBody))
-		successful = true
-		break
+	client := &http.Client{
+		Timeout: 5 * time.Second,
 	}
 
-	if !successful {
-		log.Printf("All connection attempts failed. Last error: %v\n", responseErr)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error forwarding request: %v", responseErr)})
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		log.Printf("Error creating request: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error creating request: %v", err)})
 		return
 	}
+
+	request.Header.Set("Content-Type", "application/json")
+
+	response, err := client.Do(request)
+	if err != nil {
+		log.Printf("Error forwarding to %s: %v\n", url, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error forwarding request: %v", err)})
+		return
+	}
+
+	// Read the response body
+	responseBody, err := ioutil.ReadAll(response.Body)
+	response.Body.Close()
+
+	if err != nil {
+		log.Printf("Error reading response from %s: %v\n", url, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error reading response: %v", err)})
+		return
+	}
+
+	log.Printf("Successfully received response from %s: %s\n", url, string(responseBody))
 
 	// Parse the response
 	var result map[string]interface{}
