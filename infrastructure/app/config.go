@@ -53,7 +53,7 @@ func SetDefaultConfig() {
 	viper.SetDefault("APP_SECRET", "app-secret")
 	viper.SetDefault("JWT_SECRET_KEY", "jwtsecretkey")
 	viper.SetDefault("JWT_TOKEN_EXPIRES_IN", 24)
-	viper.SetDefault("ALLOW_ORIGINS", "http://localhost:3000")
+	viper.SetDefault("ALLOW_ORIGINS", "http://localhost:3000,http://localhost:3001")
 }
 
 func LoadConfig() (config *EnvConfigs) {

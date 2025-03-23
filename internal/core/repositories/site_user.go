@@ -12,7 +12,9 @@ type SiteUserRepository interface {
 	Rollback() error
 	CreateSiteUser(siteUser *models.SiteUser) (*models.SiteUser, error)
 	CheckSiteUserExistsBySiteIdAndUserId(siteId, userId int) (bool, error)
+	GetListUserBySiteId(siteId int) ([]models.SiteUser, error)
 	GetListSiteUserBySiteId(siteId int) ([]models.SiteUserJoinTable, error)
+	UpdateSiteUser(siteUser *models.SiteUser) (*models.SiteUser, error)
 	DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser) error
 }
 
@@ -64,6 +66,15 @@ func (r *siteUserRepository) CheckSiteUserExistsBySiteIdAndUserId(siteId, userId
 	return true, nil
 }
 
+func (r *siteUserRepository) GetListUserBySiteId(siteId int) ([]models.SiteUser, error) {
+	var siteUsers []models.SiteUser
+	err := r.db.Where("site_id = ?", siteId).Find(&siteUsers).Error
+	if err != nil {
+		return nil, err
+	}
+	return siteUsers, nil
+}
+
 func (r *siteUserRepository) GetListSiteUserBySiteId(siteId int) ([]models.SiteUserJoinTable, error) {
 	var siteUsers []models.SiteUserJoinTable
 	err := r.db.Table("site_users").
@@ -74,6 +85,13 @@ func (r *siteUserRepository) GetListSiteUserBySiteId(siteId int) ([]models.SiteU
 		return nil, err
 	}
 	return siteUsers, nil
+}
+
+func (r *siteUserRepository) UpdateSiteUser(siteUser *models.SiteUser) (*models.SiteUser, error) {
+	if err := r.db.Where("site_id = ? AND user_id = ?", siteUser.SiteId, siteUser.UserId).Updates(siteUser).Error; err != nil {
+		return nil, err
+	}
+	return siteUser, nil
 }
 
 func (r *siteUserRepository) DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser) error {

@@ -13,6 +13,9 @@ CREATE TABLE site_types (
   FOREIGN KEY (created_by) REFERENCES users(user_id),
   FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );
+
+INSERT INTO site_types (slug, description, created_by, updated_by) VALUES ('workspace', 'A workspace', 1, 1);
+INSERT INTO site_types (slug, description, created_by, updated_by) VALUES ('company', 'A company', 1, 1);
 -- +goose StatementEnd
 
 -- +goose Down

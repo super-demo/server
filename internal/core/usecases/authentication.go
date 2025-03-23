@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"fmt"
 	"server/infrastructure/app"
 	"server/internal/core/models"
 	"server/internal/core/repositories"
@@ -12,19 +13,24 @@ import (
 
 type AuthenticationUsecase interface {
 	SignWithGoogle(token string) (*models.TokenResponse, error)
+	UserSignWithGoogleApp(token string) (*models.TokenResponse, error)
 	RefreshToken(refreshToken string) (*models.AccessTokenResponse, error)
 }
 
 type authenticationUsecase struct {
 	userRepo           repositories.UserRepository
 	authenticationRepo repositories.AuthenticationRepository
+	siteUserRepo       repositories.SiteUserRepository
+	sitePeopleRepo     repositories.SitePeopleRepository
 }
 
 func NewAuthenticationUsecase(
 	userRepo repositories.UserRepository,
 	authenticationRepo repositories.AuthenticationRepository,
+	siteUserRepo repositories.SiteUserRepository,
+	sitePeopleRepo repositories.SitePeopleRepository,
 ) AuthenticationUsecase {
-	return &authenticationUsecase{userRepo, authenticationRepo}
+	return &authenticationUsecase{userRepo, authenticationRepo, siteUserRepo, sitePeopleRepo}
 }
 
 func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenResponse, error) {
@@ -36,13 +42,14 @@ func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenRespo
 	user, err := u.userRepo.GetUserByEmail(userInfo.Email)
 	if err != nil {
 		user = &models.User{
-			UserLevelId: repositories.MemberUserLevel.UserLevelId,
+			UserLevelId: repositories.PeopleUserLevel.UserLevelId,
 			GoogleToken: userInfo.Id,
 			AvatarUrl:   userInfo.Picture,
 			Name:        userInfo.Name,
 			Email:       userInfo.Email,
 		}
 
+		// TODO: remove create user when user not in site_user
 		if _, err := u.userRepo.CreateUser(user); err != nil {
 			return nil, err
 		}
@@ -53,6 +60,7 @@ func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenRespo
 	}
 
 	user.AvatarUrl = userInfo.Picture
+	user.Name = userInfo.Name
 
 	if _, err := u.userRepo.UpdateUser(user); err != nil {
 		return nil, err
@@ -73,9 +81,46 @@ func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenRespo
 	return result, nil
 }
 
-// TODO: Implement the UserSignWithGoogle method
-func (u *authenticationUsecase) UserSignWithGoogle(token string) (*models.TokenResponse, error) {
-	result, err := u.SignWithGoogle(token)
+func (u *authenticationUsecase) UserSignWithGoogleApp(token string) (*models.TokenResponse, error) {
+	userInfo, err := u.authenticationRepo.GetUserInfoByAccessToken(token)
+	fmt.Println(userInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := u.userRepo.GetUserByEmail(userInfo.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	exists, err := u.sitePeopleRepo.CheckSiteUserExistsBySiteIdAndUserId(1, user.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	if !exists {
+		return nil, app.ErrUnauthorized
+	}
+
+	if user.GoogleToken == "" {
+		user.GoogleToken = userInfo.Id
+	}
+
+	user.AvatarUrl = userInfo.Picture
+	user.Name = userInfo.Name
+
+	if _, err := u.userRepo.UpdateUser(user); err != nil {
+		return nil, err
+	}
+
+	payload := models.JwtPayload{
+		UserId:      user.UserId,
+		UserLevelId: user.UserLevelId,
+		Email:       user.Email,
+		Name:        user.Name,
+	}
+
+	result, err := utils.GenerateJwtToken(payload)
 	if err != nil {
 		return nil, err
 	}

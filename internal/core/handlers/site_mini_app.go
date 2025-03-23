@@ -6,6 +6,7 @@ import (
 	"server/internal/core/usecases"
 	"server/internal/middlewares"
 	"server/pkg/utils"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,9 +38,11 @@ func NewSiteMiniAppHandler(r *gin.Engine, siteMiniAppUsecase usecases.SiteMiniAp
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{
 				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
 				repositories.SuperAdminUserLevel.UserLevelId,
 				repositories.AdminUserLevel.UserLevelId,
-				repositories.MemberUserLevel.UserLevelId,
+				repositories.ViewerUserLevel.UserLevelId,
+				repositories.PeopleUserLevel.UserLevelId,
 			},
 		}),
 		handler.GetListSiteMiniAppBySiteId,
@@ -49,9 +52,11 @@ func NewSiteMiniAppHandler(r *gin.Engine, siteMiniAppUsecase usecases.SiteMiniAp
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{
 				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
 				repositories.SuperAdminUserLevel.UserLevelId,
 				repositories.AdminUserLevel.UserLevelId,
-				repositories.MemberUserLevel.UserLevelId,
+				repositories.ViewerUserLevel.UserLevelId,
+				repositories.PeopleUserLevel.UserLevelId,
 			},
 		}),
 		handler.GetSiteMiniAppById,
@@ -74,9 +79,11 @@ func NewSiteMiniAppHandler(r *gin.Engine, siteMiniAppUsecase usecases.SiteMiniAp
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
 			AllowedUserLevelIDs: []int{
 				repositories.RootUserLevel.UserLevelId,
+				repositories.DeveloperUserLevel.UserLevelId,
 				repositories.SuperAdminUserLevel.UserLevelId,
 				repositories.AdminUserLevel.UserLevelId,
-				repositories.MemberUserLevel.UserLevelId,
+				repositories.ViewerUserLevel.UserLevelId,
+				repositories.PeopleUserLevel.UserLevelId,
 			},
 		}),
 		handler.DeleteSiteMiniApp,
@@ -110,7 +117,8 @@ func (h *siteMiniAppHandler) CreateSiteMiniApp(c *gin.Context) {
 }
 
 func (h *siteMiniAppHandler) GetListSiteMiniAppBySiteId(c *gin.Context) {
-	siteId := utils.GetIdFromParams(c)
+	siteIdStr, _ := c.Params.Get("site_id")
+	siteId, _ := strconv.Atoi(siteIdStr)
 
 	siteMiniApps, err := h.siteMiniAppUsecase.GetListSiteMiniAppBySiteId(siteId)
 	if err != nil {
@@ -132,6 +140,19 @@ func (h *siteMiniAppHandler) GetSiteMiniAppById(c *gin.Context) {
 
 	middlewares.ResponseSuccess(c, siteMiniApp, "Site mini app retrieved successfully")
 }
+
+func (h *siteMiniAppHandler) GetSiteMiniAppBySiteIdAndSitePeople(c *gin.Context) {
+	siteMiniAppId := utils.GetIdFromParams(c)
+
+	siteMiniApp, err := h.siteMiniAppUsecase.GetSiteMiniAppById(siteMiniAppId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, siteMiniApp, "Site mini app retrieved successfully")
+}
+
 
 func (h *siteMiniAppHandler) UpdateSiteMiniApp(c *gin.Context) {
 	siteMiniApp := &models.SiteMiniApp{}

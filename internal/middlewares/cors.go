@@ -18,6 +18,7 @@ func CORSMiddleware() gin.HandlerFunc {
 			ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		}
 
+		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		ctx.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE")
 		ctx.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, App-Secret, Content-Disposition")
 		ctx.Writer.Header().Set("Access-Control-Max-Age", "86400")

@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"log"
 	"server/internal/core/models"
 
 	"gorm.io/gorm"
@@ -11,7 +12,9 @@ type SiteTreeRepository interface {
 	Commit() error
 	Rollback() error
 	CreateSiteTree(siteTree *models.SiteTree) (*models.SiteTree, error)
-	GetListSiteTreeBySiteId(siteId int) ([]models.SiteTree, error)
+	GetListSiteTreeBySiteId(siteId int, userId int) ([]models.GetWorkspaceList, error)
+	GetListWorkspaceBySiteIdAndPeople(siteId int, userId int) ([]models.GetWorkspaceList, error)
+	GetSiteParentsBySiteId(siteId int) ([]models.SiteTree, error)
 	UpdateSiteTree(siteTree *models.SiteTree) (*models.SiteTree, error)
 	DeleteSiteTree(siteTree *models.SiteTree) error
 }
@@ -50,46 +53,84 @@ func (r *siteTreeRepository) CreateSiteTree(siteTree *models.SiteTree) (*models.
 	return siteTree, nil
 }
 
-func (r *siteTreeRepository) GetListSiteTreeBySiteId(siteId int) ([]models.SiteTree, error) {
-	var siteTrees []models.SiteTree
+func (r *siteTreeRepository) GetListSiteTreeBySiteId(siteId int, userId int) ([]models.GetWorkspaceList, error) {
+	var siteList []models.GetWorkspaceList
 
 	query := `
-	WITH RECURSIVE site_hierarchy AS (
 		SELECT
-			s.site_id,
-			s.name,
-			s.site_type_id,
-			s.description,
+			s.*,
 			st.site_parent_id,
-			1 AS depth,
-			ARRAY[s.site_id] AS path
-		FROM sites s
-		LEFT JOIN site_trees st ON s.site_id = st.site_child_id
-		WHERE s.site_id = ?
-		
-		UNION ALL
-		
-		SELECT
-			s.site_id,
-			s.name,
-			s.site_type_id,
-			s.description,
-			st.site_parent_id,
-			sh.depth + 1,
-			sh.path || s.site_id
+			sp.name AS site_parent_name
 		FROM sites s
 		INNER JOIN site_trees st ON s.site_id = st.site_child_id
-		INNER JOIN site_hierarchy sh ON st.site_parent_id = sh.site_id
-	)
-	SELECT * FROM site_hierarchy ORDER BY path;
+		LEFT JOIN sites sp ON st.site_parent_id = sp.site_id
+		WHERE st.site_parent_id = $1
+		AND s.deleted_at IS NULL
+		ORDER BY s.site_id;
 	`
 
-	err := r.db.Raw(query, siteId).Scan(&siteTrees).Error
+	err := r.db.Raw(query, siteId).Scan(&siteList).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return siteTrees, nil
+	return siteList, nil
+}
+
+func (r *siteTreeRepository) GetListWorkspaceBySiteIdAndPeople(siteId int, userId int) ([]models.GetWorkspaceList, error) {
+	var siteList []models.GetWorkspaceList
+
+	query := `
+		SELECT
+			s.*,
+			st.site_parent_id,
+			sp.name AS site_parent_name
+		FROM sites s
+		INNER JOIN site_trees st ON s.site_id = st.site_child_id
+		LEFT JOIN sites sp ON st.site_parent_id = sp.site_id
+		INNER JOIN site_peoples su ON su.site_id = s.site_id
+		WHERE st.site_parent_id = $1
+		AND su.user_id = $2 
+		AND s.deleted_at IS NULL
+		ORDER BY s.site_id;
+	`
+
+	err := r.db.Raw(query, siteId, userId).Scan(&siteList).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return siteList, nil
+}
+
+func (r *siteTreeRepository) GetSiteParentsBySiteId(siteId int) ([]models.SiteTree, error) {
+	var siteTree []models.SiteTree
+
+	log.Println("siteId", siteId)
+
+	query := `
+		WITH RECURSIVE parent_cte AS (
+			SELECT site_parent_id
+			FROM site_trees
+			WHERE site_child_id = $1
+
+			UNION ALL
+
+			SELECT st.site_parent_id
+			FROM site_trees st
+			JOIN parent_cte p ON st.site_child_id = p.site_parent_id
+		)
+		SELECT site_parent_id FROM parent_cte;
+	`
+
+	err := r.db.Raw(query, siteId).Scan(&siteTree).Error
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("siteTree", siteTree)
+
+	return siteTree, nil
 }
 
 func (r *siteTreeRepository) UpdateSiteTree(siteTree *models.SiteTree) (*models.SiteTree, error) {

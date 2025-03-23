@@ -11,7 +11,8 @@ INSERT INTO user_levels (user_level_id, slug, description) VALUES (2, 'Developer
 
 INSERT INTO user_levels (user_level_id, slug, description) VALUES (3, 'Super Admin', 'Good for people who can manage everything.');
 INSERT INTO user_levels (user_level_id, slug, description) VALUES (4, 'Admin', 'Good for people who just need to manage something.');
-INSERT INTO user_levels (user_level_id, slug, description) VALUES (5, 'Member', 'Good for people who just need to view something.');
+INSERT INTO user_levels (user_level_id, slug, description) VALUES (5, 'Viewer', 'Good for people who just need to view something.');
+INSERT INTO user_levels (user_level_id, slug, description) VALUES (6, 'People', 'Good for people who just need to view something.');
 -- +goose StatementEnd
 
 -- +goose Down

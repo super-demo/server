@@ -82,7 +82,7 @@ func (r *siteMiniAppRepository) GetListSiteMiniAppBySiteId(siteId int) ([]models
 func (r *siteMiniAppRepository) GetSiteMiniAppById(id int) (*models.SiteMiniApp, error) {
 	var siteMiniApp models.SiteMiniApp
 
-	err := r.db.Where("id = ?", id).First(&siteMiniApp).Error
+	err := r.db.Where("site_mini_app_id = ?", id).First(&siteMiniApp).Error
 	if err != nil {
 		return nil, err
 	}

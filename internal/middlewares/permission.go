@@ -22,7 +22,7 @@ func Permission(config AllowedPermissionConfig) gin.HandlerFunc {
 		jwtUserID, _ := userIDStr.(int)
 		hasUserLevel := slices.Contains(config.AllowedUserLevelIDs, userLevelID)
 
-		if paramUserIDStr, exists := c.Params.Get("user_id"); exists && userLevelID == int(repositories.MemberUserLevel.UserLevelId) {
+		if paramUserIDStr, exists := c.Params.Get("user_id"); exists && userLevelID == int(repositories.PeopleUserLevel.UserLevelId) {
 			paramUserID, err := strconv.Atoi(paramUserIDStr)
 			if err != nil {
 				c.AbortWithStatusJSON(app.ErrInvalidUserId.ErrHTTPCode, app.ErrInvalidUserId.ToJSONResponse())

@@ -35,9 +35,17 @@ var (
 )
 
 var (
-	MemberUserLevel = models.UserLevel{
+	ViewerUserLevel = models.UserLevel{
 		UserLevelId: 5,
-		Slug:        "Member",
+		Slug:        "Viewer",
 		Description: "Good for poeple who just need to view something.",
+	}
+)
+
+var (
+	PeopleUserLevel = models.UserLevel{
+		UserLevelId: 6,
+		Slug:        "People",
+		Description: "Good for people who just need to view something.",
 	}
 )

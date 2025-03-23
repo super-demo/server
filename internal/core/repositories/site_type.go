@@ -77,7 +77,7 @@ func (r *siteTypeRepository) GetListSiteType() ([]models.SiteType, error) {
 }
 
 func (r *siteTypeRepository) UpdateSiteType(siteType *models.SiteType) (*models.SiteType, error) {
-	if err := r.db.Save(siteType).Error; err != nil {
+	if err := r.db.Where("site_type_id = ?", siteType.SiteTypeId).Updates(siteType).Error; err != nil {
 		return nil, err
 	}
 

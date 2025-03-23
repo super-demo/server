@@ -40,10 +40,11 @@ func ParseCsv(file io.Reader) (*ParseCsvOrXlsxResult, error) {
 		user, err := ParseRecord(record)
 		if err != nil {
 			result.Failures = append(result.Failures, models.BulkImportFailure{
-				Name:     strings.TrimSpace(record[0]),
-				Nickname: strings.TrimSpace(record[1]),
-				Email:    strings.TrimSpace(record[2]),
-				Message:  err.Error(),
+				Name:            strings.TrimSpace(record[0]),
+				Nickname:        strings.TrimSpace(record[1]),
+				Email:           strings.TrimSpace(record[2]),
+				SiteUserLevelId: strings.TrimSpace(record[3]),
+				Message:         err.Error(),
 			})
 			continue
 		}
@@ -90,10 +91,11 @@ func ParseXlsx(file io.Reader) (*ParseCsvOrXlsxResult, error) {
 		user, err := ParseRecord(record)
 		if err != nil {
 			result.Failures = append(result.Failures, models.BulkImportFailure{
-				Name:     strings.TrimSpace(record[0]),
-				Nickname: strings.TrimSpace(record[1]),
-				Email:    strings.TrimSpace(record[2]),
-				Message:  err.Error(),
+				Name:            strings.TrimSpace(record[0]),
+				Nickname:        strings.TrimSpace(record[1]),
+				Email:           strings.TrimSpace(record[2]),
+				SiteUserLevelId: strings.TrimSpace(record[3]),
+				Message:         err.Error(),
 			})
 			continue
 		}
@@ -106,9 +108,10 @@ func ParseXlsx(file io.Reader) (*ParseCsvOrXlsxResult, error) {
 
 func ParseRecord(record []string) (models.BulkImportUser, error) {
 	requiredField := map[string]string{
-		"Name":     record[0],
-		"Nickname": record[1],
-		"Email":    record[2],
+		"Name":            record[0],
+		"Nickname":        record[1],
+		"Email":           record[2],
+		"SiteUserLevelId": record[3],
 	}
 
 	for fieldName, fieldValue := range requiredField {
@@ -118,9 +121,10 @@ func ParseRecord(record []string) (models.BulkImportUser, error) {
 	}
 
 	user := models.BulkImportUser{
-		Name:     record[0],
-		Nickname: record[1],
-		Email:    record[2],
+		Name:            record[0],
+		Nickname:        record[1],
+		Email:           record[2],
+		SiteUserLevelId: record[3],
 	}
 
 	return user, nil

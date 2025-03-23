@@ -24,9 +24,9 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 	v1 := r.Group("/v1/site-users", globalMiddlewares...)
 
 	createSiteUserWithoutSign := []gin.HandlerFunc{
-		middlewares.ValidateRequestBody(&models.CreateSiteUserWithoutSignRequest{}),
+		// middlewares.ValidateRequestBody([]models.CreateSiteUserWithoutSignRequest{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.SuperAdminUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
 		}),
 		handler.CreateSiteUserWithoutSign,
 	}
@@ -34,7 +34,7 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 	bulkImportUserWithoutSign := []gin.HandlerFunc{
 		middlewares.ValidateCSVOrXLSXFile(),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.SuperAdminUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
 		}),
 		handler.BulkImportUserWithoutSign,
 	}
@@ -44,6 +44,14 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.SuperAdminUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
 		}),
 		handler.GetListSiteUserBySiteId,
+	}
+
+	updateSiteUser := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.SiteUser{}),
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.SuperAdminUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
+		}),
+		handler.UpdateSiteUser,
 	}
 
 	deleteSiteUserBySiteIdAndUserId := []gin.HandlerFunc{
@@ -57,20 +65,21 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 	v1.GET("/list/:siteId", getListSiteUserBySiteId...)
 	v1.POST("/create/without/sign", createSiteUserWithoutSign...)
 	v1.POST("/bulk-import/without/sign/:siteId", bulkImportUserWithoutSign...)
+	v1.PUT("/update", updateSiteUser...)
 	v1.DELETE("/delete", deleteSiteUserBySiteIdAndUserId...)
 
 	return handler
 }
 
 func (h *siteUserHandler) CreateSiteUserWithoutSign(c *gin.Context) {
-	request := &models.CreateSiteUserWithoutSignRequest{}
-	if err := c.ShouldBindJSON(request); err != nil {
+	requests := []models.CreateSiteUserWithoutSignRequest{}
+	if err := c.ShouldBindJSON(&requests); err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
 	requesterUserId := c.MustGet("user_id").(int)
 
-	siteUser, err := h.siteUserUsecase.CreateSiteUserWithoutSign(request, requesterUserId)
+	siteUser, err := h.siteUserUsecase.CreateSiteUserWithoutSign(requests, requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return
@@ -155,6 +164,22 @@ func (h *siteUserHandler) GetListSiteUserBySiteId(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, siteUsers, "Site users retrieved successfully")
+}
+
+func (h *siteUserHandler) UpdateSiteUser(c *gin.Context) {
+	siteUser := &models.SiteUser{}
+	if err := c.ShouldBindJSON(siteUser); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	siteUser, err := h.siteUserUsecase.UpdateSiteUser(siteUser)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, siteUser, "Site user updated successfully")
 }
 
 func (h *siteUserHandler) DeleteSiteUserBySiteIdAndUserId(c *gin.Context) {
