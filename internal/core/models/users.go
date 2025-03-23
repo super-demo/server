@@ -19,16 +19,18 @@ type User struct {
 }
 
 type BulkImportUser struct {
-	Name     string `json:"name"`
-	Nickname string `json:"nickname"`
-	Email    string `json:"email"`
+	Name            string `json:"name"`
+	Nickname        string `json:"nickname"`
+	Email           string `json:"email"`
+	SiteUserLevelId string `json:"site_user_level_id"`
 }
 
 type BulkImportFailure struct {
-	Name     string `json:"name"`
-	Nickname string `json:"nickname"`
-	Email    string `json:"email"`
-	Message  string `json:"message"`
+	Name            string `json:"name"`
+	Nickname        string `json:"nickname"`
+	Email           string `json:"email"`
+	SiteUserLevelId string `json:"site_user_level_id"`
+	Message         string `json:"message"`
 }
 
 type UserInfoResponse struct {

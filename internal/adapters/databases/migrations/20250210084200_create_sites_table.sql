@@ -19,12 +19,12 @@ CREATE TABLE sites (
     FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );
 
-INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (2, 'Kasetsart', 'Kasetsart site for test usecases', 'Kasetsart site', 'https://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg',  1, 1);
-INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 1', 'Site 1 for test usecases', 'Site 1','https://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg',  1, 1);
-INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 2', 'Site 2 for test usecases', 'Site 2', 'http://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg', 1, 1);
-INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 3', 'Site 3 for test usecases', 'Site 3', 'http://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg', 1, 1);
-INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 4', 'Site 4 for test usecases', 'Site 4', 'http://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg', 1, 1);
-INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 5', 'Site 5 for test usecases', 'Site 5', 'http://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg', 1, 1);
+-- INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (2, 'Kasetsart', 'Kasetsart site for test usecases', 'Kasetsart site', 'https://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg',  1, 1);
+-- INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 1', 'Site 1 for test usecases', 'Site 1','https://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg',  1, 1);
+-- INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 2', 'Site 2 for test usecases', 'Site 2', 'http://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg', 1, 1);
+-- INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 3', 'Site 3 for test usecases', 'Site 3', 'http://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg', 1, 1);
+-- INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 4', 'Site 4 for test usecases', 'Site 4', 'http://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg', 1, 1);
+-- INSERT INTO sites (site_type_id, name, description, short_description, url, image_url, created_by, updated_by) VALUES (1, 'Site 5', 'Site 5 for test usecases', 'Site 5', 'http://localhost:3001', 'https://fonts.gstatic.com/s/i/materialicons/business_center/v11/24px.svg', 1, 1);
 -- +goose StatementEnd
 
 -- +goose Down

@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"fmt"
 	"log"
 	"server/infrastructure/app"
 	"server/internal/core/models"
@@ -107,45 +108,39 @@ func (u *sitePeopleUsecase) CreateSitePeople(users []models.CreateSitePeopleRequ
 		}
 
 		parents, err := u.siteTreeRepo.GetSiteParentsBySiteId(user.SiteId)
-
-		log.Println("parents", parents)
-
 		if err != nil {
 			txUserRepo.Rollback()
 			return nil, err
 		}
 
-		if parents != nil {
-			for _, parent := range parents {
-				sitePeople := &models.SitePeople{
-					SiteId:    parent.SiteParentId,
-					UserId:    newUser.UserId,
-					CreatedBy: requesterUserId,
-					UpdatedBy: requesterUserId,
-				}
-
-				exists, err = u.sitePeopleRepo.CheckSiteUserExistsBySiteIdAndUserId(sitePeople.SiteId, sitePeople.UserId)
-				if err != nil {
-					txUserRepo.Rollback()
-					return nil, err
-				}
-
-				if exists {
-					txUserRepo.Rollback()
-					return nil, app.ErrNameExist
-				}
-
-				createdSitePeople, err := u.sitePeopleRepo.CreateSitePeople(sitePeople)
-				if err != nil {
-					txUserRepo.Rollback()
-					return nil, err
-				}
-
-				createdPeople = append(createdPeople, *createdSitePeople)
+		for _, parent := range parents {
+			sitePeople := &models.SitePeople{
+				SiteId:    parent.SiteParentId,
+				UserId:    newUser.UserId,
+				CreatedBy: requesterUserId,
+				UpdatedBy: requesterUserId,
 			}
 
+			fmt.Println("sitePeople", sitePeople.SiteId, sitePeople.UserId)
+			exists, err = u.sitePeopleRepo.CheckSiteUserExistsBySiteIdAndUserId(sitePeople.SiteId, sitePeople.UserId)
+			if err != nil {
+				txUserRepo.Rollback()
+				return nil, err
+			}
+
+			if exists {
+				continue
+			}
+
+			createdSitePeople, err := u.sitePeopleRepo.CreateSitePeople(sitePeople)
+			if err != nil {
+				txUserRepo.Rollback()
+				return nil, err
+			}
+
+			createdPeople = append(createdPeople, *createdSitePeople)
 		}
-		
+
 		createdSitePeople, err := u.sitePeopleRepo.CreateSitePeople(sitePeople)
 		if err != nil {
 			txUserRepo.Rollback()

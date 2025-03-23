@@ -26,7 +26,7 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 	createSiteUserWithoutSign := []gin.HandlerFunc{
 		// middlewares.ValidateRequestBody([]models.CreateSiteUserWithoutSignRequest{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.SuperAdminUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
 		}),
 		handler.CreateSiteUserWithoutSign,
 	}
@@ -34,7 +34,7 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 	bulkImportUserWithoutSign := []gin.HandlerFunc{
 		middlewares.ValidateCSVOrXLSXFile(),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
-			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.DeveloperUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.SuperAdminUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
 		}),
 		handler.BulkImportUserWithoutSign,
 	}

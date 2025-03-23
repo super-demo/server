@@ -183,10 +183,11 @@ func (u *siteUserUsecase) BulkImportUserWithoutSign(siteId int, users []models.B
 
 		if exists {
 			result.Failures = append(result.Failures, models.BulkImportFailure{
-				Name:     user.Name,
-				Nickname: user.Nickname,
-				Email:    user.Email,
-				Message:  app.ErrNameExist.Error(),
+				Name:            user.Name,
+				Nickname:        user.Nickname,
+				Email:           user.Email,
+				SiteUserLevelId: user.SiteUserLevelId,
+				Message:         app.ErrNameExist.Error(),
 			})
 			continue
 		}
@@ -196,10 +197,11 @@ func (u *siteUserUsecase) BulkImportUserWithoutSign(siteId int, users []models.B
 		_, err = txSiteUserRepo.CreateSiteUser(siteUser)
 		if err != nil {
 			result.Failures = append(result.Failures, models.BulkImportFailure{
-				Name:     user.Name,
-				Nickname: user.Nickname,
-				Email:    user.Email,
-				Message:  err.Error(),
+				Name:            user.Name,
+				Nickname:        user.Nickname,
+				Email:           user.Email,
+				SiteUserLevelId: user.SiteUserLevelId,
+				Message:         err.Error(),
 			})
 			continue
 		}

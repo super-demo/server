@@ -17,15 +17,15 @@ type announcementUsecase struct {
 	announcementRepo     repositories.AnnouncementRepository
 	notificationRepo     repositories.NotificationRepository
 	notificationUserRepo repositories.NotificationUserRepository
-	siteUserRepo         repositories.SiteUserRepository
+	sitePeopleRepo       repositories.SitePeopleRepository
 }
 
-func NewAnnouncementUsecase(announcementRepo repositories.AnnouncementRepository, notificationRepo repositories.NotificationRepository, notificationUserRepo repositories.NotificationUserRepository, siteUserRepo repositories.SiteUserRepository) AnnouncementUsecase {
+func NewAnnouncementUsecase(announcementRepo repositories.AnnouncementRepository, notificationRepo repositories.NotificationRepository, notificationUserRepo repositories.NotificationUserRepository, sitePeopleRepo repositories.SitePeopleRepository) AnnouncementUsecase {
 	return &announcementUsecase{
 		announcementRepo:     announcementRepo,
 		notificationRepo:     notificationRepo,
 		notificationUserRepo: notificationUserRepo,
-		siteUserRepo:         siteUserRepo,
+		sitePeopleRepo:       sitePeopleRepo,
 	}
 }
 
@@ -61,14 +61,14 @@ func (u *announcementUsecase) CreateAnnouncement(announcement *models.Announceme
 		}
 	}()
 
-	txSiteUserRepo, err := u.siteUserRepo.BeginLog()
+	txSitePeopleRepo, err := u.sitePeopleRepo.BeginLog()
 	if err != nil {
 		txAnnouncementRepo.Rollback()
 		return nil, err
 	}
 	defer func() {
 		if r := recover(); r != nil {
-			txSiteUserRepo.Rollback()
+			txSitePeopleRepo.Rollback()
 		}
 	}()
 
@@ -86,7 +86,7 @@ func (u *announcementUsecase) CreateAnnouncement(announcement *models.Announceme
 		return nil, err
 	}
 
-	users, err := txSiteUserRepo.GetListUserBySiteId(newNotification.SiteId)
+	users, err := txSitePeopleRepo.GetListUserBySiteId(newNotification.SiteId)
 	if err != nil {
 		txAnnouncementRepo.Rollback()
 		return nil, err
@@ -125,7 +125,7 @@ func (u *announcementUsecase) CreateAnnouncement(announcement *models.Announceme
 		return nil, err
 	}
 
-	if err := txSiteUserRepo.Commit(); err != nil {
+	if err := txSitePeopleRepo.Commit(); err != nil {
 		return nil, err
 	}
 

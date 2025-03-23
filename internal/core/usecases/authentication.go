@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"fmt"
 	"server/infrastructure/app"
 	"server/internal/core/models"
 	"server/internal/core/repositories"
@@ -59,6 +60,7 @@ func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenRespo
 	}
 
 	user.AvatarUrl = userInfo.Picture
+	user.Name = userInfo.Name
 
 	if _, err := u.userRepo.UpdateUser(user); err != nil {
 		return nil, err
@@ -81,6 +83,7 @@ func (u *authenticationUsecase) SignWithGoogle(token string) (*models.TokenRespo
 
 func (u *authenticationUsecase) UserSignWithGoogleApp(token string) (*models.TokenResponse, error) {
 	userInfo, err := u.authenticationRepo.GetUserInfoByAccessToken(token)
+	fmt.Println(userInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -104,6 +107,7 @@ func (u *authenticationUsecase) UserSignWithGoogleApp(token string) (*models.Tok
 	}
 
 	user.AvatarUrl = userInfo.Picture
+	user.Name = userInfo.Name
 
 	if _, err := u.userRepo.UpdateUser(user); err != nil {
 		return nil, err

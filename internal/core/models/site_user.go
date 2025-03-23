@@ -36,5 +36,5 @@ type SiteUserJoinTable struct {
 type CreateSiteUserWithoutSignRequest struct {
 	SiteId          int    `json:"site_id" binding:"required"`
 	Email           string `json:"email" binding:"required"`
-	SiteUserLevelId int    `json:"site_user_level_id" binding:"required,oneof=3 4 5"`
+	SiteUserLevelId int    `json:"site_user_level_id" binding:"required"`
 }

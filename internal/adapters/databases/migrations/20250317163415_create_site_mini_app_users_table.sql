@@ -17,12 +17,12 @@ CREATE TABLE site_mini_app_users (
     FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );
 
-INSERT INTO site_mini_app_users (site_mini_app_id, user_id, created_by, updated_by) VALUES (1, 1, 1, 1);
-INSERT INTO site_mini_app_users (site_mini_app_id, user_id, created_by, updated_by) VALUES (1, 2, 1, 1);
-INSERT INTO site_mini_app_users (site_mini_app_id, user_id, created_by, updated_by) VALUES (1, 3, 1, 1);
+-- INSERT INTO site_mini_app_users (site_mini_app_id, user_id, created_by, updated_by) VALUES (1, 1, 1, 1);
+-- INSERT INTO site_mini_app_users (site_mini_app_id, user_id, created_by, updated_by) VALUES (1, 2, 1, 1);
+-- INSERT INTO site_mini_app_users (site_mini_app_id, user_id, created_by, updated_by) VALUES (1, 3, 1, 1);
 
-INSERT INTO site_mini_app_users (site_mini_app_id, user_id, created_by, updated_by) VALUES (2, 1, 1, 1);
-INSERT INTO site_mini_app_users (site_mini_app_id, user_id, created_by, updated_by) VALUES (2, 2, 1, 1);
+-- INSERT INTO site_mini_app_users (site_mini_app_id, user_id, created_by, updated_by) VALUES (2, 1, 1, 1);
+-- INSERT INTO site_mini_app_users (site_mini_app_id, user_id, created_by, updated_by) VALUES (2, 2, 1, 1);
 -- +goose StatementEnd
 
 -- +goose Down

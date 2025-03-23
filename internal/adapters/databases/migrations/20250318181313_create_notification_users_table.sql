@@ -10,12 +10,12 @@ CREATE TABLE notification_users (
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
-INSERT INTO notification_users (notification_id, user_id) VALUES (1, 1);
-INSERT INTO notification_users (notification_id, user_id) VALUES (1, 2);
-INSERT INTO notification_users (notification_id, user_id) VALUES (1, 3);
+-- INSERT INTO notification_users (notification_id, user_id) VALUES (1, 1);
+-- INSERT INTO notification_users (notification_id, user_id) VALUES (1, 2);
+-- INSERT INTO notification_users (notification_id, user_id) VALUES (1, 3);
 
-INSERT INTO notification_users (notification_id, user_id) VALUES (2, 1);
-INSERT INTO notification_users (notification_id, user_id) VALUES (2, 2);
+-- INSERT INTO notification_users (notification_id, user_id) VALUES (2, 1);
+-- INSERT INTO notification_users (notification_id, user_id) VALUES (2, 2);
 -- +goose StatementEnd
 
 -- +goose Down
