@@ -59,7 +59,7 @@ func main() {
 	notificationUsecase := usecases.NewNotificationUsecase(notificationRepository, notificationUserRepository, siteUserRepository)
 	notificationUserUsecase := usecases.NewNotificationUserUsecase(notificationUserRepository, notificationRepository)
 	announcementUsecase := usecases.NewAnnouncementUsecase(announcementRepository, notificationRepository, notificationUserRepository, siteUserRepository)
-	sitePeopleUsecase := usecases.NewSitePeopleUsecase(siteUserRepository, siteRepository, siteLogRepository, userRepository, sitePeopleRepository)
+	sitePeopleUsecase := usecases.NewSitePeopleUsecase(siteUserRepository, siteRepository, siteLogRepository, userRepository, sitePeopleRepository, siteTreeRepository)
 
 	// Initialize handlers
 	handlers.NewAppHandler(engine)

@@ -20,15 +20,17 @@ type sitePeopleUsecase struct {
 	siteLogRepo    repositories.SiteLogRepository
 	userRepo       repositories.UserRepository
 	sitePeopleRepo repositories.SitePeopleRepository
+	siteTreeRepo   repositories.SiteTreeRepository
 }
 
-func NewSitePeopleUsecase(siteUserRepo repositories.SiteUserRepository, siteRepo repositories.SiteRepository, siteLogRepo repositories.SiteLogRepository, userRepo repositories.UserRepository, sitePeopleRepo repositories.SitePeopleRepository) SitePeopleUsecase {
+func NewSitePeopleUsecase(siteUserRepo repositories.SiteUserRepository, siteRepo repositories.SiteRepository, siteLogRepo repositories.SiteLogRepository, userRepo repositories.UserRepository, sitePeopleRepo repositories.SitePeopleRepository, siteTreeRepo repositories.SiteTreeRepository) SitePeopleUsecase {
 	return &sitePeopleUsecase{
 		siteUserRepo:   siteUserRepo,
 		siteRepo:       siteRepo,
 		siteLogRepo:    siteLogRepo,
 		userRepo:       userRepo,
 		sitePeopleRepo: sitePeopleRepo,
+		siteTreeRepo:   siteTreeRepo,
 	}
 }
 
@@ -93,7 +95,6 @@ func (u *sitePeopleUsecase) CreateSitePeople(users []models.CreateSitePeopleRequ
 			UpdatedBy: requesterUserId,
 		}
 
-		log.Println("sitePeople", sitePeople)
 		exists, err = u.sitePeopleRepo.CheckSiteUserExistsBySiteIdAndUserId(sitePeople.SiteId, sitePeople.UserId)
 		if err != nil {
 			txUserRepo.Rollback()
@@ -105,14 +106,51 @@ func (u *sitePeopleUsecase) CreateSitePeople(users []models.CreateSitePeopleRequ
 			return nil, app.ErrNameExist
 		}
 
-		log.Println("sitePeople", sitePeople)
+		parents, err := u.siteTreeRepo.GetSiteParentsBySiteId(user.SiteId)
 
-		createdSitePeople, err := u.sitePeopleRepo.CreateSitePeople(sitePeople)
+		log.Println("parents", parents)
+
 		if err != nil {
 			txUserRepo.Rollback()
 			return nil, err
 		}
 
+		if parents != nil {
+			for _, parent := range parents {
+				sitePeople := &models.SitePeople{
+					SiteId:    parent.SiteParentId,
+					UserId:    newUser.UserId,
+					CreatedBy: requesterUserId,
+					UpdatedBy: requesterUserId,
+				}
+
+				exists, err = u.sitePeopleRepo.CheckSiteUserExistsBySiteIdAndUserId(sitePeople.SiteId, sitePeople.UserId)
+				if err != nil {
+					txUserRepo.Rollback()
+					return nil, err
+				}
+
+				if exists {
+					txUserRepo.Rollback()
+					return nil, app.ErrNameExist
+				}
+
+				createdSitePeople, err := u.sitePeopleRepo.CreateSitePeople(sitePeople)
+				if err != nil {
+					txUserRepo.Rollback()
+					return nil, err
+				}
+
+				createdPeople = append(createdPeople, *createdSitePeople)
+			}
+
+		}
+		
+		createdSitePeople, err := u.sitePeopleRepo.CreateSitePeople(sitePeople)
+		if err != nil {
+			txUserRepo.Rollback()
+			return nil, err
+		}
 		createdPeople = append(createdPeople, *createdSitePeople)
 
 		log.Println("createdPeople", createdPeople)

@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"log"
 	"server/internal/core/models"
 
 	"gorm.io/gorm"
@@ -13,6 +14,7 @@ type SiteTreeRepository interface {
 	CreateSiteTree(siteTree *models.SiteTree) (*models.SiteTree, error)
 	GetListSiteTreeBySiteId(siteId int, userId int) ([]models.GetWorkspaceList, error)
 	GetListWorkspaceBySiteIdAndPeople(siteId int, userId int) ([]models.GetWorkspaceList, error)
+	GetSiteParentsBySiteId(siteId int) ([]models.SiteTree, error)
 	UpdateSiteTree(siteTree *models.SiteTree) (*models.SiteTree, error)
 	DeleteSiteTree(siteTree *models.SiteTree) error
 }
@@ -99,6 +101,36 @@ func (r *siteTreeRepository) GetListWorkspaceBySiteIdAndPeople(siteId int, userI
 	}
 
 	return siteList, nil
+}
+
+func (r *siteTreeRepository) GetSiteParentsBySiteId(siteId int) ([]models.SiteTree, error) {
+	var siteTree []models.SiteTree
+
+	log.Println("siteId", siteId)
+
+	query := `
+		WITH RECURSIVE parent_cte AS (
+			SELECT site_parent_id
+			FROM site_trees
+			WHERE site_child_id = $1
+
+			UNION ALL
+
+			SELECT st.site_parent_id
+			FROM site_trees st
+			JOIN parent_cte p ON st.site_child_id = p.site_parent_id
+		)
+		SELECT site_parent_id FROM parent_cte;
+	`
+
+	err := r.db.Raw(query, siteId).Scan(&siteTree).Error
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("siteTree", siteTree)
+
+	return siteTree, nil
 }
 
 func (r *siteTreeRepository) UpdateSiteTree(siteTree *models.SiteTree) (*models.SiteTree, error) {
