@@ -4,6 +4,7 @@ import (
 	"server/infrastructure/app"
 	"server/internal/core/models"
 	"server/internal/core/repositories"
+	"time"
 )
 
 type SiteUsecase interface {
@@ -18,6 +19,8 @@ type SiteUsecase interface {
 	DeleteSiteWorkspace(site *models.Site, requesterUserId int) error
 	CreatePeopleRole(request *models.CreatePeopleRoleRequest, requesterUserId int) (*models.PeopleRole, error)
 	GetListPeopleRole(siteId int) ([]models.PeopleRole, error)
+	UpdatePeopleRole(role *models.PeopleRole, requesterUserId int) (*models.PeopleRole, error)
+	DeletePeopleRole(role *models.PeopleRole, requesterUserId int) error
 }
 
 type siteUsecase struct {
@@ -85,18 +88,17 @@ func (u *siteUsecase) CreateSite(site *models.Site, requesterUserId int) (*model
 		return nil, err
 	}
 
-	if newSite.SiteId != 1 {
-		siteUser := &models.SiteUser{
-			SiteId:    newSite.SiteId,
-			UserId:    requesterUserId,
-			IsActive:  true,
-			CreatedBy: requesterUserId,
-			UpdatedBy: requesterUserId,
-		}
+	siteUser := &models.SiteUser{
+		SiteId:          newSite.SiteId,
+		UserId:          requesterUserId,
+		SiteUserLevelId: repositories.SuperAdminUserLevel.UserLevelId,
+		IsActive:        true,
+		CreatedBy:       requesterUserId,
+		UpdatedBy:       requesterUserId,
+	}
 
-		if _, err := u.siteUserRepo.CreateSiteUser(siteUser); err != nil {
-			return nil, err
-		}
+	if _, err := u.siteUserRepo.CreateSiteUser(siteUser); err != nil {
+		return nil, err
 	}
 
 	return newSite, nil
@@ -321,4 +323,77 @@ func (u *siteUsecase) CreatePeopleRole(request *models.CreatePeopleRoleRequest, 
 
 func (u *siteUsecase) GetListPeopleRole(siteId int) ([]models.PeopleRole, error) {
 	return u.peopleRoleRepo.GetRoleListBySiteId(siteId)
+}
+
+func (u *siteUsecase) UpdatePeopleRole(role *models.PeopleRole, requesterUserId int) (*models.PeopleRole, error) {
+	txPeopleRoleRepo, err := u.peopleRoleRepo.BeginLog()
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txPeopleRoleRepo.Rollback()
+		}
+	}()
+
+	exists, err := txPeopleRoleRepo.CheckRoleExistsByName(role.Slug)
+	if err != nil {
+		txPeopleRoleRepo.Rollback()
+		return nil, err
+	}
+	if exists {
+		txPeopleRoleRepo.Rollback()
+		return nil, app.ErrNameExist
+	}
+
+	role.CreatedAt = time.Now()
+	role.CreatedBy = requesterUserId
+	role.UpdatedBy = requesterUserId
+	role.UpdatedAt = time.Now()
+	newRole, err := txPeopleRoleRepo.UpdateRole(role)
+	if err != nil {
+		txPeopleRoleRepo.Rollback()
+		return nil, err
+	}
+
+	if err := txPeopleRoleRepo.Commit(); err != nil {
+		return nil, err
+	}
+
+	siteLog := &models.SiteLog{
+		SiteId:    1,
+		Action:    "Updated",
+		Detail:    "Updated people role " + role.Slug,
+		CreatedBy: requesterUserId,
+	}
+
+	if _, err := u.siteLogRepo.CreateSiteLog(siteLog); err != nil {
+		return nil, err
+	}
+
+	return newRole, nil
+}
+
+func (u *siteUsecase) DeletePeopleRole(role *models.PeopleRole, requesterUserId int) error {
+	txPeopleRoleRepo, err := u.peopleRoleRepo.BeginLog()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txPeopleRoleRepo.Rollback()
+		}
+	}()
+
+	if err := txPeopleRoleRepo.DeleteRole(role); err != nil {
+		txPeopleRoleRepo.Rollback()
+		return err
+	}
+
+	if err := txPeopleRoleRepo.Commit(); err != nil {
+		txPeopleRoleRepo.Rollback()
+		return err
+	}
+
+	return nil
 }

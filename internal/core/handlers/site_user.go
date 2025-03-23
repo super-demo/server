@@ -46,6 +46,14 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 		handler.GetListSiteUserBySiteId,
 	}
 
+	updateSiteUser := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.SiteUser{}),
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{repositories.RootUserLevel.UserLevelId, repositories.SuperAdminUserLevel.UserLevelId, repositories.AdminUserLevel.UserLevelId},
+		}),
+		handler.UpdateSiteUser,
+	}
+
 	deleteSiteUserBySiteIdAndUserId := []gin.HandlerFunc{
 		middlewares.ValidateRequestBody(&models.SiteUser{}),
 		middlewares.Permission(middlewares.AllowedPermissionConfig{
@@ -57,6 +65,7 @@ func NewSiteUserHandler(r *gin.Engine, siteUserUsecase usecases.SiteUserUsecase,
 	v1.GET("/list/:siteId", getListSiteUserBySiteId...)
 	v1.POST("/create/without/sign", createSiteUserWithoutSign...)
 	v1.POST("/bulk-import/without/sign/:siteId", bulkImportUserWithoutSign...)
+	v1.PUT("/update", updateSiteUser...)
 	v1.DELETE("/delete", deleteSiteUserBySiteIdAndUserId...)
 
 	return handler
@@ -155,6 +164,22 @@ func (h *siteUserHandler) GetListSiteUserBySiteId(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, siteUsers, "Site users retrieved successfully")
+}
+
+func (h *siteUserHandler) UpdateSiteUser(c *gin.Context) {
+	siteUser := &models.SiteUser{}
+	if err := c.ShouldBindJSON(siteUser); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	siteUser, err := h.siteUserUsecase.UpdateSiteUser(siteUser)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, siteUser, "Site user updated successfully")
 }
 
 func (h *siteUserHandler) DeleteSiteUserBySiteIdAndUserId(c *gin.Context) {

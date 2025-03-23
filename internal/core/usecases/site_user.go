@@ -10,6 +10,7 @@ type SiteUserUsecase interface {
 	CreateSiteUserWithoutSign(requests []models.CreateSiteUserWithoutSignRequest, requesterUserId int) ([]models.SiteUser, error)
 	BulkImportUserWithoutSign(siteId int, users []models.BulkImportUser, requesterUserId int) (*models.BulkImportResponse, error)
 	GetListSiteUserBySiteId(siteId int) ([]models.SiteUserJoinTable, error)
+	UpdateSiteUser(siteUser *models.SiteUser) (*models.SiteUser, error)
 	DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser, requesterUserId int) error
 }
 
@@ -212,6 +213,42 @@ func (u *siteUserUsecase) BulkImportUserWithoutSign(siteId int, users []models.B
 
 func (u *siteUserUsecase) GetListSiteUserBySiteId(siteId int) ([]models.SiteUserJoinTable, error) {
 	return u.siteUserRepo.GetListSiteUserBySiteId(siteId)
+}
+
+func (u *siteUserUsecase) UpdateSiteUser(siteUser *models.SiteUser) (*models.SiteUser, error) {
+	txSiteUserRepo, err := u.siteUserRepo.BeginLog()
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			txSiteUserRepo.Rollback()
+		}
+	}()
+
+	exists, err := txSiteUserRepo.CheckSiteUserExistsBySiteIdAndUserId(siteUser.SiteId, siteUser.UserId)
+	if err != nil {
+		txSiteUserRepo.Rollback()
+		return nil, err
+	}
+
+	if !exists {
+		txSiteUserRepo.Rollback()
+		return nil, app.ErrNotFound
+	}
+
+	siteUser.UpdatedBy = siteUser.UserId
+	newSiteUser, err := txSiteUserRepo.UpdateSiteUser(siteUser)
+	if err != nil {
+		txSiteUserRepo.Rollback()
+		return nil, err
+	}
+
+	if err := txSiteUserRepo.Commit(); err != nil {
+		return nil, err
+	}
+
+	return newSiteUser, nil
 }
 
 func (u *siteUserUsecase) DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser, requesterUserId int) error {

@@ -150,6 +150,30 @@ func NewSiteHandler(r *gin.Engine, siteUsecase usecases.SiteUsecase, globalMiddl
 		handler.GetListPeopleRole,
 	}
 
+	updatePeopleRole := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.PeopleRole{}),
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+			},
+		}),
+		handler.UpdatePeopleRole,
+	}
+
+	deletePeopleRole := []gin.HandlerFunc{
+		middlewares.ValidateRequestBody(&models.PeopleRole{}),
+		middlewares.Permission(middlewares.AllowedPermissionConfig{
+			AllowedUserLevelIDs: []int{
+				repositories.RootUserLevel.UserLevelId,
+				repositories.SuperAdminUserLevel.UserLevelId,
+				repositories.AdminUserLevel.UserLevelId,
+			},
+		}),
+		handler.DeletePeopleRole,
+	}
+
 	v1.GET("/:id", getSiteById...)
 	v1.GET("/workspace/:id", getWorkspaceById...)
 
@@ -164,6 +188,8 @@ func NewSiteHandler(r *gin.Engine, siteUsecase usecases.SiteUsecase, globalMiddl
 
 	v1.POST("/create/people-role", createPeopleRole...)
 	v1.GET("/list/people-role/:site_id", getListPeopleRole...)
+	v1.PUT("/update/people-role", updatePeopleRole...)
+	v1.DELETE("/delete/people-role", deletePeopleRole...)
 
 	return handler
 }
@@ -348,4 +374,40 @@ func (h *siteHandler) GetListPeopleRole(c *gin.Context) {
 	}
 
 	middlewares.ResponseSuccess(c, roles, "List of people role")
+}
+
+func (h *siteHandler) UpdatePeopleRole(c *gin.Context) {
+	peopleRole := &models.PeopleRole{}
+	if err := c.ShouldBindJSON(peopleRole); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	requesterUserId := c.MustGet("user_id").(int)
+
+	peopleRole, err := h.siteUsecase.UpdatePeopleRole(peopleRole, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, peopleRole, "People role updated successfully")
+}
+
+func (h *siteHandler) DeletePeopleRole(c *gin.Context) {
+	peopleRole := &models.PeopleRole{}
+	if err := c.ShouldBindJSON(peopleRole); err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	requesterUserId := c.MustGet("user_id").(int)
+
+	err := h.siteUsecase.DeletePeopleRole(peopleRole, requesterUserId)
+	if err != nil {
+		middlewares.ResponseError(c, err)
+		return
+	}
+
+	middlewares.ResponseSuccess(c, nil, "People role deleted successfully")
 }

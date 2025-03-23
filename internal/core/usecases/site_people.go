@@ -11,7 +11,7 @@ type SitePeopleUsecase interface {
 	CreateSitePeople(users []models.CreateSitePeopleRequest, requesterUserId int) ([]models.SitePeople, error)
 	BulkImportUserWithoutSign(siteId int, users []models.BulkImportUser, requesterUserId int) (*models.BulkImportResponse, error)
 	GetListSitePeopleBySiteId(siteId int) ([]models.SitePeopleJoinTable, error)
-	DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser, requesterUserId int) error
+	DeleteSitePeople(sitePeople *models.SitePeople, requesterUserId int) error
 }
 
 type sitePeopleUsecase struct {
@@ -223,18 +223,18 @@ func (u *sitePeopleUsecase) GetListSitePeopleBySiteId(siteId int) ([]models.Site
 	return u.sitePeopleRepo.GetListSitePeopleBySiteId(siteId)
 }
 
-func (u *sitePeopleUsecase) DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser, requesterUserId int) error {
-	txSiteUserRepo, err := u.siteUserRepo.BeginLog()
+func (u *sitePeopleUsecase) DeleteSitePeople(sitePeople *models.SitePeople, requesterUserId int) error {
+	txPeopleRoleRepo, err := u.sitePeopleRepo.BeginLog()
 	if err != nil {
 		return err
 	}
 
-	err = txSiteUserRepo.DeleteSiteUserBySiteIdAndUserId(siteUser)
+	err = txPeopleRoleRepo.DeleteSiteUserBySiteIdAndUserId(sitePeople)
 	if err != nil {
-		txSiteUserRepo.Rollback()
+		txPeopleRoleRepo.Rollback()
 		return err
 	}
 
-	txSiteUserRepo.Commit()
+	txPeopleRoleRepo.Commit()
 	return nil
 }

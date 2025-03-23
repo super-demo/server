@@ -159,15 +159,15 @@ func (h *sitePeopleHandler) GetListSitePeopleBySiteId(c *gin.Context) {
 }
 
 func (h *sitePeopleHandler) DeleteSiteUserBySiteIdAndUserId(c *gin.Context) {
-	siteUser := &models.SiteUser{}
-	if err := c.ShouldBindJSON(siteUser); err != nil {
+	sitePeople := &models.SitePeople{}
+	if err := c.ShouldBindJSON(sitePeople); err != nil {
 		middlewares.ResponseError(c, err)
 		return
 	}
 
 	requesterUserId := c.MustGet("user_id").(int)
 
-	err := h.siteUserUsecase.DeleteSiteUserBySiteIdAndUserId(siteUser, requesterUserId)
+	err := h.sitePeopleUsecase.DeleteSitePeople(sitePeople, requesterUserId)
 	if err != nil {
 		middlewares.ResponseError(c, err)
 		return

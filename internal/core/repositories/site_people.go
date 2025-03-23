@@ -14,7 +14,7 @@ type SitePeopleRepository interface {
 	CheckSiteUserExistsBySiteIdAndUserId(siteId, userId int) (bool, error)
 	GetListUserBySiteId(siteId int) ([]models.SiteUser, error)
 	GetListSitePeopleBySiteId(siteId int) ([]models.SitePeopleJoinTable, error)
-	DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser) error
+	DeleteSiteUserBySiteIdAndUserId(sitePeople *models.SitePeople) error
 }
 
 type sitePeopleRepository struct {
@@ -86,8 +86,8 @@ func (r *sitePeopleRepository) GetListSitePeopleBySiteId(siteId int) ([]models.S
 	return sitePeople, nil
 }
 
-func (r *sitePeopleRepository) DeleteSiteUserBySiteIdAndUserId(siteUser *models.SiteUser) error {
-	err := r.db.Where("site_id = ? AND user_id = ?", siteUser.SiteId, siteUser.UserId).Delete(&models.SiteUser{}).Error
+func (r *sitePeopleRepository) DeleteSiteUserBySiteIdAndUserId(sitePeople *models.SitePeople) error {
+	err := r.db.Where("site_id = ? AND user_id = ?", sitePeople.SiteId, sitePeople.UserId).Delete(&models.SitePeople{}).Error
 	if err != nil {
 		return err
 	}

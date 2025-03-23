@@ -15,6 +15,8 @@ type PeopleRoleRepository interface {
 	GetRoleListBySiteId(id int) ([]models.PeopleRole, error)
 	GetUserByEmail(email string) (*models.User, error)
 	UpdateUser(user *models.User) (*models.User, error)
+	UpdateRole(role *models.PeopleRole) (*models.PeopleRole, error)
+	DeleteRole(role *models.PeopleRole) error
 }
 
 type peopleRoleRepository struct {
@@ -94,4 +96,20 @@ func (r *peopleRoleRepository) UpdateUser(user *models.User) (*models.User, erro
 	}
 
 	return user, nil
+}
+
+func (r *peopleRoleRepository) UpdateRole(role *models.PeopleRole) (*models.PeopleRole, error) {
+	if err := r.db.Where("people_role_id = ?", role.PeopleRoleId).Updates(role).Error; err != nil {
+		return nil, err
+	}
+
+	return role, nil
+}
+
+func (r *peopleRoleRepository) DeleteRole(role *models.PeopleRole) error {
+	if err := r.db.Delete(role).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -79,3 +79,10 @@ type CreatePeopleRoleRequest struct {
 	Description string `json:"description" gorm:"column:description"`
 	SiteId      int    `json:"site_id" gorm:"column:site_id"`
 }
+
+type UpdatePeopleRoleRequest struct {
+	PeopleRoleId int    `json:"people_role_id"`
+	Slug         string `json:"slug" gorm:"column:slug"`
+	Description  string `json:"description" gorm:"column:description"`
+	SiteId       int    `json:"site_id" gorm:"column:site_id"`
+}
