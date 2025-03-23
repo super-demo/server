@@ -63,8 +63,8 @@ func (r *siteTreeRepository) GetListSiteTreeBySiteId(siteId int, userId int) ([]
 		INNER JOIN site_trees st ON s.site_id = st.site_child_id
 		LEFT JOIN sites sp ON st.site_parent_id = sp.site_id
 		WHERE st.site_parent_id = $1
+		AND s.deleted_at IS NULL
 		ORDER BY s.site_id;
-
 	`
 
 	err := r.db.Raw(query, siteId).Scan(&siteList).Error
@@ -89,6 +89,7 @@ func (r *siteTreeRepository) GetListWorkspaceBySiteIdAndPeople(siteId int, userI
 		INNER JOIN site_users su ON su.site_id = s.site_id  -- Ensure user is in site_users for site_child
 		WHERE st.site_parent_id = $1
 		AND su.user_id = $2 
+		AND s.deleted_at IS NULL
 		ORDER BY s.site_id;
 	`
 
