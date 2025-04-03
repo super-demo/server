@@ -19,6 +19,16 @@ CREATE TABLE site_users (
     FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );
 
+INSERT INTO site_users (site_id, user_id, site_user_level_id, created_by, updated_by) VALUES
+(1, 2, 3, 1, 1),
+(1, 3, 3, 1, 1),
+(1, 6, 3, 1, 1),
+(1, 7, 3, 1, 1),
+(1, 8, 4, 1, 1),
+(1, 9, 4, 1, 1),
+(1, 10, 5, 1, 1),
+(1, 11, 5, 1, 1);
+
 -- INSERT INTO site_users (site_id, user_id, site_user_level_id, created_by, updated_by) VALUES (1, 1, 1, 1, 1);
 -- INSERT INTO site_users (site_id, user_id, site_user_level_id, created_by, updated_by) VALUES (1, 2, 1, 1, 1);
 -- INSERT INTO site_users (site_id, user_id, site_user_level_id, created_by, updated_by) VALUES (1, 3, 5, 1, 1);

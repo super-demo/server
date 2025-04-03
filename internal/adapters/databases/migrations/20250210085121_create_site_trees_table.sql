@@ -16,11 +16,22 @@ CREATE TABLE site_trees (
     FOREIGN KEY (updated_by) REFERENCES users(user_id)
 );
 
--- INSERT INTO site_trees (site_parent_id, site_child_id, created_by, updated_by) VALUES (1, 2, 1, 1);
--- INSERT INTO site_trees (site_parent_id, site_child_id, created_by, updated_by) VALUES (1, 3, 1, 1);
--- INSERT INTO site_trees (site_parent_id, site_child_id, created_by, updated_by) VALUES (1, 4, 1, 1);
--- INSERT INTO site_trees (site_parent_id, site_child_id, created_by, updated_by) VALUES (2, 5, 1, 1);
--- INSERT INTO site_trees (site_parent_id, site_child_id, created_by, updated_by) VALUES (2, 6, 1, 1);
+INSERT INTO site_trees (site_parent_id, site_child_id, created_by, updated_by) VALUES 
+    (1, 2, 1, 1),  -- Kasetsart University -> Bangkhen Campus
+    (1, 3, 1, 1),  -- Kasetsart University -> Kamphaeng Saen Campus
+    (1, 4, 1, 1),  -- Kasetsart University -> Sriracha Campus
+    (2, 5, 1, 1),  -- Bangkhen Campus -> Science Faculty
+    (2, 6, 1, 1),  -- Bangkhen Campus -> Engineering Faculty
+    (2, 7, 1, 1),  -- Bangkhen Campus -> Agriculture Faculty
+    (2, 8, 1, 1),  -- Bangkhen Campus -> Economics Faculty
+    (2, 9, 1, 1),  -- Bangkhen Campus -> Fisheries Faculty
+    (2, 10, 1, 1), -- Bangkhen Campus -> Forestry Faculty
+    (5, 11, 1, 1), -- Science Faculty -> Computer Science Department
+    (5, 12, 1, 1), -- Science Faculty -> Physics Lab
+    (5, 13, 1, 1), -- Science Faculty -> Chemistry Lab
+    (5, 14, 1, 1), -- Science Faculty -> Biology Research Center
+    (11, 15, 1, 1), -- Computer Science Department -> CS Office
+    (11, 16, 1, 1); -- Computer Science Department -> CS Nisit
 -- +goose StatementEnd
 
 -- +goose Down
